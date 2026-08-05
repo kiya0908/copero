@@ -1,8 +1,45 @@
-export type Phase = 'intro' | 'identity' | 'origin' | 'career' | 'summary'
+export type Phase =
+  | 'intro'
+  | 'identity'
+  | 'draft'
+  | 'draft_result'
+  | 'origin'
+  | 'career'
+  | 'summary'
 export type GameMode = 'long' | 'normal' | 'express'
+export type DraftMode = 'classic' | 'purist'
 export type PlayingRole = 'bench' | 'rotation' | 'starter' | 'undisputed'
 export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LM' | 'RM' | 'LW' | 'RW' | 'ST'
 export type PreferredFoot = 'left' | 'right'
+
+export type AttributeKey =
+  | 'pace'
+  | 'shooting'
+  | 'passing'
+  | 'dribbling'
+  | 'defending'
+  | 'physical'
+  | 'skillMoves'
+  | 'weakFoot'
+
+export type PlayerAttributes = Record<AttributeKey, number>
+
+export type DraftPick = {
+  round: number
+  legendId: string
+  legendName: string
+  attribute: AttributeKey
+  value: number
+}
+
+export type DraftState = {
+  round: number
+  currentLegendId: string | null
+  usedLegendIds: string[]
+  picks: DraftPick[]
+  skipsRemaining: number
+  completed: boolean
+}
 
 export type CareerStage = 'local' | 'regional' | 'continental' | 'elite'
 
@@ -123,6 +160,10 @@ export type Player = {
   heritageNationalityFifa: string | null
   age: number
   overall: number
+  potential: number
+  peakOverall: number
+  attributes: PlayerAttributes
+  draftPicks: DraftPick[]
   marketValue: number
   wealth: number
 }
@@ -252,6 +293,8 @@ export type ActiveEvent =
 export type GameState = {
   phase: Phase
   mode: GameMode
+  draftMode: DraftMode
+  draft: DraftState
   seed: string
   rngState: number
   step: number
