@@ -9,6 +9,7 @@
     "extract": "node scripts/extract-catalog.mjs",
     "mirror:assets": "node scripts/mirror-copero-assets.mjs",
     "lint": "oxlint",
+    "validate:launch": "node scripts/validate-launch.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
