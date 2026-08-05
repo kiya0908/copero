@@ -121,6 +121,60 @@ export function effectiveRole(
   return contracted
 }
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value))
+}
+
+/**
+ * Las cartas del draft representan el techo técnico. Durante la carrera esos valores se
+ * escalan con el OVR actual y luego sufren una caída física más rápida al final de la carrera.
+ */
+export function effectiveAttributesForSeason(
+  attributes: PlayerAttributes = DEFAULT_ATTRIBUTES,
+  overall: number,
+  potential: number,
+  age: number,
+): PlayerAttributes {
+  const denominator = Math.max(1, potential - 45)
+  const progress = clamp((overall - 45) / denominator, 0.28, 1)
+  const lateCareerYears = Math.max(0, age - 31)
+
+  const numeric = (
+    value: number,
+    declinePerYear: number,
+  ) => clamp(Math.round(42 + (value - 42) * progress - lateCareerYears * declinePerYear), 35, 99)
+
+  return {
+    pace: numeric(attributes.pace, 1.65),
+    shooting: numeric(attributes.shooting, 0.45),
+    passing: numeric(attributes.passing, 0.25),
+    dribbling: numeric(attributes.dribbling, 0.75),
+    defending: numeric(attributes.defending, 0.3),
+    physical: numeric(attributes.physical, 1.35),
+    skillMoves: clamp(Math.round(1 + (attributes.skillMoves - 1) * (0.72 + progress * 0.28)), 1, 5),
+    weakFoot: clamp(Math.round(1 + (attributes.weakFoot - 1) * (0.78 + progress * 0.22)), 1, 5),
+  }
+}
+
+function performanceProfile(attributes: PlayerAttributes) {
+  return {
+    finishing:
+      attributes.shooting * 0.5 +
+      attributes.pace * 0.18 +
+      attributes.dribbling * 0.2 +
+      attributes.weakFoot * 2.4,
+    creativity:
+      attributes.passing * 0.52 +
+      attributes.dribbling * 0.25 +
+      attributes.pace * 0.08 +
+      attributes.skillMoves * 2.2,
+    defensiveQuality:
+      attributes.defending * 0.58 +
+      attributes.physical * 0.27 +
+      attributes.passing * 0.08,
+  }
+}
+
 export function simulateSeasonStats(
   position: Position,
   overall: number,
@@ -130,6 +184,8 @@ export function simulateSeasonStats(
   rngState: number,
   clubRep = 2,
   attributes: PlayerAttributes = DEFAULT_ATTRIBUTES,
+  potential = overall,
+  age = 24,
 ) {
   let s = rngState
   if (suspended) return { state: s, stats: emptyStats() }
@@ -142,22 +198,13 @@ export function simulateSeasonStats(
   const rApps = nextRng(s)
   s = rApps.state
   const appearances = Math.max(0, Math.round((16 + rApps.value * 30) * minutesFactor))
+  const effective = effectiveAttributesForSeason(attributes, overall, potential, age)
+  const { finishing, creativity, defensiveQuality } = performanceProfile(effective)
 
   const isGk = position === 'GK'
   const attackingPosition = ['ST', 'LW', 'RW', 'CAM', 'LM', 'RM'].includes(position)
   const midfieldPosition = ['CM', 'CDM', 'CAM', 'LM', 'RM'].includes(position)
-  const finishing =
-    attributes.shooting * 0.5 +
-    attributes.pace * 0.18 +
-    attributes.dribbling * 0.2 +
-    attributes.weakFoot * 2.4
-  const creativity =
-    attributes.passing * 0.52 +
-    attributes.dribbling * 0.25 +
-    attributes.pace * 0.08 +
-    attributes.skillMoves * 2.2
-  const defensiveQuality =
-    attributes.defending * 0.58 + attributes.physical * 0.27 + attributes.passing * 0.08
+  const defensivePosition = ['GK', 'CB', 'LB', 'RB', 'CDM'].includes(position)
 
   const rGoals = nextRng(s)
   s = rGoals.state
@@ -195,11 +242,14 @@ export function simulateSeasonStats(
 
   const rCs = nextRng(s)
   s = rCs.state
-  const cleanSheets = isGk
-    ? Math.round(
-        appearances *
-          (0.11 + defensiveQuality / 520) *
-          (0.72 + rCs.value * 0.48),
+  const cleanSheets = defensivePosition
+    ? Math.max(
+        0,
+        Math.round(
+          appearances *
+            (0.06 + clubRep * 0.018 + defensiveQuality / 650) *
+            (0.72 + rCs.value * 0.48),
+        ),
       )
     : 0
 
@@ -210,13 +260,93 @@ export function simulateSeasonStats(
         0,
         Math.round(
           appearances *
-            (1.55 - defensiveQuality / 125) *
+            (1.58 - defensiveQuality / 130 - clubRep * 0.035) *
             (0.82 + rGc.value * 0.36),
         ),
       )
     : 0
 
   return { state: s, stats: { appearances, goals, assists, cleanSheets, goalsConceded } }
+}
+
+export function simulateInternationalStats(
+  position: Position,
+  overall: number,
+  attributes: PlayerAttributes,
+  potential: number,
+  age: number,
+  rngState: number,
+) {
+  let s = rngState
+  const effective = effectiveAttributesForSeason(attributes, overall, potential, age)
+  const { finishing, creativity, defensiveQuality } = performanceProfile(effective)
+
+  const appsRoll = nextRng(s)
+  s = appsRoll.state
+  const appearances = Math.max(1, Math.round(2 + appsRoll.value * 10))
+  const attackBias = position === 'ST' ? 1.2 : ['LW', 'RW', 'CAM', 'LM', 'RM'].includes(position) ? 0.9 : 0.35
+  const assistBias = position === 'CAM' ? 1.15 : ['CM', 'LM', 'RM', 'LW', 'RW'].includes(position) ? 0.9 : 0.4
+
+  const goalRoll = nextRng(s)
+  s = goalRoll.state
+  const goals = position === 'GK'
+    ? 0
+    : Math.max(
+        0,
+        Math.round(
+          appearances *
+            (overall / 100) *
+            (finishing / 100) *
+            0.42 *
+            attackBias *
+            (0.65 + goalRoll.value * 0.7),
+        ),
+      )
+
+  const assistRoll = nextRng(s)
+  s = assistRoll.state
+  const assists = position === 'GK'
+    ? 0
+    : Math.max(
+        0,
+        Math.round(
+          appearances *
+            (overall / 100) *
+            (creativity / 100) *
+            0.3 *
+            assistBias *
+            (0.65 + assistRoll.value * 0.7),
+        ),
+      )
+
+  const cleanSheetRoll = nextRng(s)
+  s = cleanSheetRoll.state
+  const defensivePosition = ['GK', 'CB', 'LB', 'RB', 'CDM'].includes(position)
+  const cleanSheets = defensivePosition
+    ? Math.round(
+        appearances *
+          (0.1 + defensiveQuality / 560) *
+          (0.7 + cleanSheetRoll.value * 0.45),
+      )
+    : 0
+
+  const concededRoll = nextRng(s)
+  s = concededRoll.state
+  const goalsConceded = position === 'GK'
+    ? Math.max(
+        0,
+        Math.round(
+          appearances *
+            (1.42 - defensiveQuality / 145) *
+            (0.8 + concededRoll.value * 0.35),
+        ),
+      )
+    : 0
+
+  return {
+    state: s,
+    stats: { appearances, goals, assists, cleanSheets, goalsConceded },
+  }
 }
 
 export function formatMoney(value: number): string {
