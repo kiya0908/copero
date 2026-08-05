@@ -2,15 +2,12 @@ import type { CareerEventDef, GameState } from './types'
 
 export const STORAGE_PREFIX = 'simulador:career:play:v2:'
 export const LAST_SAVE_KEY = 'simulador:career:last-save:v2'
+const EVENT_HISTORY_PREFIX = 'simulador:career:event-history:v1:'
 
 export type CareerEventHistoryEntry = {
   eventId: string
   seasonIndex: number
   age: number
-}
-
-type EventAwareGameState = GameState & {
-  eventHistory?: CareerEventHistoryEntry[]
 }
 
 const ONCE_PER_CAREER = new Set([
@@ -64,21 +61,51 @@ const GROUP_COOLDOWNS: Record<string, number> = {
   spotlight: 2,
 }
 
-function parseStoredState(raw: string | null): EventAwareGameState | null {
-  if (!raw) return null
+function parseHistory(raw: string | null): CareerEventHistoryEntry[] {
+  if (!raw) return []
   try {
-    return JSON.parse(raw) as EventAwareGameState
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((entry): entry is CareerEventHistoryEntry => {
+      if (!entry || typeof entry !== 'object') return false
+      const value = entry as Partial<CareerEventHistoryEntry>
+      return (
+        typeof value.eventId === 'string' &&
+        typeof value.seasonIndex === 'number' &&
+        typeof value.age === 'number'
+      )
+    })
   } catch {
-    return null
+    return []
   }
 }
 
-function latestStoredState(): EventAwareGameState | null {
+function readHistory(seed: string): CareerEventHistoryEntry[] {
+  if (typeof localStorage === 'undefined') return []
+  try {
+    return parseHistory(localStorage.getItem(`${EVENT_HISTORY_PREFIX}${seed}`))
+  } catch {
+    return []
+  }
+}
+
+function latestCareerSnapshot(): {
+  seed: string
+  currentSeason: number
+  history: CareerEventHistoryEntry[]
+} | null {
   if (typeof localStorage === 'undefined') return null
   try {
     const seed = localStorage.getItem(LAST_SAVE_KEY)
     if (!seed) return null
-    return parseStoredState(localStorage.getItem(`${STORAGE_PREFIX}${seed}`))
+    const raw = localStorage.getItem(`${STORAGE_PREFIX}${seed}`)
+    if (!raw) return null
+    const stored = JSON.parse(raw) as Pick<GameState, 'seasons'>
+    return {
+      seed,
+      currentSeason: stored.seasons?.length ?? 0,
+      history: readHistory(seed),
+    }
   } catch {
     return null
   }
@@ -119,13 +146,10 @@ function groupIsCoolingDown(
 }
 
 export function filterCareerEventsByCooldown(events: CareerEventDef[]): CareerEventDef[] {
-  const stored = latestStoredState()
-  if (!stored) return events
+  const snapshot = latestCareerSnapshot()
+  if (!snapshot || snapshot.history.length === 0) return events
 
-  const history = stored.eventHistory ?? []
-  if (history.length === 0) return events
-
-  const currentSeason = stored.seasons?.length ?? 0
+  const { currentSeason, history } = snapshot
   const lastEventId = history[history.length - 1]?.eventId
 
   return events.filter((event) => {
@@ -143,41 +167,41 @@ export function filterCareerEventsByCooldown(events: CareerEventDef[]): CareerEv
   })
 }
 
-function historyKey(entry: CareerEventHistoryEntry): string {
-  return `${entry.eventId}:${entry.seasonIndex}`
-}
-
-export function stateWithMergedEventHistory(state: GameState): EventAwareGameState {
-  const runtimeState = state as EventAwareGameState
-  let storedHistory: CareerEventHistoryEntry[] = []
-
-  if (typeof localStorage !== 'undefined') {
-    try {
-      storedHistory =
-        parseStoredState(localStorage.getItem(`${STORAGE_PREFIX}${state.seed}`))?.eventHistory ?? []
-    } catch {
-      storedHistory = []
-    }
+export function recordActiveCareerEvent(state: GameState): void {
+  if (
+    typeof localStorage === 'undefined' ||
+    state.currentEvent?.type !== 'career_choice' ||
+    !state.player
+  ) {
+    return
   }
 
-  const merged = new Map<string, CareerEventHistoryEntry>()
-  for (const entry of [...storedHistory, ...(runtimeState.eventHistory ?? [])]) {
-    merged.set(historyKey(entry), entry)
-  }
-
-  if (state.currentEvent?.type === 'career_choice' && state.player) {
+  try {
+    const history = readHistory(state.seed)
     const entry: CareerEventHistoryEntry = {
       eventId: state.currentEvent.eventId,
       seasonIndex: state.seasons.length,
       age: state.player.age,
     }
-    merged.set(historyKey(entry), entry)
-  }
+    const alreadyRecorded = history.some(
+      (item) => item.eventId === entry.eventId && item.seasonIndex === entry.seasonIndex,
+    )
+    if (alreadyRecorded) return
 
-  return {
-    ...state,
-    eventHistory: [...merged.values()]
-      .sort((a, b) => a.seasonIndex - b.seasonIndex || a.age - b.age)
-      .slice(-64),
+    localStorage.setItem(
+      `${EVENT_HISTORY_PREFIX}${state.seed}`,
+      JSON.stringify([...history, entry].slice(-64)),
+    )
+  } catch {
+    // Ignore storage failures; the game remains playable without cooldown persistence.
+  }
+}
+
+export function clearCareerEventHistory(seed: string): void {
+  if (typeof localStorage === 'undefined') return
+  try {
+    localStorage.removeItem(`${EVENT_HISTORY_PREFIX}${seed}`)
+  } catch {
+    // ignore
   }
 }
