@@ -1,3 +1,4 @@
+import { filterCareerEventsByCooldown } from '../engine/eventCooldown'
 import type { CareerEventDef } from '../engine/types'
 import { REGIONAL_EVENTS } from './regionalCatalog'
 
@@ -178,7 +179,7 @@ export const CAREER_EVENTS: CareerEventDef[] = [
 ]
 
 export function allCareerEvents(): CareerEventDef[] {
-  return [...CAREER_EVENTS, ...REGIONAL_EVENTS]
+  return filterCareerEventsByCooldown([...CAREER_EVENTS, ...REGIONAL_EVENTS])
 }
 
 export function getEventDef(id: string): CareerEventDef | undefined {

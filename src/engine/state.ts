@@ -1,5 +1,11 @@
 import { emptyStats } from './development'
 import { baselineAttributes, createDraftState, emptyAttributes } from './draft'
+import {
+  clearCareerEventHistory,
+  LAST_SAVE_KEY,
+  recordActiveCareerEvent,
+  STORAGE_PREFIX,
+} from './eventCooldown'
 import { createSeed, seedToState } from './rng'
 import type {
   DraftMode,
@@ -10,9 +16,6 @@ import type {
   PreferredFoot,
 } from './types'
 import { START_AGE } from './types'
-
-const STORAGE_PREFIX = 'simulador:career:play:v2:'
-const LAST_SAVE_KEY = 'simulador:career:last-save:v2'
 
 export function createInitialState(
   mode: GameMode = 'long',
@@ -111,6 +114,7 @@ export function createPlayer(
 
 export function saveState(state: GameState) {
   try {
+    recordActiveCareerEvent(state)
     localStorage.setItem(`${STORAGE_PREFIX}${state.seed}`, JSON.stringify(state))
     localStorage.setItem(LAST_SAVE_KEY, state.seed)
   } catch {
@@ -173,6 +177,7 @@ export function loadLatestState(): GameState | null {
 export function clearState(seed: string) {
   try {
     localStorage.removeItem(`${STORAGE_PREFIX}${seed}`)
+    clearCareerEventHistory(seed)
     if (localStorage.getItem(LAST_SAVE_KEY) === seed) localStorage.removeItem(LAST_SAVE_KEY)
   } catch {
     // ignore
