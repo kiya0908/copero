@@ -1,9 +1,10 @@
 import { emptyStats } from './development'
 import { baselineAttributes, createDraftState, emptyAttributes } from './draft'
 import {
+  clearCareerEventHistory,
   LAST_SAVE_KEY,
+  recordActiveCareerEvent,
   STORAGE_PREFIX,
-  stateWithMergedEventHistory,
 } from './eventCooldown'
 import { createSeed, seedToState } from './rng'
 import type {
@@ -113,8 +114,8 @@ export function createPlayer(
 
 export function saveState(state: GameState) {
   try {
-    const persisted = stateWithMergedEventHistory(state)
-    localStorage.setItem(`${STORAGE_PREFIX}${state.seed}`, JSON.stringify(persisted))
+    recordActiveCareerEvent(state)
+    localStorage.setItem(`${STORAGE_PREFIX}${state.seed}`, JSON.stringify(state))
     localStorage.setItem(LAST_SAVE_KEY, state.seed)
   } catch {
     // ignore quota
@@ -176,6 +177,7 @@ export function loadLatestState(): GameState | null {
 export function clearState(seed: string) {
   try {
     localStorage.removeItem(`${STORAGE_PREFIX}${seed}`)
+    clearCareerEventHistory(seed)
     if (localStorage.getItem(LAST_SAVE_KEY) === seed) localStorage.removeItem(LAST_SAVE_KEY)
   } catch {
     // ignore
