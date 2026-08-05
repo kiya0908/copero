@@ -15,6 +15,7 @@ import {
   emptyStats,
   estimateMarketValue,
   nationalCallupChance,
+  simulateInternationalStats,
   simulateSeasonStats,
 } from './development'
 import { competitionAtTier, effectiveCompetitionId } from './league'
@@ -87,6 +88,9 @@ export function simulateOneSeason(state: GameState): {
     injured,
     s,
     clubRep,
+    player.attributes,
+    player.potential,
+    player.age,
   )
   s = statsResult.state
 
@@ -101,8 +105,6 @@ export function simulateOneSeason(state: GameState): {
     const contRoll = nextRng(s)
     s = contRoll.state
 
-    // Clubes chicos casi no ganan; top ganan más. Tier 1 es más difícil.
-    // Tras ascenso en la temporada anterior del mismo club: casi imposible ganar la liga de arriba.
     const lastSeason = state.seasons[state.seasons.length - 1]
     const justPromoted =
       lastSeason?.struggle === 'promoted' && lastSeason.teamId === state.currentTeamId
@@ -122,7 +124,11 @@ export function simulateOneSeason(state: GameState): {
     const wonLeague = !justPromoted && leagueRoll.value < winChance
     if (wonLeague) trophies.push(resolveLeagueTrophy(state.currentTeamId, seasonCompetitionId))
     if (cupRoll.value < winChance * 0.45) trophies.push(resolveDomesticCupTrophy(state.currentTeamId))
-    if (clubRep >= 4 && contRoll.value < 0.02 + (clubRep - 4) * 0.025 + Math.max(0, player.overall - 82) / 400) {
+    if (
+      clubRep >= 4 &&
+      contRoll.value <
+        0.02 + (clubRep - 4) * 0.025 + Math.max(0, player.overall - 82) / 400
+    ) {
       trophies.push(resolveContinentalTrophy(state.currentTeamId))
     }
     if (player.overall >= 90 && leagueRoll.value > 0.96) {
@@ -148,27 +154,21 @@ export function simulateOneSeason(state: GameState): {
     }
   }
 
-  // Convocatoria: solo pending (aceptar/rechazar después)
   let pendingNationalCallup = state.pendingNationalCallup ?? null
   const callChance = nationalCallupChance(player.overall, player.age, clubRep)
   if (callChance > 0 && !pendingNationalCallup) {
     const callRoll = nextRng(s)
     s = callRoll.state
     if (callRoll.value < callChance) {
-      const appsRoll = nextRng(s)
-      s = appsRoll.state
-      const appearances = Math.max(1, Math.round(2 + appsRoll.value * 10))
-      const gRoll = nextRng(s)
-      s = gRoll.state
-      const attackBias = ['ST', 'LW', 'RW', 'CAM', 'LM', 'RM'].includes(player.position) ? 1.2 : 0.55
-      const goals =
-        player.position === 'GK'
-          ? 0
-          : Math.round(appearances * ((player.overall - 70) / 80) * attackBias * (0.4 + gRoll.value))
-      const aRoll = nextRng(s)
-      s = aRoll.state
-      const assists =
-        player.position === 'GK' ? 0 : Math.round(appearances * 0.12 * (0.5 + aRoll.value))
+      const projected = simulateInternationalStats(
+        player.position,
+        player.overall,
+        player.attributes,
+        player.potential,
+        player.age,
+        s,
+      )
+      s = projected.state
 
       let countryFifa = player.nationalityFifa
       let viaHeritage = false
@@ -184,7 +184,7 @@ export function simulateOneSeason(state: GameState): {
 
       pendingNationalCallup = {
         age: player.age,
-        projected: { appearances, goals, assists, cleanSheets: 0, goalsConceded: 0 },
+        projected: projected.stats,
         countryFifa,
         viaHeritage,
       }
@@ -194,6 +194,7 @@ export function simulateOneSeason(state: GameState): {
   const developed = developOverall(state, player.overall + injuryDelta, player.age, role, injured, s)
   s = developed.state
   player.overall = developed.overall
+  player.peakOverall = Math.max(player.peakOverall ?? player.overall, player.overall)
   player.age += 1
   player.marketValue = estimateMarketValue(player.overall, player.age, clubRep)
   player.wealth += state.contract.annualWage
@@ -259,7 +260,6 @@ export function simulateOneSeason(state: GameState): {
     log: [...state.log],
   }
 
-  // Evaluar objetivo del bloque (sobre la última temporada del período se re-evalúa en game)
   const evaluated = evaluateSeasonObjective(next, season)
   if (evaluated) {
     season = {
@@ -280,7 +280,6 @@ export function simulateOneSeason(state: GameState): {
   next = {
     ...next,
     careerStage: deriveCareerStage(next),
-    // Form buffs duran una temporada
     modifiers: next.modifiers.filter((m) => m !== 'form_boost' && m !== 'form_dip'),
   }
 
@@ -318,7 +317,7 @@ export function applyNationalCallup(state: GameState): GameState {
 
   let s = state.rngState
   const player = state.player
-  let nationalTrophies = [...(state.nationalTrophies ?? [])]
+  const nationalTrophies = [...(state.nationalTrophies ?? [])]
   const newTrophies: TrophyWin[] = []
   const callCountryFifa = pending.countryFifa || player.nationalityFifa
   const logLines: string[] = [
@@ -330,7 +329,6 @@ export function applyNationalCallup(state: GameState): GameState {
     const conf = country?.confederation ?? 'UEFA'
     const ntRoll = nextRng(s)
     s = ntRoll.state
-    // ~12–18% en pico (OVR 85+)
     const confChance = 0.12 + Math.min(0.06, (player.overall - 78) / 150)
     if (ntRoll.value < confChance) {
       const cup = resolveNationalTeamTrophy(conf)
@@ -341,7 +339,6 @@ export function applyNationalCallup(state: GameState): GameState {
     if (player.overall >= 85) {
       const wcRoll = nextRng(s)
       s = wcRoll.state
-      // ~4–8% Mundial
       const wcChance = 0.04 + Math.min(0.04, (player.overall - 85) / 200)
       if (wcRoll.value < wcChance) {
         const wc = resolveWorldCupTrophy()
@@ -356,12 +353,17 @@ export function applyNationalCallup(state: GameState): GameState {
   nationalTotals.appearances += pending.projected.appearances
   nationalTotals.goals += pending.projected.goals
   nationalTotals.assists += pending.projected.assists
+  nationalTotals.cleanSheets += pending.projected.cleanSheets
+  nationalTotals.goalsConceded += pending.projected.goalsConceded
 
   return {
     ...state,
     rngState: s,
     pendingNationalCallup: null,
-    nationalTeamPeriods: [...(state.nationalTeamPeriods ?? []), { age: pending.age, stats: pending.projected }],
+    nationalTeamPeriods: [
+      ...(state.nationalTeamPeriods ?? []),
+      { age: pending.age, stats: pending.projected },
+    ],
     nationalTotals,
     nationalTrophies,
     log: [...state.log, ...logLines],
@@ -397,7 +399,6 @@ export function shouldRetire(state: GameState): { retire: boolean; reason: 'age'
     const ruinedAt = state.ruinedAtSeasonIndex
     const seasonsSinceRuin =
       ruinedAt == null ? state.seasons.length : Math.max(0, state.seasons.length - ruinedAt)
-    // Umbral endurecido: OVR ≤ 48, o ≥2 temporadas post-ruina con OVR ≤ 55
     if (
       state.player.age >= 30 &&
       (state.player.overall <= 48 || (seasonsSinceRuin >= 2 && state.player.overall <= 55))
