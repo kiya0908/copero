@@ -34,7 +34,7 @@ import {
   rollOriginClub,
   submitNegotiation,
 } from './engine/game'
-import { clearState, createInitialState, loadLatestState } from './engine/state'
+import { clearState, createInitialState, loadLatestState, saveState } from './engine/state'
 import type {
   DraftMode,
   GameState,
@@ -48,7 +48,11 @@ export default function App() {
   const pendingChoice = useRef<ReturnType<typeof previewCareerChoice> | null>(null)
 
   const update = useCallback((fn: (s: GameState) => GameState) => {
-    setState((prev) => fn(prev))
+    setState((prev) => {
+      const next = fn(prev)
+      saveState(next)
+      return next
+    })
   }, [])
 
   let content: React.ReactNode
@@ -58,7 +62,7 @@ export default function App() {
       <IntroPhase
         draftMode={state.draftMode}
         onDraftModeChange={(draftMode: DraftMode) =>
-          setState((s) => ({ ...s, draftMode, draft: createDraftState(draftMode), mode: 'long' }))
+          update((s) => ({ ...s, draftMode, draft: createDraftState(draftMode), mode: 'long' }))
         }
         onStart={() => update(beginCareer)}
       />
@@ -66,7 +70,7 @@ export default function App() {
   } else if (state.phase === 'identity') {
     content = (
       <IdentityPhase
-        onBack={() => setState((s) => ({ ...s, phase: 'intro' }))}
+        onBack={() => update((s) => ({ ...s, phase: 'intro' }))}
         onSubmit={(input: {
           lastName: string
           preferredNumber: number
@@ -85,7 +89,7 @@ export default function App() {
         onTake={() => update(acceptRecommendedDraftAttribute)}
         onSkip={() => update(rerollDraftLegend)}
         onBack={() =>
-          setState((s) => ({
+          update((s) => ({
             ...s,
             phase: 'identity',
             player: null,
@@ -100,10 +104,11 @@ export default function App() {
     content = (
       <OriginPhase
         state={state}
-        onBack={() => setState((s) => ({ ...s, phase: 'draft_result' }))}
+        onBack={() => update((s) => ({ ...s, phase: 'draft_result' }))}
         onConfirmClub={(teamId) => update((s) => confirmOriginClub(s, teamId))}
         onRoll={() => {
           const rolled = rollOriginClub(state)
+          saveState(rolled.state)
           setState(rolled.state)
           return rolled.teamId
         }}
