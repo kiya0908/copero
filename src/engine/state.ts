@@ -1,5 +1,10 @@
 import { emptyStats } from './development'
 import { baselineAttributes, createDraftState, emptyAttributes } from './draft'
+import {
+  LAST_SAVE_KEY,
+  STORAGE_PREFIX,
+  stateWithMergedEventHistory,
+} from './eventCooldown'
 import { createSeed, seedToState } from './rng'
 import type {
   DraftMode,
@@ -10,9 +15,6 @@ import type {
   PreferredFoot,
 } from './types'
 import { START_AGE } from './types'
-
-const STORAGE_PREFIX = 'simulador:career:play:v2:'
-const LAST_SAVE_KEY = 'simulador:career:last-save:v2'
 
 export function createInitialState(
   mode: GameMode = 'long',
@@ -111,7 +113,8 @@ export function createPlayer(
 
 export function saveState(state: GameState) {
   try {
-    localStorage.setItem(`${STORAGE_PREFIX}${state.seed}`, JSON.stringify(state))
+    const persisted = stateWithMergedEventHistory(state)
+    localStorage.setItem(`${STORAGE_PREFIX}${state.seed}`, JSON.stringify(persisted))
     localStorage.setItem(LAST_SAVE_KEY, state.seed)
   } catch {
     // ignore quota
