@@ -1,0 +1,38 @@
+{
+  "downloadedAt": "2026-07-31T15:27:17.727Z",
+  "ok": 990,
+  "skipped": 0,
+  "fail": 6,
+  "failures": [
+    {
+      "url": "https://media.copero.com.ar/trophies/football/national/BOL/copa-bolivia.png",
+      "status": 403,
+      "kind": "trophy"
+    },
+    {
+      "url": "https://media.copero.com.ar/trophies/football/national/NCA/copa-primera-de-nicaragua.png",
+      "status": 403,
+      "kind": "trophy"
+    },
+    {
+      "url": "https://media.copero.com.ar/trophies/football/national/SLV/copa-presidente.png",
+      "status": 403,
+      "kind": "trophy"
+    },
+    {
+      "url": "https://media.copero.com.ar/trophies/football/national/GUA/supercopa-guatemala.png",
+      "status": 403,
+      "kind": "trophy"
+    },
+    {
+      "url": "https://copero.com.ar/career-simulator/career-events/season_load-double_session-accept.jpg",
+      "status": "html-fallback",
+      "kind": "event"
+    },
+    {
+      "url": "https://copero.com.ar/career-simulator/career-events/season_load-double_session-stay_calm.jpg",
+      "status": "html-fallback",
+      "kind": "event"
+    }
+  ]
+}
