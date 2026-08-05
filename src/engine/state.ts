@@ -1,6 +1,8 @@
-import { emptyStats, startingOverall } from './development'
+import { emptyStats } from './development'
+import { baselineAttributes, createDraftState, emptyAttributes } from './draft'
 import { createSeed, seedToState } from './rng'
 import type {
+  DraftMode,
   GameMode,
   GameState,
   Player,
@@ -9,13 +11,19 @@ import type {
 } from './types'
 import { START_AGE } from './types'
 
-const STORAGE_PREFIX = 'simulador:career:play:v1:'
+const STORAGE_PREFIX = 'simulador:career:play:v2:'
+const LAST_SAVE_KEY = 'simulador:career:last-save:v2'
 
-export function createInitialState(mode: GameMode = 'normal'): GameState {
+export function createInitialState(
+  mode: GameMode = 'long',
+  draftMode: DraftMode = 'classic',
+): GameState {
   const seed = createSeed()
   return {
     phase: 'intro',
     mode,
+    draftMode,
+    draft: createDraftState(draftMode),
     seed,
     rngState: seedToState(seed),
     step: 0,
@@ -52,7 +60,12 @@ export function createInitialState(mode: GameMode = 'normal'): GameState {
 }
 
 export function startIdentity(state: GameState): GameState {
-  return { ...state, phase: 'identity' }
+  return {
+    ...state,
+    phase: 'identity',
+    mode: 'long',
+    draft: createDraftState(state.draftMode),
+  }
 }
 
 export function createPlayer(
@@ -66,7 +79,6 @@ export function createPlayer(
     heritageNationalityFifa?: string | null
   },
 ): GameState {
-  const started = startingOverall(input.position, state.rngState)
   const heritage =
     input.heritageNationalityFifa &&
     input.heritageNationalityFifa !== input.nationalityFifa
@@ -80,14 +92,18 @@ export function createPlayer(
     nationalityFifa: input.nationalityFifa,
     heritageNationalityFifa: heritage,
     age: START_AGE,
-    overall: started.overall,
+    overall: 55,
+    potential: 72,
+    peakOverall: 55,
+    attributes: emptyAttributes(),
+    draftPicks: [],
     marketValue: 250_000,
     wealth: 0,
   }
   return {
     ...state,
-    rngState: started.state,
-    phase: 'origin',
+    phase: 'draft',
+    draft: createDraftState(state.draftMode),
     player,
     step: state.step + 1,
   }
@@ -96,6 +112,7 @@ export function createPlayer(
 export function saveState(state: GameState) {
   try {
     localStorage.setItem(`${STORAGE_PREFIX}${state.seed}`, JSON.stringify(state))
+    localStorage.setItem(LAST_SAVE_KEY, state.seed)
   } catch {
     // ignore quota
   }
@@ -106,9 +123,18 @@ export function loadState(seed: string): GameState | null {
     const raw = localStorage.getItem(`${STORAGE_PREFIX}${seed}`)
     if (!raw) return null
     const parsed = JSON.parse(raw) as GameState
+    const draftMode = parsed.draftMode ?? 'classic'
+    const fallbackDraft = createDraftState(draftMode)
+    const base = createInitialState(parsed.mode ?? 'long', draftMode)
+    const parsedPlayer = parsed.player
+    const migratedAttributes = parsedPlayer?.attributes ?? baselineAttributes()
+    const migratedPotential = parsedPlayer?.potential ?? Math.max(80, parsedPlayer?.overall ?? 80)
     return {
-      ...createInitialState(parsed.mode ?? 'normal'),
+      ...base,
       ...parsed,
+      mode: 'long',
+      draftMode,
+      draft: parsed.draft ?? fallbackDraft,
       traits: parsed.traits ?? [],
       careerStage: parsed.careerStage ?? 'local',
       seasonObjective: parsed.seasonObjective ?? null,
@@ -119,10 +145,14 @@ export function loadState(seed: string): GameState | null {
       formativeTeamId: parsed.formativeTeamId ?? parsed.seasons?.[0]?.teamId ?? null,
       ruinedAtSeasonIndex: parsed.ruinedAtSeasonIndex ?? null,
       teamCompetitionOverrides: parsed.teamCompetitionOverrides ?? {},
-      player: parsed.player
+      player: parsedPlayer
         ? {
-            ...parsed.player,
-            heritageNationalityFifa: parsed.player.heritageNationalityFifa ?? null,
+            ...parsedPlayer,
+            heritageNationalityFifa: parsedPlayer.heritageNationalityFifa ?? null,
+            attributes: migratedAttributes,
+            draftPicks: parsedPlayer.draftPicks ?? [],
+            potential: migratedPotential,
+            peakOverall: parsedPlayer.peakOverall ?? parsedPlayer.overall,
           }
         : null,
     }
@@ -131,9 +161,19 @@ export function loadState(seed: string): GameState | null {
   }
 }
 
+export function loadLatestState(): GameState | null {
+  try {
+    const seed = localStorage.getItem(LAST_SAVE_KEY)
+    return seed ? loadState(seed) : null
+  } catch {
+    return null
+  }
+}
+
 export function clearState(seed: string) {
   try {
     localStorage.removeItem(`${STORAGE_PREFIX}${seed}`)
+    if (localStorage.getItem(LAST_SAVE_KEY) === seed) localStorage.removeItem(LAST_SAVE_KEY)
   } catch {
     // ignore
   }

@@ -1,6 +1,12 @@
 import { nextRng } from './rng'
 import { hasModifier, overallCeil, overallFloor } from './modifiers'
-import type { GameState, PlayingRole, Position, SeasonStats } from './types'
+import type {
+  GameState,
+  PlayerAttributes,
+  PlayingRole,
+  Position,
+  SeasonStats,
+} from './types'
 
 const ROLE_MINUTES: Record<PlayingRole, number> = {
   bench: 0.22,
@@ -9,12 +15,27 @@ const ROLE_MINUTES: Record<PlayingRole, number> = {
   undisputed: 0.95,
 }
 
+const DEFAULT_ATTRIBUTES: PlayerAttributes = {
+  pace: 70,
+  shooting: 70,
+  passing: 70,
+  dribbling: 70,
+  defending: 70,
+  physical: 70,
+  skillMoves: 3,
+  weakFoot: 3,
+}
+
 export function emptyStats(): SeasonStats {
   return { appearances: 0, goals: 0, assists: 0, cleanSheets: 0, goalsConceded: 0 }
 }
 
 export function clampOverall(state: GameState, overall: number): number {
-  return Math.max(overallFloor(state), Math.min(overallCeil(state), Math.round(overall)))
+  const potential = state.player?.potential
+  const ceiling = potential && potential > 0
+    ? Math.min(overallCeil(state), potential)
+    : overallCeil(state)
+  return Math.max(overallFloor(state), Math.min(ceiling, Math.round(overall)))
 }
 
 export function estimateMarketValue(overall: number, age: number, reputation: number): number {
@@ -53,10 +74,10 @@ export function developOverall(
   const a = agingAge(state, age)
 
   let delta = 0
-  if (a <= 19) delta = 1 + Math.floor(r1.value * 2) // +1..+2
-  else if (a <= 22) delta = 1 + Math.floor(r1.value * 2) // +1..+2
-  else if (a <= 25) delta = Math.floor(r1.value * 2) // 0..+1
-  else if (a <= 29) delta = Math.floor(r1.value * 1.5) - 0 // 0..+1 peak
+  if (a <= 19) delta = 1 + Math.floor(r1.value * 2)
+  else if (a <= 22) delta = 1 + Math.floor(r1.value * 2)
+  else if (a <= 25) delta = Math.floor(r1.value * 2)
+  else if (a <= 29) delta = Math.floor(r1.value * 1.5)
   else if (a <= 32) delta = Math.floor(r1.value * 1.2) - 1
   else if (a <= 35) delta = -1 - Math.floor(r1.value * 2)
   else delta = -2 - Math.floor(r1.value * 3)
@@ -72,7 +93,11 @@ export function developOverall(
   if (hasModifier(state, 'form_dip')) delta -= 0.75
   if (hasModifier(state, 'homesick') && a <= 24) delta -= 0.5
 
-  // Soft-cap: subir de 80/88 es mucho más lento
+  const growthRoom = (state.player?.potential ?? 99) - current
+  if (delta > 0 && growthRoom <= 0) delta = 0
+  else if (delta > 0 && growthRoom <= 2) delta *= 0.2
+  else if (delta > 0 && growthRoom <= 5) delta *= 0.5
+
   if (delta > 0 && current >= 88) delta = Math.min(1, delta * 0.25)
   else if (delta > 0 && current >= 80) delta *= 0.5
 
@@ -104,16 +129,13 @@ export function simulateSeasonStats(
   injured: boolean,
   rngState: number,
   clubRep = 2,
+  attributes: PlayerAttributes = DEFAULT_ATTRIBUTES,
 ) {
   let s = rngState
-  if (suspended) {
-    return { state: s, stats: emptyStats() }
-  }
+  if (suspended) return { state: s, stats: emptyStats() }
 
   let minutesFactor = ROLE_MINUTES[role]
   if (injured) minutesFactor *= 0.45
-
-  // Clubes top exigen más: si sos rotación en un 5, menos PJ
   if (clubRep >= 4 && role === 'rotation') minutesFactor *= 0.85
   if (clubRep <= 2 && role === 'starter') minutesFactor = Math.min(0.95, minutesFactor + 0.08)
 
@@ -122,35 +144,79 @@ export function simulateSeasonStats(
   const appearances = Math.max(0, Math.round((16 + rApps.value * 30) * minutesFactor))
 
   const isGk = position === 'GK'
-  const attackBias = ['ST', 'LW', 'RW', 'CAM', 'LM', 'RM'].includes(position) ? 1.35 : 0.7
+  const attackingPosition = ['ST', 'LW', 'RW', 'CAM', 'LM', 'RM'].includes(position)
+  const midfieldPosition = ['CM', 'CDM', 'CAM', 'LM', 'RM'].includes(position)
+  const finishing =
+    attributes.shooting * 0.5 +
+    attributes.pace * 0.18 +
+    attributes.dribbling * 0.2 +
+    attributes.weakFoot * 2.4
+  const creativity =
+    attributes.passing * 0.52 +
+    attributes.dribbling * 0.25 +
+    attributes.pace * 0.08 +
+    attributes.skillMoves * 2.2
+  const defensiveQuality =
+    attributes.defending * 0.58 + attributes.physical * 0.27 + attributes.passing * 0.08
+
   const rGoals = nextRng(s)
   s = rGoals.state
+  const goalBias = position === 'ST' ? 1.35 : attackingPosition ? 0.95 : midfieldPosition ? 0.48 : 0.16
   const goals = isGk
     ? 0
-    : Math.round(((overall - 45) / 12) * appearances * 0.045 * attackBias * (0.6 + rGoals.value))
+    : Math.max(
+        0,
+        Math.round(
+          appearances *
+            ((overall - 42) / 100) *
+            (finishing / 100) *
+            0.44 *
+            goalBias *
+            (0.72 + rGoals.value * 0.58),
+        ),
+      )
 
   const rAssists = nextRng(s)
   s = rAssists.state
+  const assistBias = position === 'CAM' ? 1.25 : ['CM', 'LM', 'RM', 'LW', 'RW'].includes(position) ? 1 : 0.52
   const assists = isGk
     ? 0
-    : Math.round(((overall - 45) / 14) * appearances * 0.035 * (0.5 + rAssists.value))
+    : Math.max(
+        0,
+        Math.round(
+          appearances *
+            ((overall - 42) / 105) *
+            (creativity / 100) *
+            0.35 *
+            assistBias *
+            (0.7 + rAssists.value * 0.6),
+        ),
+      )
 
   const rCs = nextRng(s)
   s = rCs.state
   const cleanSheets = isGk
-    ? Math.round(appearances * (0.15 + (overall - 50) / 200) * (0.7 + rCs.value * 0.5))
+    ? Math.round(
+        appearances *
+          (0.11 + defensiveQuality / 520) *
+          (0.72 + rCs.value * 0.48),
+      )
     : 0
 
   const rGc = nextRng(s)
   s = rGc.state
   const goalsConceded = isGk
-    ? Math.round(appearances * (1.4 - (overall - 50) / 80) * (0.8 + rGc.value * 0.4))
+    ? Math.max(
+        0,
+        Math.round(
+          appearances *
+            (1.55 - defensiveQuality / 125) *
+            (0.82 + rGc.value * 0.36),
+        ),
+      )
     : 0
 
-  return {
-    state: s,
-    stats: { appearances, goals, assists, cleanSheets, goalsConceded },
-  }
+  return { state: s, stats: { appearances, goals, assists, cleanSheets, goalsConceded } }
 }
 
 export function formatMoney(value: number): string {

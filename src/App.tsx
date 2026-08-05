@@ -1,9 +1,19 @@
 import { useCallback, useRef, useState } from 'react'
 import { CareerPhase } from './components/phases/CareerPhase'
+import { DraftPhase } from './components/phases/DraftPhase'
+import { DraftResultPhase } from './components/phases/DraftResultPhase'
 import { IdentityPhase } from './components/phases/IdentityPhase'
 import { IntroPhase } from './components/phases/IntroPhase'
 import { OriginPhase } from './components/phases/OriginPhase'
 import { SummaryPhase } from './components/phases/SummaryPhase'
+import type { ChoiceSpinResult } from './components/ui/EventChoiceCards'
+import {
+  acceptRecommendedDraftAttribute,
+  continueFromDraftResult,
+  createDraftState,
+  initializeDraft,
+  rerollDraftLegend,
+} from './engine/draft'
 import {
   acceptOffer,
   afterSeasonContinue,
@@ -19,21 +29,30 @@ import {
   openNegotiation,
   previewCareerChoice,
   rejectOffers,
-  rollOriginClub,
-  submitNegotiation,
   respondNationalCallup,
   respondYouthLoanChoice,
+  rollOriginClub,
+  submitNegotiation,
 } from './engine/game'
-import { createInitialState } from './engine/state'
-import type { GameMode, GameState, Position, PreferredFoot, TraitId } from './engine/types'
-import type { ChoiceSpinResult } from './components/ui/EventChoiceCards'
+import { clearState, createInitialState, loadLatestState, saveState } from './engine/state'
+import type {
+  DraftMode,
+  GameState,
+  Position,
+  PreferredFoot,
+  TraitId,
+} from './engine/types'
 
 export default function App() {
-  const [state, setState] = useState<GameState>(() => createInitialState('normal'))
+  const [state, setState] = useState<GameState>(() => loadLatestState() ?? createInitialState('long'))
   const pendingChoice = useRef<ReturnType<typeof previewCareerChoice> | null>(null)
 
   const update = useCallback((fn: (s: GameState) => GameState) => {
-    setState((prev) => fn(prev))
+    setState((prev) => {
+      const next = fn(prev)
+      saveState(next)
+      return next
+    })
   }, [])
 
   let content: React.ReactNode
@@ -41,15 +60,17 @@ export default function App() {
   if (state.phase === 'intro') {
     content = (
       <IntroPhase
-        mode={state.mode}
-        onModeChange={(mode: GameMode) => setState((s) => ({ ...s, mode }))}
+        draftMode={state.draftMode}
+        onDraftModeChange={(draftMode: DraftMode) =>
+          update((s) => ({ ...s, draftMode, draft: createDraftState(draftMode), mode: 'long' }))
+        }
         onStart={() => update(beginCareer)}
       />
     )
   } else if (state.phase === 'identity') {
     content = (
       <IdentityPhase
-        onBack={() => setState((s) => ({ ...s, phase: 'intro' }))}
+        onBack={() => update((s) => ({ ...s, phase: 'intro' }))}
         onSubmit={(input: {
           lastName: string
           preferredNumber: number
@@ -57,29 +78,51 @@ export default function App() {
           position: Position
           nationalityFifa: string
           heritageNationalityFifa: string | null
-        }) => update((s) => confirmIdentity(s, input))}
+        }) => update((s) => initializeDraft(confirmIdentity(s, input)))}
       />
     )
+  } else if (state.phase === 'draft' && state.player) {
+    content = (
+      <DraftPhase
+        state={state}
+        onEnsureLegend={() => update(initializeDraft)}
+        onTake={() => update(acceptRecommendedDraftAttribute)}
+        onSkip={() => update(rerollDraftLegend)}
+        onBack={() =>
+          update((s) => ({
+            ...s,
+            phase: 'identity',
+            player: null,
+            draft: createDraftState(s.draftMode),
+          }))
+        }
+      />
+    )
+  } else if (state.phase === 'draft_result' && state.player) {
+    content = <DraftResultPhase state={state} onContinue={() => update(continueFromDraftResult)} />
   } else if (state.phase === 'origin' && state.player) {
     content = (
       <OriginPhase
         state={state}
-        onBack={() => setState((s) => ({ ...s, phase: 'identity', player: null }))}
+        onBack={() => update((s) => ({ ...s, phase: 'draft_result' }))}
         onConfirmClub={(teamId) => update((s) => confirmOriginClub(s, teamId))}
         onRoll={() => {
           const rolled = rollOriginClub(state)
+          saveState(rolled.state)
           setState(rolled.state)
           return rolled.teamId
         }}
       />
     )
   } else if (state.phase === 'summary' || state.currentEvent?.type === 'retire') {
-    const summaryState =
-      state.phase === 'summary' ? state : { ...state, phase: 'summary' as const }
+    const summaryState = state.phase === 'summary' ? state : { ...state, phase: 'summary' as const }
     content = (
       <SummaryPhase
         state={summaryState}
-        onReplay={() => setState(createInitialState(state.mode))}
+        onReplay={() => {
+          clearState(state.seed)
+          setState(createInitialState('long', state.draftMode))
+        }}
       />
     )
   } else {
