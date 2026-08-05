@@ -31,7 +31,6 @@ import {
   rejectOffers,
   respondNationalCallup,
   respondYouthLoanChoice,
-  rollOriginClub,
   submitNegotiation,
 } from './engine/game'
 import { clearState, createInitialState, loadLatestState, saveState } from './engine/state'
@@ -106,12 +105,6 @@ export default function App() {
         state={state}
         onBack={() => update((s) => ({ ...s, phase: 'draft_result' }))}
         onConfirmClub={(teamId) => update((s) => confirmOriginClub(s, teamId))}
-        onRoll={() => {
-          const rolled = rollOriginClub(state)
-          saveState(rolled.state)
-          setState(rolled.state)
-          return rolled.teamId
-        }}
       />
     )
   } else if (state.phase === 'summary' || state.currentEvent?.type === 'retire') {

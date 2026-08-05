@@ -1,5 +1,9 @@
-import { getCompetition } from '../data/catalog'
-import type { PlayingRole, Team } from './types'
+import {
+  academyTeamsForCountry,
+  getCompetition,
+  teams,
+} from '../data/catalog'
+import type { GameState, PlayingRole, Team } from './types'
 
 /** Delta de OVR al firmar en un club de origen (+/- según tier y rol). */
 export function originOvrDelta(
@@ -46,4 +50,184 @@ export function academyStartRole(team: Team | undefined, rng: number): PlayingRo
   if (rep >= 4) return rng > 0.45 ? 'rotation' : 'bench'
   if (rep >= 3) return rng > 0.5 ? 'rotation' : 'starter'
   return 'starter'
+}
+
+function hashString(value: string): number {
+  let hash = 2166136261
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return hash >>> 0
+}
+
+function seededNoise(seed: string, teamId: string, salt: string): number {
+  return hashString(`${seed}:${teamId}:${salt}`) / 0xffffffff
+}
+
+function uniqueTeams(list: Team[]): Team[] {
+  const seen = new Set<string>()
+  return list.filter((team) => {
+    if (seen.has(team.id)) return false
+    seen.add(team.id)
+    return true
+  })
+}
+
+function chooseTeam(
+  pool: Team[],
+  used: Set<string>,
+  seed: string,
+  salt: string,
+  targetRep: number,
+  preferLowerDivision = false,
+): Team | undefined {
+  return pool
+    .filter((team) => !used.has(team.id))
+    .map((team) => {
+      const tier = getCompetition(team.competition_id)?.tier ?? 1
+      const repDistance = Math.abs(team.international_reputation - targetRep)
+      const divisionBonus = preferLowerDivision && tier >= 2 ? 24 : 0
+      const variety = seededNoise(seed, team.id, salt) * 18
+      return {
+        team,
+        score: 120 - repDistance * 35 + divisionBonus + variety,
+      }
+    })
+    .sort((a, b) => b.score - a.score)[0]?.team
+}
+
+/**
+ * Devuelve tres opciones estables para la misma partida: desarrollo, equilibrio y ambición.
+ * No consume el RNG del juego, por lo que refrescar no altera las opciones ni el resto de la carrera.
+ */
+export function originClubChoices(state: GameState): Team[] {
+  const player = state.player
+  if (!player) return []
+
+  const localTeams = teams.filter((team) => team.country_fifa_code === player.nationalityFifa)
+  const fallback = academyTeamsForCountry(player.nationalityFifa)
+  const source = uniqueTeams(localTeams.length >= 3 ? localTeams : [...localTeams, ...fallback])
+  if (source.length === 0) return []
+
+  const maxRep = player.potential >= 92 ? 4 : player.potential >= 84 ? 3 : 2
+  const eligible = source.filter((team) => team.international_reputation <= maxRep)
+  const pool = eligible.length >= 3 ? eligible : source
+  const used = new Set<string>()
+  const picks: Team[] = []
+
+  const developmentPool = pool.filter((team) => {
+    const tier = getCompetition(team.competition_id)?.tier ?? 1
+    return team.international_reputation <= 1 || tier >= 2
+  })
+  const balancedPool = pool.filter(
+    (team) => team.international_reputation >= 2 && team.international_reputation <= 3,
+  )
+  const ambitiousPool = pool.filter(
+    (team) => team.international_reputation >= Math.max(2, maxRep - 1),
+  )
+
+  const slots: Array<{
+    pool: Team[]
+    salt: string
+    targetRep: number
+    lowerDivision?: boolean
+  }> = [
+    {
+      pool: developmentPool.length ? developmentPool : pool,
+      salt: 'development',
+      targetRep: 1,
+      lowerDivision: true,
+    },
+    {
+      pool: balancedPool.length ? balancedPool : pool,
+      salt: 'balanced',
+      targetRep: Math.min(2, maxRep),
+    },
+    {
+      pool: ambitiousPool.length ? ambitiousPool : pool,
+      salt: 'ambitious',
+      targetRep: maxRep,
+    },
+  ]
+
+  for (const slot of slots) {
+    const team = chooseTeam(
+      slot.pool,
+      used,
+      state.seed,
+      slot.salt,
+      slot.targetRep,
+      slot.lowerDivision,
+    )
+    if (team) {
+      picks.push(team)
+      used.add(team.id)
+    }
+  }
+
+  if (picks.length < 3) {
+    const remaining = pool
+      .filter((team) => !used.has(team.id))
+      .sort(
+        (a, b) =>
+          seededNoise(state.seed, b.id, 'fallback') -
+          seededNoise(state.seed, a.id, 'fallback'),
+      )
+    for (const team of remaining) {
+      picks.push(team)
+      if (picks.length === 3) break
+    }
+  }
+
+  return picks.slice(0, 3)
+}
+
+export type OriginChoicePreview = {
+  role: PlayingRole
+  minutes: string
+  growth: string
+  trophies: string
+  risk: string
+}
+
+export function originChoicePreview(team: Team): OriginChoicePreview {
+  const rep = team.international_reputation ?? 1
+  const tier = getCompetition(team.competition_id)?.tier ?? 1
+  const role = academyStartRole(team, 0.5)
+
+  if (rep >= 4) {
+    return {
+      role,
+      minutes: 'Pocos minutos al inicio',
+      growth: 'Entrenamiento de élite',
+      trophies: 'Probabilidad alta',
+      risk: 'Podés quedar en el banco',
+    }
+  }
+  if (rep === 3) {
+    return {
+      role,
+      minutes: 'Rotación con opciones',
+      growth: 'Buen escaparate',
+      trophies: 'Probabilidad media',
+      risk: 'Competencia exigente',
+    }
+  }
+  if (tier >= 2 || rep <= 1) {
+    return {
+      role,
+      minutes: 'Titularidad probable',
+      growth: 'Muchos minutos',
+      trophies: 'Probabilidad baja',
+      risk: 'Menor exposición',
+    }
+  }
+  return {
+    role,
+    minutes: 'Minutos regulares',
+    growth: 'Desarrollo equilibrado',
+    trophies: 'Probabilidad media-baja',
+    risk: 'Progreso gradual',
+  }
 }
