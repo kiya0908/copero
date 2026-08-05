@@ -13,19 +13,26 @@
       content="copero, copero game, copero online, copero simulator, simulador de carrera futbolística, football career simulator"
     />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://copero.top/" />
+
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_ES" />
+    <meta property="og:site_name" content="Copero" />
+    <meta property="og:url" content="https://copero.top/" />
     <meta property="og:title" content="Copero Game Online · Football Career Simulator" />
     <meta
       property="og:description"
       content="Completá un draft de ocho atributos y convertí a tu jugador en una leyenda del fútbol."
     />
-    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:domain" content="copero.top" />
     <meta name="twitter:title" content="Copero Game Online" />
     <meta
       name="twitter:description"
       content="Draft de leyendas, carrera futbolística, transferencias, títulos y una calificación final de D a S."
     />
+
     <meta name="theme-color" content="#050505" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,14 +43,40 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Copero Football Career Simulator",
-        "applicationCategory": "GameApplication",
-        "operatingSystem": "Any",
-        "browserRequirements": "Requires JavaScript",
-        "inLanguage": "es",
-        "isAccessibleForFree": true,
-        "description": "Juego online de draft de atributos y simulación de carrera futbolística."
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://copero.top/#website",
+            "url": "https://copero.top/",
+            "name": "Copero",
+            "inLanguage": "es",
+            "publisher": {
+              "@id": "https://copero.top/#organization"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://copero.top/#organization",
+            "name": "Copero",
+            "url": "https://copero.top/",
+            "email": "support@copero.top"
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://copero.top/#game",
+            "url": "https://copero.top/",
+            "name": "Copero Football Career Simulator",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "browserRequirements": "Requires JavaScript",
+            "inLanguage": "es",
+            "isAccessibleForFree": true,
+            "description": "Juego online de draft de atributos y simulación de carrera futbolística.",
+            "publisher": {
+              "@id": "https://copero.top/#organization"
+            }
+          }
+        ]
       }
     </script>
     <title>Copero Game Online · Football Career Simulator</title>

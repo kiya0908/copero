@@ -164,6 +164,18 @@ export function IntroPhase({
           </div>
         </div>
       </section>
+
+      <footer className="border-t border-white/10 px-4 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 copero.top · Simulador independiente de carrera futbolística.</p>
+          <a
+            href="mailto:support@copero.top"
+            className="font-semibold text-white/60 transition hover:text-white"
+          >
+            support@copero.top
+          </a>
+        </div>
+      </footer>
     </main>
   )
 }

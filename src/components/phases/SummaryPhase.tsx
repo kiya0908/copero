@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { getTeam } from '../../data/catalog'
 import { stageLabel } from '../../engine/careerPath'
 import { formatMoney } from '../../engine/development'
@@ -7,6 +8,7 @@ import { calculateCareerRating } from '../../engine/rating'
 import { buildCareerTimeline, timelineHeadline } from '../../engine/timeline'
 import type { AttributeKey, GameState } from '../../engine/types'
 import { t } from '../../i18n/es'
+import { trackGameEvent, trackGameEventOnce } from '../../lib/analytics'
 import { PlayerShell } from '../ui/PlayerShell'
 import { TrophyIcon } from '../ui/TrophyIcon'
 
@@ -82,7 +84,32 @@ export function SummaryPhase({
   onReplay: () => void
 }) {
   const player = state.player
-  if (!player) return null
+  const careerRating = player ? calculateCareerRating(state) : null
+
+  useEffect(() => {
+    if (!player || !careerRating) return
+    const peakOverall = Math.max(
+      player.peakOverall ?? player.overall,
+      player.overall,
+      ...state.seasons.map((season) => season.overall),
+      0,
+    )
+    const trophyCount =
+      state.seasons.reduce((total, season) => total + season.trophies.length, 0) +
+      (state.nationalTrophies?.length ?? 0)
+
+    trackGameEventOnce(`career_finished:${state.seed}`, 'career_finished', {
+      grade: careerRating.grade,
+      score: careerRating.score,
+      position: player.position,
+      seasons: state.seasons.length,
+      peak_overall: peakOverall,
+      potential: player.potential,
+      trophies: trophyCount,
+    })
+  }, [careerRating, player, state.nationalTrophies, state.seed, state.seasons])
+
+  if (!player || !careerRating) return null
 
   const peakOvr = Math.max(
     player.peakOverall ?? player.overall,
@@ -94,7 +121,7 @@ export function SummaryPhase({
   const allTrophies = [...clubTrophies, ...(state.nationalTrophies ?? [])]
   const trophies = allTrophies.length
   const objectivesOk = (state.objectiveHistory ?? []).filter((o) => o.completed).length
-  const rating = calculateCareerRating(state)
+  const rating = careerRating
   const timeline = buildCareerTimeline(state)
   const defensivePosition = ['GK', 'CB', 'LB', 'RB', 'CDM'].includes(player.position)
   const fileBase = player.lastName.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'copero'
@@ -147,12 +174,22 @@ export function SummaryPhase({
     const png = await createPng()
     if (png) {
       downloadBlob(png, `${fileBase}-career-card.png`)
+      trackGameEvent('result_card_downloaded', {
+        format: 'png',
+        grade: rating.grade,
+        position: player.position,
+      })
       return
     }
     downloadBlob(
       new Blob([buildCardSvg()], { type: 'image/svg+xml;charset=utf-8' }),
       `${fileBase}-career-card.svg`,
     )
+    trackGameEvent('result_card_downloaded', {
+      format: 'svg_fallback',
+      grade: rating.grade,
+      position: player.position,
+    })
   }
 
   const share = async () => {
@@ -167,6 +204,11 @@ export function SummaryPhase({
               text,
               files: [file],
             })
+            trackGameEvent('result_shared', {
+              method: 'native_file',
+              grade: rating.grade,
+              position: player.position,
+            })
             return
           } catch {
             // El usuario puede cerrar la hoja nativa de compartir.
@@ -175,12 +217,22 @@ export function SummaryPhase({
       }
       try {
         await navigator.share({ title: `${player.lastName} · Copero`, text })
+        trackGameEvent('result_shared', {
+          method: 'native_text',
+          grade: rating.grade,
+          position: player.position,
+        })
         return
       } catch {
         // Fallback al portapapeles.
       }
     }
     await copy()
+    trackGameEvent('result_shared', {
+      method: 'clipboard',
+      grade: rating.grade,
+      position: player.position,
+    })
   }
 
   const left = (

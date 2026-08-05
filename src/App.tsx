@@ -41,6 +41,7 @@ import type {
   PreferredFoot,
   TraitId,
 } from './engine/types'
+import { trackGameEvent } from './lib/analytics'
 
 export default function App() {
   const [state, setState] = useState<GameState>(() => loadLatestState() ?? createInitialState('long'))
@@ -63,7 +64,10 @@ export default function App() {
         onDraftModeChange={(draftMode: DraftMode) =>
           update((s) => ({ ...s, draftMode, draft: createDraftState(draftMode), mode: 'long' }))
         }
-        onStart={() => update(beginCareer)}
+        onStart={() => {
+          trackGameEvent('game_started', { draft_mode: state.draftMode })
+          update(beginCareer)
+        }}
       />
     )
   } else if (state.phase === 'identity') {
@@ -77,7 +81,15 @@ export default function App() {
           position: Position
           nationalityFifa: string
           heritageNationalityFifa: string | null
-        }) => update((s) => initializeDraft(confirmIdentity(s, input)))}
+        }) => {
+          trackGameEvent('identity_completed', {
+            position: input.position,
+            nationality: input.nationalityFifa,
+            preferred_foot: input.preferredFoot,
+            has_heritage_nationality: Boolean(input.heritageNationalityFifa),
+          })
+          update((s) => initializeDraft(confirmIdentity(s, input)))
+        }}
       />
     )
   } else if (state.phase === 'draft' && state.player) {
@@ -85,8 +97,28 @@ export default function App() {
       <DraftPhase
         state={state}
         onEnsureLegend={() => update(initializeDraft)}
-        onTake={() => update(acceptRecommendedDraftAttribute)}
-        onSkip={() => update(rerollDraftLegend)}
+        onTake={() => {
+          const round = state.draft.picks.length + 1
+          trackGameEvent('draft_round_completed', {
+            round,
+            draft_mode: state.draftMode,
+            position: state.player?.position,
+          })
+          if (round >= 8) {
+            trackGameEvent('draft_completed', {
+              draft_mode: state.draftMode,
+              position: state.player?.position,
+            })
+          }
+          update(acceptRecommendedDraftAttribute)
+        }}
+        onSkip={() => {
+          trackGameEvent('draft_legend_skipped', {
+            round: state.draft.round,
+            skips_remaining: Math.max(0, state.draft.skipsRemaining - 1),
+          })
+          update(rerollDraftLegend)
+        }}
         onBack={() =>
           update((s) => ({
             ...s,
@@ -104,7 +136,14 @@ export default function App() {
       <OriginPhase
         state={state}
         onBack={() => update((s) => ({ ...s, phase: 'draft_result' }))}
-        onConfirmClub={(teamId) => update((s) => confirmOriginClub(s, teamId))}
+        onConfirmClub={(teamId) => {
+          trackGameEvent('origin_club_selected', {
+            team_id: teamId,
+            position: state.player?.position,
+            potential: state.player?.potential,
+          })
+          update((s) => confirmOriginClub(s, teamId))
+        }}
       />
     )
   } else if (state.phase === 'summary' || state.currentEvent?.type === 'retire') {
@@ -113,6 +152,10 @@ export default function App() {
       <SummaryPhase
         state={summaryState}
         onReplay={() => {
+          trackGameEvent('career_restarted', {
+            seasons: state.seasons.length,
+            position: state.player?.position,
+          })
           clearState(state.seed)
           setState(createInitialState('long', state.draftMode))
         }}
@@ -122,7 +165,22 @@ export default function App() {
     content = (
       <CareerPhase
         state={state}
-        onAcceptOffer={(id) => update((s) => acceptOffer(s, id))}
+        onAcceptOffer={(id) => {
+          const offer =
+            state.pendingOffers.find((item) => item.id === id) ??
+            (state.currentEvent?.type === 'offer'
+              ? state.currentEvent.offers.find((item) => item.id === id)
+              : undefined)
+          if (offer?.kind === 'transfer') {
+            trackGameEvent('transfer_offer_accepted', {
+              team_id: offer.teamId,
+              role: offer.role,
+              transfer_fee: offer.transferFee,
+              season: state.seasons.length,
+            })
+          }
+          update((s) => acceptOffer(s, id))
+        }}
         onRejectOffers={() => update(rejectOffers)}
         onNegotiate={(id) => update((s) => openNegotiation(s, id))}
         onSubmitNegotiation={(ask) => update((s) => submitNegotiation(s, ask))}
@@ -141,7 +199,22 @@ export default function App() {
           if (!preview) return
           setState(commitCareerChoiceResult(preview.resolved))
         }}
-        onContinueSeason={() => update(afterSeasonContinue)}
+        onContinueSeason={() => {
+          if (state.currentEvent?.type === 'season_result') {
+            const season = state.currentEvent.season
+            trackGameEvent('season_completed', {
+              season: season.index + 1,
+              age: season.age,
+              team_id: season.teamId,
+              overall: season.overall,
+              appearances: season.stats.appearances,
+              goals: season.stats.goals,
+              assists: season.stats.assists,
+              trophies: season.trophies.length,
+            })
+          }
+          update(afterSeasonContinue)
+        }}
         onDismissCelebration={() => update(dismissCelebration)}
         onDismissObjective={() => update(dismissObjectiveBriefing)}
         onRetire={() => update(goToSummary)}
