@@ -1,7 +1,7 @@
 import { Navigate, Outlet, Route, Routes, useParams } from 'react-router-dom'
-import App from '../App'
 import { NotFoundPage } from '../components/pages/NotFoundPage'
 import { HomePage } from '../pages/HomePage'
+import { GamePage } from '../pages/GamePage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 
 function LocaleLayout() {
@@ -23,7 +23,7 @@ export function AppRouter() {
       <Route path="/game" element={<Navigate to={`/${DEFAULT_LOCALE}/game`} replace />} />
       <Route path="/:locale" element={<LocaleLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="game" element={<App />} />
+        <Route path="game" element={<GamePage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
