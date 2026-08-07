@@ -17,6 +17,10 @@ const assertions = [
   ['root HTML is noindex fallback', files.index.includes('<meta name="robots" content="noindex, follow"')],
   ['root redirects permanently to Spanish', files.redirects.includes('/ /es/ 301')],
   ['legacy game redirects permanently to Spanish', files.redirects.includes('/game /es/game 301')],
+  ...infoPages.map((page) => [
+    `root ${page} redirects permanently to Spanish`,
+    files.redirects.includes(`/${page} /es/${page} 301`),
+  ]),
   ['robots sitemap', files.robots.includes('Sitemap: https://copero.top/sitemap.xml')],
   ['Spanish sitemap homepage', files.sitemap.includes('<loc>https://copero.top/es/</loc>')],
   ['English sitemap homepage', files.sitemap.includes('<loc>https://copero.top/en/</loc>')],
