@@ -4,6 +4,7 @@ import { ATTRIBUTE_LABELS, ATTRIBUTE_ORDER, recommendedAttribute } from '../../e
 import type { AttributeKey, GameState } from '../../engine/types'
 import { useI18n } from '../../i18n/config'
 import type { GameTranslate } from '../../i18n/game'
+import { EmptyState, GameBadge, GameButton, Metric, SectionEyebrow, SectionTitle, StatusPanel, Surface } from '../ui/Primitives'
 
 function valueText(key: AttributeKey, value: number): string {
   if (key === 'skillMoves' || key === 'weakFoot') return `${value}★`
@@ -37,41 +38,39 @@ export function DraftPhase({
   const playerName = state.player?.lastName || gameT('common.playerFallback')
 
   return (
-    <section className="mx-auto min-h-screen max-w-6xl px-4 py-8">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-violet-300">
-            {gameT('draft.eyebrow')}
-          </p>
-          <h1 className="mt-1 text-3xl font-black text-white">
+    <section className="game-grid-shell min-h-screen">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div className="max-w-2xl">
+          <SectionEyebrow>{gameT('draft.eyebrow')}</SectionEyebrow>
+          <SectionTitle as="h1" className="mt-2">
             {gameT('draft.round', {
               round: state.draft.picks.length + 1,
               total: ATTRIBUTE_ORDER.length,
             })}
-          </h1>
-          <p className="mt-1 text-sm text-white/50">{gameT('draft.body')}</p>
+          </SectionTitle>
+          <p className="mt-3 text-sm leading-relaxed text-[color:var(--copero-muted)]">{gameT('draft.body')}</p>
         </div>
-        <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white/70">
+        <GameBadge tone={isPurist ? 'gold' : 'accent'} mono>
           {isPurist
             ? gameT('draft.puristBadge')
             : gameT('draft.classicBadge', { count: state.draft.skipsRemaining })}
-        </div>
+        </GameBadge>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1.05fr_.95fr]">
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-violet-700/45 via-black to-blue-950 p-6 shadow-2xl">
-          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-fuchsia-500/20 blur-3xl" />
+      <div className="grid gap-5 lg:grid-cols-[1.08fr_.92fr]">
+        <Surface tone="gold" className="relative overflow-hidden p-6 sm:p-7 game-gold-glow">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[color:color-mix(in_oklch,var(--copero-gold)_12%,transparent)] blur-3xl" />
           {legend ? (
             <div className="relative">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/45">
-                    {legend.country} · {legend.era}
+                  <GameBadge tone="neutral" mono>{legend.country} · {legend.era}</GameBadge>
+                  <SectionTitle as="h2" className="mt-3">{legend.name}</SectionTitle>
+                  <p className="mt-2 font-[family-name:var(--copero-font-mono)] text-xs text-[color:var(--copero-muted)]">
+                    {legend.positions.join(' · ')}
                   </p>
-                  <h2 className="mt-2 text-4xl font-black text-white">{legend.name}</h2>
-                  <p className="mt-2 text-sm text-white/55">{legend.positions.join(' · ')}</p>
                 </div>
-                <div className="grid h-24 w-24 place-items-center rounded-3xl border border-white/15 bg-white/10 text-4xl font-black text-white shadow-xl">
+                <div className="game-icon-tile h-24 w-24 rounded-[22px] border-[color:color-mix(in_oklch,var(--copero-gold)_26%,var(--copero-border))] font-[family-name:var(--copero-font-display)] text-4xl font-black text-[color:var(--copero-gold)]">
                   {legend.name
                     .split(' ')
                     .map((part) => part[0])
@@ -85,109 +84,94 @@ export function DraftPhase({
                   const locked = selected.has(key)
                   const highlighted = recommended === key
                   return (
-                    <div
+                    <Metric
                       key={key}
-                      className={`rounded-2xl border px-3 py-3 ${
-                        locked
-                          ? 'border-white/5 bg-black/35 opacity-35'
-                          : highlighted && !isPurist
-                            ? 'border-emerald-300/70 bg-emerald-400/15'
-                            : 'border-white/10 bg-black/30'
-                      }`}
-                    >
-                      <div className="text-[10px] font-black uppercase tracking-wider text-white/45">
-                        {ATTRIBUTE_LABELS[key].short}
-                      </div>
-                      <div className="mt-1 text-2xl font-black text-white">
-                        {locked
-                          ? 'LOCK'
-                          : isPurist
-                            ? '??'
-                            : valueText(key, legend.attributes[key])}
-                      </div>
-                    </div>
+                      label={ATTRIBUTE_LABELS[key].short}
+                      value={locked ? 'LOCK' : isPurist ? '??' : valueText(key, legend.attributes[key])}
+                      tone={highlighted && !isPurist ? 'accent' : 'default'}
+                      className={locked ? 'opacity-35' : ''}
+                    />
                   )
                 })}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-black/35 p-4">
+              <StatusPanel tone={isPurist ? 'warning' : 'success'} className="mt-6">
                 {isPurist ? (
                   <>
-                    <div className="text-sm font-extrabold text-white">{gameT('draft.puristTitle')}</div>
-                    <p className="mt-1 text-xs leading-relaxed text-white/50">{gameT('draft.puristBody')}</p>
+                    <div className="font-extrabold text-[color:var(--copero-fg)]">{gameT('draft.puristTitle')}</div>
+                    <p className="mt-1 text-xs leading-relaxed">{gameT('draft.puristBody')}</p>
                   </>
                 ) : recommended ? (
-                  <>
-                    <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-                      {gameT('draft.best')}
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <div className="game-eyebrow">{gameT('draft.best')}</div>
+                      <div className="mt-1 font-[family-name:var(--copero-font-display)] text-2xl font-black text-[color:var(--copero-fg)]">
+                        {ATTRIBUTE_LABELS[recommended].short} · {valueText(recommended, legend.attributes[recommended])}
+                      </div>
                     </div>
-                    <div className="mt-1 text-2xl font-black text-white">
-                      {ATTRIBUTE_LABELS[recommended].short} · {valueText(recommended, legend.attributes[recommended])}
-                    </div>
-                  </>
+                    <GameBadge tone="accent">BEST FIT</GameBadge>
+                  </div>
                 ) : null}
-              </div>
+              </StatusPanel>
 
               <div className="mt-5 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={onTake}
-                  disabled={!recommended}
-                  className="rounded-full bg-white px-6 py-3 text-sm font-extrabold text-black transition hover:bg-white/90 disabled:opacity-40"
-                >
+                <GameButton type="button" size="lg" onClick={onTake} disabled={!recommended}>
                   {gameT('draft.confirm')}
-                </button>
+                </GameButton>
                 {!isPurist && (
-                  <button
+                  <GameButton
                     type="button"
+                    size="lg"
+                    variant="secondary"
                     onClick={onSkip}
                     disabled={state.draft.skipsRemaining <= 0}
-                    className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35"
                   >
                     {gameT('draft.swap', { count: state.draft.skipsRemaining })}
-                  </button>
+                  </GameButton>
                 )}
               </div>
             </div>
           ) : (
-            <div className="grid min-h-[420px] place-items-center text-sm text-white/50">
+            <EmptyState className="grid min-h-[420px] place-items-center border-0 bg-transparent">
               {gameT('draft.loading')}
-            </div>
+            </EmptyState>
           )}
-        </div>
+        </Surface>
 
-        <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5">
-          <h3 className="text-lg font-black text-white">{gameT('draft.player')}</h3>
-          <p className="mt-1 text-sm text-white/45">
-            {playerName} · {state.player ? gameT(`position.${state.player.position}`) : '—'}
-          </p>
+        <Surface tone="strong" className="p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <SectionEyebrow>{gameT('draft.player')}</SectionEyebrow>
+              <h3 className="mt-2 font-[family-name:var(--copero-font-display)] text-xl font-black uppercase text-[color:var(--copero-fg)]">
+                {playerName}
+              </h3>
+            </div>
+            {state.player && <GameBadge mono>{gameT(`position.${state.player.position}`)}</GameBadge>}
+          </div>
+
           <div className="mt-5 space-y-2">
             {ATTRIBUTE_ORDER.map((key) => {
               const pick = state.draft.picks.find((item) => item.attribute === key)
               return (
                 <div
                   key={key}
-                  className="flex items-center gap-3 rounded-2xl border border-white/8 bg-black/25 px-4 py-3"
+                  className="flex items-center gap-3 rounded-[var(--copero-radius)] border border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_58%,transparent)] px-4 py-3"
                 >
-                  <div className="w-11 text-xs font-black text-white/45">{ATTRIBUTE_LABELS[key].short}</div>
-                  <div className="flex-1 truncate text-sm font-semibold text-white/75">
+                  <GameBadge mono className="w-12 justify-center">{ATTRIBUTE_LABELS[key].short}</GameBadge>
+                  <div className="flex-1 truncate text-sm font-semibold text-[color:var(--copero-muted)]">
                     {pick ? pick.legendName : gameT('draft.unpicked')}
                   </div>
-                  <div className="text-lg font-black text-white">
+                  <div className="font-[family-name:var(--copero-font-display)] text-lg font-black text-[color:var(--copero-fg)]">
                     {pick ? valueText(key, pick.value) : '—'}
                   </div>
                 </div>
               )
             })}
           </div>
-          <button
-            type="button"
-            onClick={onBack}
-            className="mt-5 text-sm text-white/45 underline transition hover:text-white"
-          >
+          <GameButton type="button" variant="ghost" size="sm" className="mt-5" onClick={onBack}>
             {gameT('draft.back')}
-          </button>
-        </div>
+          </GameButton>
+        </Surface>
       </div>
     </section>
   )
