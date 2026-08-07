@@ -4,6 +4,7 @@ import {
   DEFAULT_LOCALE,
   LOCALE_META,
   localeFromPathname,
+  localizePath,
   translate,
   type Locale,
 } from '../../i18n/config'
@@ -45,7 +46,7 @@ export function NotFoundPage() {
             {t('notFound.body')}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link to={`/${locale}/`} className="game-button game-button--primary game-button--md">
+            <Link to={localizePath('/', locale)} className="game-button game-button--primary game-button--md">
               {t('notFound.back')}
             </Link>
             <a
