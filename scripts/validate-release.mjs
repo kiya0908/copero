@@ -82,7 +82,7 @@ const checks = [
   ['homepage starter avoids PII analytics', !homepageStarter.includes('last_name:') && !homepageStarter.includes('lastName: lastName')],
   ['homepage hero mounts interactive starter', homePage.includes('<HomepageCareerStarter />')],
   ['homepage lower CTAs return to play entry', homePage.includes('href="#play"')],
-  ['header play CTA targets the homepage starter', siteHeader.includes('href="#play"')],
+  ['header play CTA targets the localized homepage starter', siteHeader.includes('${home}#play')],
   ['prerender contains the play-first starter shell', prerender.includes('renderStarterShell') && prerender.includes('id="play"')],
   ['homepage starter CSS is loaded', main.includes("import './styles/homepage-starter.css'")],
   ['homepage starter has mobile layout fallback', homepageStarterCss.includes('@media (max-width: 720px)')],
