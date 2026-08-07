@@ -1,0 +1,27 @@
+{
+  "brand": "Copero",
+  "nav": {
+    "home": "Home",
+    "howToPlay": "How to play",
+    "mechanics": "Mechanics",
+    "faq": "FAQ",
+    "play": "Play"
+  },
+  "language": {
+    "label": "Language"
+  },
+  "actions": {
+    "playNow": "Play now",
+    "continueCareer": "Continue career",
+    "backHome": "Back home"
+  },
+  "status": {
+    "loading": "Loading",
+    "empty": "No data",
+    "error": "Something went wrong"
+  },
+  "footer": {
+    "independent": "An independent football career simulator.",
+    "disclaimer": "Not an official Copero product and not affiliated with clubs or players."
+  }
+}
