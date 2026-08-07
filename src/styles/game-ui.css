@@ -25,6 +25,16 @@
   outline-offset: 3px;
 }
 
+.game-page-shell ::selection {
+  background: color-mix(in oklch, var(--copero-accent) 36%, transparent);
+  color: var(--copero-fg);
+}
+
+.game-page-shell * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--copero-muted) 38%, transparent) transparent;
+}
+
 .game-surface,
 .glass-card {
   position: relative;
