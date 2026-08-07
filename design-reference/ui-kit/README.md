@@ -1,10 +1,10 @@
 # 应用化 UI Kit
 
-`ui_kits/app/` 不是静态展示板，也不是把几个页面并排摆着装完整。它的职责是把 copero 设计系统落到真实产品表面，并提供可继续拼装的模块化入口。
+`ui-kits` 不是静态展示板，也不是把几个页面并排摆着装完整。它的职责是把 copero 设计系统落到真实产品表面，并提供可继续拼装的模块化入口。
 
 ## Applied kit structure
 
-- `index.html`：应用 kit 总入口，加载 `../../colors_and_type.css` 并组合模块化片段
+
 - `components/`：模块化 HTML 片段目录，给后续代理复用
 - `components.html`：核心组件浏览页
 - `homepage-shell.html`：提炼自源项目的首页壳层
