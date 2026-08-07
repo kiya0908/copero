@@ -35,8 +35,10 @@ function upsertCanonical(href: string) {
   node.href = href
 }
 
-function clearManagedAlternates() {
-  document.head.querySelectorAll('[data-copero-hreflang], [data-copero-og-alternate]').forEach((node) => node.remove())
+function clearLocalizedAlternates() {
+  document.head
+    .querySelectorAll('link[rel="alternate"][hreflang], meta[property="og:locale:alternate"]')
+    .forEach((node) => node.remove())
 }
 
 function addLocalizedAlternates() {
@@ -147,7 +149,7 @@ export function PageSeo({ page }: { page: 'home' | 'game' }) {
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: title })
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
 
-    clearManagedAlternates()
+    clearLocalizedAlternates()
     if (home) {
       addLocalizedAlternates()
       addOgLocaleAlternates(locale)
