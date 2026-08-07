@@ -8,7 +8,7 @@
   "hero": {
     "eyebrow": "Football Career Simulator",
     "title": "Build a player. Play an entire career.",
-    "body": "Copero is a browser football career simulator. Choose an identity and position, build eight attributes from football legends, then decide how your career develops through clubs, contracts, events and international football.",
+    "body": "Copero is a browser football career simulator. Create your player here and go straight into the eight-attribute draft, then shape the career through clubs, contracts, events and international football.",
     "primary": "Start a career",
     "secondary": "See how it works",
     "tags": {
@@ -17,6 +17,29 @@
       "career": "Full career",
       "save": "Local save"
     }
+  },
+  "starter": {
+    "eyebrow": "Play from the first screen",
+    "title": "Create your player",
+    "body": "Set the basics and go directly into the eight-round draft. No account and no extra intro screen.",
+    "lastName": "Surname",
+    "lastNamePlaceholder": "Your name",
+    "number": "Number",
+    "foot": "Preferred foot",
+    "left": "Left",
+    "right": "Right",
+    "nationality": "Nationality",
+    "position": "Position",
+    "draftMode": "Draft mode",
+    "classicHint": "Visible attributes + 5 rerolls",
+    "puristHint": "Hidden values + no rerolls",
+    "start": "Start career",
+    "continue": "Continue saved career",
+    "activeSave": "A career is already saved on this browser.",
+    "microcopy": "Free · No account · Saved locally in this browser",
+    "preview": "Your player",
+    "previewFallback": "Rookie",
+    "previewHint": "Your next step is the eight-attribute legend draft."
   },
   "resultCard": {
     "eyebrow": "Career result",
