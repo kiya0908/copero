@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { promisify } from 'node:util'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -10,6 +11,18 @@ const STATIC_SEO_SCRIPTS = [
   'scripts/patch-contact-prerender.mjs',
   'scripts/promote-default-locale.mjs',
 ]
+
+type WranglerConfig = {
+  vars?: {
+    VITE_GA_MEASUREMENT_ID?: string
+    VITE_CLARITY_PROJECT_ID?: string
+  }
+}
+
+function readWranglerPublicVars(): WranglerConfig['vars'] {
+  const raw = readFileSync(new URL('./wrangler.jsonc', import.meta.url), 'utf8')
+  return (JSON.parse(raw) as WranglerConfig).vars ?? {}
+}
 
 function staticSeoBuildPlugin(): Plugin {
   return {
@@ -28,6 +41,17 @@ function staticSeoBuildPlugin(): Plugin {
   }
 }
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), staticSeoBuildPlugin()],
+export default defineConfig(({ mode }) => {
+  const buildEnv = loadEnv(mode, process.cwd(), 'VITE_')
+  const wranglerVars = readWranglerPublicVars()
+  const gaMeasurementId = buildEnv.VITE_GA_MEASUREMENT_ID || wranglerVars?.VITE_GA_MEASUREMENT_ID || ''
+  const clarityProjectId = buildEnv.VITE_CLARITY_PROJECT_ID || wranglerVars?.VITE_CLARITY_PROJECT_ID || ''
+
+  return {
+    plugins: [react(), tailwindcss(), staticSeoBuildPlugin()],
+    define: {
+      'import.meta.env.VITE_GA_MEASUREMENT_ID': JSON.stringify(gaMeasurementId),
+      'import.meta.env.VITE_CLARITY_PROJECT_ID': JSON.stringify(clarityProjectId),
+    },
+  }
 })
