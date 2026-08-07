@@ -87,7 +87,7 @@ export function DraftPhase({
                     <Metric
                       key={key}
                       label={ATTRIBUTE_LABELS[key].short}
-                      value={locked ? 'LOCK' : isPurist ? '??' : valueText(key, legend.attributes[key])}
+                      value={locked ? '—' : isPurist ? '??' : valueText(key, legend.attributes[key])}
                       tone={highlighted && !isPurist ? 'accent' : 'default'}
                       className={locked ? 'opacity-35' : ''}
                     />
@@ -109,7 +109,7 @@ export function DraftPhase({
                         {ATTRIBUTE_LABELS[recommended].short} · {valueText(recommended, legend.attributes[recommended])}
                       </div>
                     </div>
-                    <GameBadge tone="accent">BEST FIT</GameBadge>
+                    <GameBadge tone="accent" mono>{ATTRIBUTE_LABELS[recommended].short}</GameBadge>
                   </div>
                 ) : null}
               </StatusPanel>
