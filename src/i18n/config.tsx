@@ -1,14 +1,17 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react'
 import enCommon from './locales/en/common.json'
+import enGame from './locales/en/game.json'
 import enHome from './locales/en/home.json'
 import esCommon from './locales/es/common.json'
+import esGame from './locales/es/game.json'
 import esHome from './locales/es/home.json'
 import zhCommon from './locales/zh-cn/common.json'
+import zhGame from './locales/zh-cn/game.json'
 import zhHome from './locales/zh-cn/home.json'
 
 export const SUPPORTED_LOCALES = ['es', 'en', 'zh-cn'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
-export type TranslationNamespace = 'common' | 'home'
+export type TranslationNamespace = 'common' | 'home' | 'game'
 
 export const DEFAULT_LOCALE: Locale = 'es'
 export const LOCALE_PREFERENCE_KEY = 'copero:locale'
@@ -23,9 +26,9 @@ type Dictionary = Record<string, unknown>
 type Resources = Record<Locale, Record<TranslationNamespace, Dictionary>>
 
 const resources: Resources = {
-  es: { common: esCommon, home: esHome },
-  en: { common: enCommon, home: enHome },
-  'zh-cn': { common: zhCommon, home: zhHome },
+  es: { common: esCommon, home: esHome, game: esGame },
+  en: { common: enCommon, home: enHome, game: enGame },
+  'zh-cn': { common: zhCommon, home: zhHome, game: zhGame },
 }
 
 export function isSupportedLocale(value: string | undefined | null): value is Locale {
@@ -45,6 +48,7 @@ export function localizePath(pathname: string, locale: Locale): string {
 }
 
 function readPath(dictionary: Dictionary, key: string): unknown {
+  if (Object.prototype.hasOwnProperty.call(dictionary, key)) return dictionary[key]
   return key.split('.').reduce<unknown>((value, part) => {
     if (!value || typeof value !== 'object') return undefined
     return (value as Dictionary)[part]
