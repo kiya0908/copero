@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react'
 import { getCompetition, getTeam } from '../../data/catalog'
 import { pathReasonLabel } from '../../engine/careerPath'
-import { formatMoney } from '../../engine/development'
-import { originOvrDelta, academyStartRole } from '../../engine/originStart'
-import type { ClubOffer, Player, PlayingRole } from '../../engine/types'
 import { roleLabel } from '../../engine/contract'
+import { academyStartRole, originOvrDelta } from '../../engine/originStart'
 import { previewObjectiveForClub } from '../../engine/objectives'
+import type { ClubOffer, Player, PlayingRole } from '../../engine/types'
+import { useI18n } from '../../i18n/config'
+import { formatMoneyForLocale, resolveGameText, type GameTranslate } from '../../i18n/game'
 import { shortClubName } from './positions'
 
 const ROLE_RANK: Record<PlayingRole, number> = {
@@ -22,54 +23,45 @@ function tierBorder(rep: number): string {
   return 'border-white/10'
 }
 
-function offerBadges(
-  offer: ClubOffer,
-  currentRep: number,
-): { label: string; cls: string }[] {
+type BadgeDef = { key: string; cls: string; rawKey?: boolean }
+
+function offerBadges(offer: ClubOffer, currentRep: number): BadgeDef[] {
   const team = getTeam(offer.teamId)
   const rep = team?.international_reputation ?? 1
-  const badges: { label: string; cls: string }[] = []
-  if (offer.kind === 'renewal') {
-    badges.push({ label: 'RENOVACIÓN', cls: 'bg-emerald-500/90 text-black' })
-  }
-  if (offer.kind === 'loan') {
-    badges.push({ label: 'PRÉSTAMO · 1 TEMP', cls: 'bg-sky-400 text-black ring-1 ring-sky-200/50' })
-  }
-  if (offer.kind === 'academy') {
-    badges.push({ label: 'CANTERA', cls: 'bg-violet-500/90 text-white' })
-  }
+  const badges: BadgeDef[] = []
+  if (offer.kind === 'renewal') badges.push({ key: 'offer.badge.renewal', cls: 'bg-emerald-500/90 text-black' })
+  if (offer.kind === 'loan') badges.push({ key: 'offer.badge.loan', cls: 'bg-sky-400 text-black ring-1 ring-sky-200/50' })
+  if (offer.kind === 'academy') badges.push({ key: 'offer.badge.academy', cls: 'bg-violet-500/90 text-white' })
   if (offer.kind === 'transfer' && offer.pathReason === 'home_return') {
-    badges.push({ label: 'VUELTA TRIUNFAL', cls: 'bg-amber-400 text-black' })
+    badges.push({ key: 'offer.badge.home', cls: 'bg-amber-400 text-black' })
   }
-  if (offer.pathReason === 'recovery') {
-    badges.push({ label: 'RECUPERACIÓN', cls: 'bg-amber-500/90 text-black' })
-  }
+  if (offer.pathReason === 'recovery') badges.push({ key: 'offer.badge.recovery', cls: 'bg-amber-500/90 text-black' })
   if (
     offer.kind === 'transfer' &&
     rep >= currentRep + 2 &&
     offer.pathReason !== 'home_return' &&
     offer.pathReason !== 'recovery'
   ) {
-    badges.push({ label: 'BOMBAZO', cls: 'bg-rose-500/95 text-white' })
+    badges.push({ key: 'offer.badge.blockbuster', cls: 'bg-rose-500/95 text-white' })
   }
-  const path = pathReasonLabel(offer.pathReason)
+  const pathKey = pathReasonLabel(offer.pathReason)
   if (
-    path &&
+    pathKey &&
     offer.pathReason !== 'home_return' &&
     offer.pathReason !== 'recovery' &&
     offer.kind !== 'renewal'
   ) {
-    badges.push({ label: path.toUpperCase(), cls: 'bg-white/15 text-white/90' })
+    badges.push({ key: pathKey, cls: 'bg-white/15 text-white/90', rawKey: true })
   }
   return badges
 }
 
-function minutesImpact(offerRole: PlayingRole, currentRole?: PlayingRole): string | null {
-  if (!currentRole) return `Allá arrancás: ${roleLabel(offerRole)}`
+function minutesImpactKey(offerRole: PlayingRole, currentRole?: PlayingRole): { key: string; role?: PlayingRole } {
+  if (!currentRole) return { key: 'offer.minutes.start', role: offerRole }
   const delta = ROLE_RANK[offerRole] - ROLE_RANK[currentRole]
-  if (delta > 0) return 'Vas a jugar MÁS'
-  if (delta < 0) return 'Vas a jugar MENOS'
-  return `Allá arrancás: ${roleLabel(offerRole)}`
+  if (delta > 0) return { key: 'offer.minutes.more' }
+  if (delta < 0) return { key: 'offer.minutes.less' }
+  return { key: 'offer.minutes.start', role: offerRole }
 }
 
 const cardBase =
@@ -98,6 +90,8 @@ export function ClubOfferCard({
   playerOvr?: number
   player?: Player | null
 }) {
+  const { locale, t } = useI18n()
+  const gameT: GameTranslate = (key, params) => t('game', key, params)
   const ring = selected ? 'ring-2 ring-[color:var(--color-ovr)] border-[color:var(--color-ovr)]' : ''
 
   if (origin) {
@@ -105,12 +99,10 @@ export function ClubOfferCard({
     const comp = team ? getCompetition(team.competition_id) : undefined
     const name = shortClubName(team?.name ?? origin.teamId)
     const rep = team?.international_reputation ?? 1
-    const tip =
-      rep >= 3 ? 'Grande: pelearás minutos' : rep <= 1 ? 'Chico: titular y referente' : 'Equilibrio minutos/proyección'
+    const tipKey = rep >= 3 ? 'offer.origin.big' : rep <= 1 ? 'offer.origin.small' : 'offer.origin.balanced'
     const previewRole = academyStartRole(team, 0.5)
     const ovr = originOvrDelta(team, previewRole)
-    const ovrCls =
-      ovr.delta > 0 ? 'text-emerald-300' : ovr.delta < 0 ? 'text-rose-300' : 'text-white/55'
+    const ovrCls = ovr.delta > 0 ? 'text-emerald-300' : ovr.delta < 0 ? 'text-rose-300' : 'text-white/55'
     return (
       <button type="button" onClick={origin.onPick} className={`${cardBase} ${tierBorder(rep)} ${ring}`}>
         {team?.logo_url && (
@@ -130,13 +122,13 @@ export function ClubOfferCard({
           </span>
           <div className="font-display text-sm font-extrabold uppercase tracking-wide text-white">{name}</div>
         </div>
-        <div className="relative z-10 mt-2 text-[11px] text-white/50">{tip}</div>
+        <div className="relative z-10 mt-2 text-[11px] text-white/50">{gameT(tipKey)}</div>
         <div className={`relative z-10 mt-1 text-[11px] font-semibold ${ovrCls}`}>
-          {ovr.delta > 0 ? `+${ovr.delta}` : ovr.delta} OVR · {roleLabel(previewRole)}
+          {ovr.delta > 0 ? `+${ovr.delta}` : ovr.delta} OVR · {gameT(roleLabel(previewRole))}
         </div>
         <div className="relative z-10 mt-auto flex items-center gap-1.5 pt-4 text-[11px] text-white/45">
           {comp?.logo_url && <img src={comp.logo_url} alt="" className="h-4 w-4 object-contain" />}
-          {comp?.name ?? 'Liga'}
+          {comp?.name ?? gameT('offer.league')}
         </div>
       </button>
     )
@@ -159,7 +151,7 @@ export function ClubOfferCard({
         )}
         <div className="relative z-10 mb-1 flex flex-wrap gap-1">
           <span className="rounded-sm bg-emerald-500/90 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-black">
-            RENOVACIÓN
+            {gameT('offer.badge.renewal')}
           </span>
         </div>
         <div className="relative z-10 flex items-center gap-2">
@@ -170,12 +162,12 @@ export function ClubOfferCard({
           )}
           <div>
             <div className="font-display text-sm font-extrabold uppercase tracking-wide text-white">{name}</div>
-            <div className="text-[11px] text-white/45">Quedarte en el club</div>
+            <div className="text-[11px] text-white/45">{gameT('offer.stay')}</div>
           </div>
         </div>
         <div className="relative z-10 mt-4">
           <div className="mb-1 flex justify-between text-[10px] uppercase tracking-wide text-white/40">
-            <span>Camino a Referente</span>
+            <span>{gameT('offer.referencePath')}</span>
             <span>{referente}%</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
@@ -183,8 +175,8 @@ export function ClubOfferCard({
           </div>
         </div>
         <div className="relative z-10 mt-3 rounded-lg border border-sky-400/20 bg-sky-500/10 px-2 py-1.5 text-[11px] text-sky-100/90">
-          <span className="font-semibold text-sky-200/70">Meta ahí · </span>
-          {stayMeta.label}
+          <span className="font-semibold text-sky-200/70">{gameT('offer.goalThere')}</span>
+          {resolveGameText(gameT, stayMeta.label)}
         </div>
       </button>
     )
@@ -196,9 +188,9 @@ export function ClubOfferCard({
   const label = shortClubName(team?.name ?? offer.teamId)
   const rep = team?.international_reputation ?? 1
   const badges = offerBadges(offer, currentRep)
-  const impact = minutesImpact(offer.role, currentRole)
+  const impact = minutesImpactKey(offer.role, currentRole)
   const monthly = Math.round(offer.annualWage / 12)
-  const pathHint = pathReasonLabel(offer.pathReason)
+  const pathKey = pathReasonLabel(offer.pathReason)
   const meta = previewObjectiveForClub(player, offer.teamId, offer.role)
 
   return (
@@ -217,12 +209,12 @@ export function ClubOfferCard({
         />
       )}
       <div className="relative z-10 mb-2 flex flex-wrap gap-1">
-        {badges.map((b) => (
+        {badges.map((badge) => (
           <span
-            key={b.label}
-            className={`skew-x-[-6deg] rounded-sm px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${b.cls}`}
+            key={badge.key}
+            className={`skew-x-[-6deg] rounded-sm px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${badge.cls}`}
           >
-            <span className="inline-block skew-x-[6deg]">{b.label}</span>
+            <span className="inline-block skew-x-[6deg]">{gameT(badge.key)}</span>
           </span>
         ))}
       </div>
@@ -235,48 +227,45 @@ export function ClubOfferCard({
           )}
         </span>
         <div className="min-w-0">
-          <div className="truncate font-display text-sm font-extrabold uppercase tracking-wide text-white">
-            {label}
-          </div>
+          <div className="truncate font-display text-sm font-extrabold uppercase tracking-wide text-white">{label}</div>
           <div className="flex items-center gap-1 text-[11px] text-white/40">
             {comp?.logo_url && <img src={comp.logo_url} alt="" className="h-3.5 w-3.5 object-contain" />}
-            <span className="truncate">{comp?.name ?? 'Liga'}</span>
+            <span className="truncate">{comp?.name ?? gameT('offer.league')}</span>
           </div>
         </div>
       </div>
       <div className="relative z-10 mt-3">
         <div className="money-neon font-display text-xl font-extrabold tabular-nums">
-          {formatMoney(monthly)}
-          <span className="text-sm font-semibold text-emerald-300/80">/mes</span>
+          {formatMoneyForLocale(locale, monthly)}
+          <span className="text-sm font-semibold text-emerald-300/80">{gameT('offer.month')}</span>
         </div>
         <div className="text-xs text-white/40">
-          {formatMoney(offer.annualWage)}/año · {offer.years} {offer.years === 1 ? 'año' : 'años'}
+          {formatMoneyForLocale(locale, offer.annualWage)}{gameT('offer.year')} · {offer.years}{' '}
+          {gameT(offer.years === 1 ? 'offer.yearCount.one' : 'offer.yearCount.other')}
         </div>
       </div>
-      {pathHint && offer.pathReason !== 'home_return' && offer.pathReason !== 'recovery' && (
-        <div className="relative z-10 mt-2 text-[11px] text-sky-200/80">Por qué llega: {pathHint}</div>
+      {pathKey && offer.pathReason !== 'home_return' && offer.pathReason !== 'recovery' && (
+        <div className="relative z-10 mt-2 text-[11px] text-sky-200/80">
+          {gameT('offer.reason', { reason: gameT(pathKey) })}
+        </div>
       )}
       {offer.pathReason === 'home_return' && (
-        <div className="relative z-10 mt-2 text-[11px] font-semibold text-amber-200">
-          Tu club formador te llama a casa
-        </div>
+        <div className="relative z-10 mt-2 text-[11px] font-semibold text-amber-200">{gameT('offer.homeHint')}</div>
       )}
       {offer.pathReason === 'recovery' && (
-        <div className="relative z-10 mt-2 text-[11px] font-semibold text-amber-200/90">
-          Segunda oportunidad en un club menor
-        </div>
+        <div className="relative z-10 mt-2 text-[11px] font-semibold text-amber-200/90">{gameT('offer.recoveryHint')}</div>
       )}
       {offer.transferFee != null && offer.transferFee > 0 && (
         <div className="relative z-10 mt-1 text-[11px] text-white/45">
-          Traspaso: {formatMoney(offer.transferFee)}
+          {gameT('offer.transferFee', { fee: formatMoneyForLocale(locale, offer.transferFee) })}
         </div>
       )}
-      {impact && (
-        <div className="relative z-10 mt-2 text-[11px] font-semibold text-white/65">{impact}</div>
-      )}
+      <div className="relative z-10 mt-2 text-[11px] font-semibold text-white/65">
+        {gameT(impact.key, impact.role ? { role: gameT(roleLabel(impact.role)) } : undefined)}
+      </div>
       <div className="relative z-10 mt-2 rounded-lg border border-sky-400/20 bg-sky-500/10 px-2 py-1.5 text-[11px] text-sky-100/90">
-        <span className="font-semibold text-sky-200/70">Meta ahí · </span>
-        {meta.label}
+        <span className="font-semibold text-sky-200/70">{gameT('offer.goalThere')}</span>
+        {resolveGameText(gameT, meta.label)}
       </div>
     </button>
   )
@@ -287,17 +276,21 @@ export function OfferGrid({ children }: { children: ReactNode }) {
 }
 
 export function MarketHeader({ title, subtitle }: { title?: string; subtitle?: string }) {
+  const { t } = useI18n()
+  const gameT: GameTranslate = (key, params) => t('game', key, params)
   return (
     <div className="mb-1">
       <h3 className="font-display text-lg font-extrabold uppercase tracking-[0.06em] text-white">
-        {title ?? 'Mercado de pases'}
+        {title ?? gameT('offer.transferTitle')}
       </h3>
-      <p className="text-sm text-white/50">{subtitle ?? '¿Gloria o billetera?'}</p>
+      <p className="text-sm text-white/50">{subtitle ?? gameT('offer.marketSubtitle')}</p>
     </div>
   )
 }
 
 export function RetireCard({ onRetire }: { onRetire: () => void }) {
+  const { t } = useI18n()
+  const gameT: GameTranslate = (key, params) => t('game', key, params)
   return (
     <button
       type="button"
@@ -310,8 +303,8 @@ export function RetireCard({ onRetire }: { onRetire: () => void }) {
         className="absolute inset-0 h-full w-full object-cover opacity-50"
       />
       <div className="relative z-10 flex w-full flex-col justify-center bg-gradient-to-r from-black/80 to-black/30 px-4 py-3">
-        <div className="font-display text-sm font-extrabold uppercase text-white">Retirarse</div>
-        <div className="text-xs text-white/60">Finalizar tu carrera profesional</div>
+        <div className="font-display text-sm font-extrabold uppercase text-white">{gameT('offer.retire')}</div>
+        <div className="text-xs text-white/60">{gameT('offer.retireHint')}</div>
       </div>
     </button>
   )
