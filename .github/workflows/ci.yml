@@ -25,6 +25,8 @@ jobs:
         run: npm run lint
       - name: Validate launch configuration
         run: npm run validate:launch
+      - name: Validate i18n architecture
+        run: node scripts/validate-i18n.mjs
       - name: Smoke test complete game flow
         run: npm run smoke:flow
       - name: Build
