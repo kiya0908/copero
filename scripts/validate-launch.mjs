@@ -11,8 +11,10 @@ const files = {
   siteHeader: await readFile(new URL('../src/components/layout/SiteHeader.tsx', import.meta.url), 'utf8'),
   packageJson: await readFile(new URL('../package.json', import.meta.url), 'utf8'),
   viteConfig: await readFile(new URL('../vite.config.ts', import.meta.url), 'utf8'),
+  wrangler: await readFile(new URL('../wrangler.jsonc', import.meta.url), 'utf8'),
 }
 
+const wranglerConfig = JSON.parse(files.wrangler)
 const infoPages = ['about', 'contact', 'privacy', 'terms']
 const prefixedLocales = ['en', 'zh-cn']
 
@@ -53,6 +55,17 @@ const assertions = [
       files.viteConfig.includes("'scripts/promote-default-locale.mjs'"),
   ],
   ['package build executes Vite build', files.packageJson.includes('"build": "tsc -b && vite build"')],
+  ['Wrangler deploys the generated dist directory', wranglerConfig.assets?.directory === './dist'],
+  ['Wrangler uses SSG-style HTML handling', wranglerConfig.assets?.html_handling === 'auto-trailing-slash'],
+  ['Wrangler uses the generated 404 page', wranglerConfig.assets?.not_found_handling === '404-page'],
+  ['Wrangler includes GA4 public config', Object.hasOwn(wranglerConfig.vars ?? {}, 'VITE_GA_MEASUREMENT_ID')],
+  ['Wrangler includes Clarity public config', Object.hasOwn(wranglerConfig.vars ?? {}, 'VITE_CLARITY_PROJECT_ID')],
+  [
+    'Vite can read public analytics config from Wrangler',
+    files.viteConfig.includes('readWranglerPublicVars') &&
+      files.viteConfig.includes('wranglerVars?.VITE_GA_MEASUREMENT_ID') &&
+      files.viteConfig.includes('wranglerVars?.VITE_CLARITY_PROJECT_ID'),
+  ],
   ['GA4 environment variable', files.env.includes('VITE_GA_MEASUREMENT_ID=')],
   ['Clarity environment variable', files.env.includes('VITE_CLARITY_PROJECT_ID=')],
   ['analytics avoids PII field', !files.analytics.includes('lastName')],
