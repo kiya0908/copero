@@ -8,6 +8,7 @@ import { OriginPhase } from './components/phases/OriginPhase'
 import { SummaryPhase } from './components/phases/SummaryPhase'
 import { SeoHead } from './components/seo/SeoHead'
 import type { ChoiceSpinResult } from './components/ui/EventChoiceCards'
+import { normalizeDisplayState } from './engine/displayState'
 import {
   acceptRecommendedDraftAttribute,
   continueFromDraftResult,
@@ -39,12 +40,12 @@ import type { DraftMode, GameState, Position, PreferredFoot, TraitId } from './e
 import { trackGameEvent } from './lib/analytics'
 
 export default function App() {
-  const [state, setState] = useState<GameState>(() => loadLatestState() ?? createInitialState('long'))
+  const [state, setState] = useState<GameState>(() => normalizeDisplayState(loadLatestState() ?? createInitialState('long')))
   const pendingChoice = useRef<ReturnType<typeof previewCareerChoice> | null>(null)
 
   const update = useCallback((fn: (s: GameState) => GameState) => {
     setState((prev) => {
-      const next = fn(prev)
+      const next = normalizeDisplayState(fn(prev))
       saveState(next)
       return next
     })
@@ -66,7 +67,7 @@ export default function App() {
     const summaryState = state.phase === 'summary' ? state : { ...state, phase: 'summary' as const }
     content = <SummaryPhase state={summaryState} onReplay={() => { trackGameEvent('career_restarted', { seasons: state.seasons.length, position: state.player?.position }); clearState(state.seed); setState(createInitialState('long', state.draftMode)) }} />
   } else {
-    content = <CareerPhase state={state} onAcceptOffer={(id) => { const offer = state.pendingOffers.find((item) => item.id === id) ?? (state.currentEvent?.type === 'offer' ? state.currentEvent.offers.find((item) => item.id === id) : undefined); if (offer?.kind === 'transfer') trackGameEvent('transfer_offer_accepted', { team_id: offer.teamId, role: offer.role, transfer_fee: offer.transferFee, season: state.seasons.length }); update((s) => acceptOffer(s, id)) }} onRejectOffers={() => update(rejectOffers)} onNegotiate={(id) => update((s) => openNegotiation(s, id))} onSubmitNegotiation={(ask) => update((s) => submitNegotiation(s, ask))} onPreviewChoice={(id): ChoiceSpinResult => { const preview = previewCareerChoice(state, id); pendingChoice.current = preview; return { choiceId: preview.choiceId, winningIndex: preview.winningIndex, outcomes: preview.outcomes } }} onCommitChoice={() => { const preview = pendingChoice.current; pendingChoice.current = null; if (!preview) return; setState(commitCareerChoiceResult(preview.resolved)) }} onContinueSeason={() => { if (state.currentEvent?.type === 'season_result') { const season = state.currentEvent.season; trackGameEvent('season_completed', { season: season.index + 1, age: season.age, team_id: season.teamId, overall: season.overall, appearances: season.stats.appearances, goals: season.stats.goals, assists: season.stats.assists, trophies: season.trophies.length }) } update(afterSeasonContinue) }} onDismissCelebration={() => update(dismissCelebration)} onDismissObjective={() => update(dismissObjectiveBriefing)} onRetire={() => update(goToSummary)} onCallAgent={() => update(callAgentRerollOffers)} onRespondCallup={(accept) => update((s) => respondNationalCallup(s, accept))} onRespondYouthLoan={(request) => update((s) => respondYouthLoanChoice(s, request))} onChooseTraits={(ids: TraitId[]) => update((s) => chooseTraits(s, ids))} onBackFromNegotiation={() => update((s) => { if (s.currentEvent?.type !== 'negotiation') return s; return { ...s, currentEvent: { type: 'offer', title: s.currentEvent.title, body: s.currentEvent.body, offers: s.pendingOffers, canReject: true, canNegotiate: true } } })} />
+    content = <CareerPhase state={state} onAcceptOffer={(id) => { const offer = state.pendingOffers.find((item) => item.id === id) ?? (state.currentEvent?.type === 'offer' ? state.currentEvent.offers.find((item) => item.id === id) : undefined); if (offer?.kind === 'transfer') trackGameEvent('transfer_offer_accepted', { team_id: offer.teamId, role: offer.role, transfer_fee: offer.transferFee, season: state.seasons.length }); update((s) => acceptOffer(s, id)) }} onRejectOffers={() => update(rejectOffers)} onNegotiate={(id) => update((s) => openNegotiation(s, id))} onSubmitNegotiation={(ask) => update((s) => submitNegotiation(s, ask))} onPreviewChoice={(id): ChoiceSpinResult => { const preview = previewCareerChoice(state, id); pendingChoice.current = preview; return { choiceId: preview.choiceId, winningIndex: preview.winningIndex, outcomes: preview.outcomes } }} onCommitChoice={() => { const preview = pendingChoice.current; pendingChoice.current = null; if (!preview) return; setState(() => { const next = normalizeDisplayState(commitCareerChoiceResult(preview.resolved)); saveState(next); return next }) }} onContinueSeason={() => { if (state.currentEvent?.type === 'season_result') { const season = state.currentEvent.season; trackGameEvent('season_completed', { season: season.index + 1, age: season.age, team_id: season.teamId, overall: season.overall, appearances: season.stats.appearances, goals: season.stats.goals, assists: season.stats.assists, trophies: season.trophies.length }) } update(afterSeasonContinue) }} onDismissCelebration={() => update(dismissCelebration)} onDismissObjective={() => update(dismissObjectiveBriefing)} onRetire={() => update(goToSummary)} onCallAgent={() => update(callAgentRerollOffers)} onRespondCallup={(accept) => update((s) => respondNationalCallup(s, accept))} onRespondYouthLoan={(request) => update((s) => respondYouthLoanChoice(s, request))} onChooseTraits={(ids: TraitId[]) => update((s) => chooseTraits(s, ids))} onBackFromNegotiation={() => update((s) => { if (s.currentEvent?.type !== 'negotiation') return s; return { ...s, currentEvent: { type: 'offer', title: s.currentEvent.title, body: s.currentEvent.body, offers: s.pendingOffers, canReject: true, canNegotiate: true } } })} />
   }
 
   return <><SeoHead page="game" /><div className="min-h-screen py-2 sm:py-4">{content}</div></>
