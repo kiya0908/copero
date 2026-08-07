@@ -6,7 +6,7 @@ import { initializeDraft } from '../../engine/draft'
 import { confirmIdentity } from '../../engine/game'
 import { createInitialState, loadLatestState, saveState } from '../../engine/state'
 import type { DraftMode, Position, PreferredFoot } from '../../engine/types'
-import { useI18n } from '../../i18n/config'
+import { localizePath, useI18n } from '../../i18n/config'
 import { countryDisplayName } from '../../i18n/game'
 import { trackGameEvent } from '../../lib/analytics'
 import { POSITION_LABELS } from '../ui/positions'
@@ -21,6 +21,7 @@ const POSITIONS = Object.keys(POSITION_LABELS) as Position[]
 export function HomepageCareerStarter() {
   const { locale, t } = useI18n()
   const navigate = useNavigate()
+  const gamePath = localizePath('/game', locale)
   const [hasSavedCareer] = useState(() => Boolean(loadLatestState()))
   const [lastName, setLastName] = useState('')
   const [preferredNumber, setPreferredNumber] = useState(10)
@@ -70,7 +71,7 @@ export function HomepageCareerStarter() {
     })
     const readyForDraft = initializeDraft(created)
     saveState(readyForDraft)
-    navigate(`/${locale}/game`)
+    navigate(gamePath)
   }
 
   return (
@@ -85,7 +86,7 @@ export function HomepageCareerStarter() {
           <button
             type="button"
             className="career-starter__continue"
-            onClick={() => navigate(`/${locale}/game`)}
+            onClick={() => navigate(gamePath)}
           >
             <span>{t('home', 'starter.activeSave')}</span>
             <strong>{t('home', 'starter.continue')} →</strong>
