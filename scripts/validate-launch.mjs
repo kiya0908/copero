@@ -10,6 +10,7 @@ const files = {
   analytics: await readFile(new URL('../src/lib/analytics.ts', import.meta.url), 'utf8'),
   siteHeader: await readFile(new URL('../src/components/layout/SiteHeader.tsx', import.meta.url), 'utf8'),
   packageJson: await readFile(new URL('../package.json', import.meta.url), 'utf8'),
+  viteConfig: await readFile(new URL('../vite.config.ts', import.meta.url), 'utf8'),
 }
 
 const infoPages = ['about', 'contact', 'privacy', 'terms']
@@ -45,7 +46,13 @@ const assertions = [
   ['Chinese game X-Robots noindex', files.headers.includes('/zh-cn/game\n  X-Robots-Tag: noindex, nofollow')],
   ['Pages previews noindex', files.headers.includes('https://:project.pages.dev/*')],
   ['header uses public favicon logo', files.siteHeader.includes('src="/favicon.svg"')],
-  ['build promotes Spanish prerender to root', files.packageJson.includes('node scripts/promote-default-locale.mjs')],
+  [
+    'Vite build owns Spanish root prerender promotion',
+    files.viteConfig.includes("name: 'copero-static-seo-build'") &&
+      files.viteConfig.includes("'scripts/prerender.mjs'") &&
+      files.viteConfig.includes("'scripts/promote-default-locale.mjs'"),
+  ],
+  ['package build executes Vite build', files.packageJson.includes('"build": "tsc -b && vite build"')],
   ['GA4 environment variable', files.env.includes('VITE_GA_MEASUREMENT_ID=')],
   ['Clarity environment variable', files.env.includes('VITE_CLARITY_PROJECT_ID=')],
   ['analytics avoids PII field', !files.analytics.includes('lastName')],

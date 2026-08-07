@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/prerender.mjs && node scripts/patch-contact-prerender.mjs && node scripts/promote-default-locale.mjs",
+    "build": "tsc -b && vite build",
     "extract": "node scripts/extract-catalog.mjs",
     "mirror:assets": "node scripts/mirror-copero-assets.mjs",
     "lint": "oxlint",
@@ -14,7 +14,8 @@
     "validate:seo": "node scripts/validate-seo-output.mjs",
     "validate:release": "node scripts/validate-release.mjs",
     "validate:deployment": "node scripts/validate-deployment.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:seo": "npm run build && node scripts/serve-built-site.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",
