@@ -3,18 +3,21 @@ import enCommon from './locales/en/common.json'
 import enGame from './locales/en/game.json'
 import enGameUi from './locales/en/game-ui.json'
 import enHome from './locales/en/home.json'
+import enPages from './locales/en/pages.json'
 import esCommon from './locales/es/common.json'
 import esGame from './locales/es/game.json'
 import esGameUi from './locales/es/game-ui.json'
 import esHome from './locales/es/home.json'
+import esPages from './locales/es/pages.json'
 import zhCommon from './locales/zh-cn/common.json'
 import zhGame from './locales/zh-cn/game.json'
 import zhGameUi from './locales/zh-cn/game-ui.json'
 import zhHome from './locales/zh-cn/home.json'
+import zhPages from './locales/zh-cn/pages.json'
 
 export const SUPPORTED_LOCALES = ['es', 'en', 'zh-cn'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
-export type TranslationNamespace = 'common' | 'home' | 'game'
+export type TranslationNamespace = 'common' | 'home' | 'game' | 'pages'
 
 export const DEFAULT_LOCALE: Locale = 'es'
 export const LOCALE_PREFERENCE_KEY = 'copero:locale'
@@ -29,9 +32,9 @@ type Dictionary = Record<string, unknown>
 type Resources = Record<Locale, Record<TranslationNamespace, Dictionary>>
 
 const resources: Resources = {
-  es: { common: esCommon, home: esHome, game: { ...esGame, ...esGameUi } },
-  en: { common: enCommon, home: enHome, game: { ...enGame, ...enGameUi } },
-  'zh-cn': { common: zhCommon, home: zhHome, game: { ...zhGame, ...zhGameUi } },
+  es: { common: esCommon, home: esHome, game: { ...esGame, ...esGameUi }, pages: esPages },
+  en: { common: enCommon, home: enHome, game: { ...enGame, ...enGameUi }, pages: enPages },
+  'zh-cn': { common: zhCommon, home: zhHome, game: { ...zhGame, ...zhGameUi }, pages: zhPages },
 }
 
 export function isSupportedLocale(value: string | undefined | null): value is Locale {
