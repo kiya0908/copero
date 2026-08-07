@@ -1,0 +1,14 @@
+/es/game
+  X-Robots-Tag: noindex, nofollow
+
+/en/game
+  X-Robots-Tag: noindex, nofollow
+
+/zh-cn/game
+  X-Robots-Tag: noindex, nofollow
+
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
