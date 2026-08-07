@@ -44,5 +44,10 @@ export function normalizeDisplayState(state: GameState): GameState {
     }
   }
 
-  return currentEvent === state.currentEvent ? state : { ...state, currentEvent }
+  const celebration = state.celebration?.kind === 'trophy'
+    ? { ...state.celebration, message: 'celebration.trophy' }
+    : state.celebration
+
+  if (currentEvent === state.currentEvent && celebration === state.celebration) return state
+  return { ...state, currentEvent, celebration }
 }
