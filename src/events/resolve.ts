@@ -2,11 +2,11 @@ import { getCompetition, getTeam } from '../data/catalog'
 import { bumpOfferForElite } from '../engine/contract'
 import { clampOverall, estimateMarketValue } from '../engine/development'
 import { competitionAtTier, effectiveCompetitionId } from '../engine/league'
+import { msg } from '../engine/messages'
 import { addModifier, hasModifier, removeModifier } from '../engine/modifiers'
 import { nextRng } from '../engine/rng'
 import { generateEliteOffer, generateTransferOffers } from '../engine/transfer'
 import type { GameState } from '../engine/types'
-import { t } from '../i18n/es'
 import { getEventDef } from './catalog'
 
 export type ResolveResult = {
@@ -18,9 +18,7 @@ export type ResolveResult = {
 
 export function resolveCareerChoice(state: GameState, choiceId: string): ResolveResult {
   const event = state.currentEvent
-  if (!event || event.type !== 'career_choice' || !state.player) {
-    return { state }
-  }
+  if (!event || event.type !== 'career_choice' || !state.player) return { state }
 
   const def = getEventDef(event.eventId)
   let next: GameState = {
@@ -50,11 +48,11 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         s = roll.state
         if (roll.value < 0.6) {
           applyOvr(3)
-          next.celebration = { kind: 'boost', message: t('celebration.nutrition_ok') }
+          next.celebration = { kind: 'boost', message: msg('celebration.nutrition_ok') }
           outcomeIndex = 0
         } else {
           applyOvr(-2)
-          next.celebration = { kind: 'ruin', message: t('celebration.nutrition_bad') }
+          next.celebration = { kind: 'ruin', message: msg('celebration.nutrition_bad') }
           outcomeIndex = 1
         }
       }
@@ -66,11 +64,11 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
           next.contract = { ...next.contract, role: 'starter' }
           next.undisputedSeasonsRemaining = Math.max(next.undisputedSeasonsRemaining, 1)
         }
-        next.celebration = { kind: 'boost', message: t('celebration.position_change') }
+        next.celebration = { kind: 'boost', message: msg('celebration.position_change') }
         outcomeIndex = 0
       } else if (next.contract) {
         next.contract = { ...next.contract, role: 'rotation' }
-        next.log = [...next.log, t('log.fewer_minutes')]
+        next.log = [...next.log, msg('log.fewer_minutes')]
         outcomeIndex = 0
       }
       break
@@ -80,12 +78,12 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         s = roll.state
         if (roll.value < 0.7) {
           applyOvr(2)
-          next.log = [...next.log, t('log.training_boost')]
-          next.celebration = { kind: 'boost', message: t('celebration.nutrition_ok') }
+          next.log = [...next.log, msg('log.training_boost')]
+          next.celebration = { kind: 'boost', message: msg('celebration.nutrition_ok') }
           outcomeIndex = 0
         } else {
           applyOvr(-1)
-          next.celebration = { kind: 'ruin', message: t('celebration.nutrition_bad') }
+          next.celebration = { kind: 'ruin', message: msg('celebration.nutrition_bad') }
           outcomeIndex = 1
         }
       }
@@ -98,8 +96,8 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         if (offers.offers.length) {
           next.currentEvent = {
             type: 'offer',
-            title: t('offer.transferTitle'),
-            body: t('offer.transferBody'),
+            title: msg('offer.transferTitle'),
+            body: msg('offer.transferBody'),
             offers: offers.offers,
             canReject: true,
             canNegotiate: true,
@@ -117,17 +115,15 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         if (offers.offers.length) {
           next.currentEvent = {
             type: 'offer',
-            title: t('offer.transferTitle'),
-            body: t('offer.transferBody'),
+            title: msg('offer.transferTitle'),
+            body: msg('offer.transferBody'),
             offers: offers.offers,
             canReject: true,
             canNegotiate: true,
           }
           next.pendingOffers = offers.offers
-          next.celebration = { kind: 'boost', message: t('celebration.crisis_exit') }
-        } else {
-          next.celebration = { kind: 'boost', message: t('celebration.crisis_exit') }
         }
+        next.celebration = { kind: 'boost', message: msg('celebration.crisis_exit') }
         outcomeIndex = 0
       } else {
         applyOvr(1)
@@ -135,7 +131,7 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
           next.contract = { ...next.contract, role: 'undisputed' }
           next.undisputedSeasonsRemaining = Math.max(next.undisputedSeasonsRemaining, 1)
         }
-        next.celebration = { kind: 'boost', message: t('celebration.leader') }
+        next.celebration = { kind: 'boost', message: msg('celebration.leader') }
         outcomeIndex = 0
       }
       break
@@ -146,13 +142,13 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         if (roll.value < 0.45) {
           applyOvr(2)
           next = addModifier(next, 'glass_body')
-          next.celebration = { kind: 'boost', message: t('celebration.risky_boost') }
+          next.celebration = { kind: 'boost', message: msg('celebration.risky_boost') }
           outcomeIndex = 0
         } else {
           next = addModifier(next, 'banned')
           next.banSeasonsRemaining = 2
           applyOvr(-6)
-          next.celebration = { kind: 'ruin', message: t('celebration.substance_fail') }
+          next.celebration = { kind: 'ruin', message: msg('celebration.substance_fail') }
           outcomeIndex = 1
         }
       } else {
@@ -171,15 +167,15 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         s = bumped.state
         next.currentEvent = {
           type: 'offer',
-          title: t('offer.eliteTitle'),
-          body: t('offer.eliteBody'),
+          title: msg('offer.eliteTitle'),
+          body: msg('offer.eliteBody'),
           offers: [bumped.offer],
           canReject: true,
           canNegotiate: true,
         }
         next.pendingOffers = [bumped.offer]
       }
-      next.celebration = { kind: 'boost', message: t('celebration.scout') }
+      next.celebration = { kind: 'boost', message: msg('celebration.scout') }
       break
     }
     case 'final_hattrick':
@@ -188,40 +184,39 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
       next.wealthEarned += 500_000
       next.undisputedSeasonsRemaining = Math.max(next.undisputedSeasonsRemaining, 2)
       if (next.contract) next.contract = { ...next.contract, role: 'undisputed' }
-      next.celebration = { kind: 'boost', message: t('celebration.hattrick') }
+      next.celebration = { kind: 'boost', message: msg('celebration.hattrick') }
       break
     case 'iron_genetics':
       if (choiceId === 'accept') {
         next = addModifier(next, 'injury_immunity')
         next = removeModifier(next, 'glass_body')
-        next.celebration = { kind: 'fortune', message: t('celebration.immunity') }
+        next.celebration = { kind: 'fortune', message: msg('celebration.immunity') }
       }
       break
     case 'miracle_doctor':
       if (choiceId === 'accept') {
         next = addModifier(next, 'iron_longevity')
-        next.celebration = { kind: 'fortune', message: t('celebration.longevity') }
+        next.celebration = { kind: 'fortune', message: msg('celebration.longevity') }
       }
       break
-    case 'media_scandal': {
+    case 'media_scandal':
       if (choiceId === 'apologize') {
         applyOvr(-6)
         if (next.contract) next.contract = { ...next.contract, role: 'bench' }
         next = addModifier(next, 'form_dip')
-        next.celebration = { kind: 'ruin', message: t('celebration.scandal_sorry') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.scandal_sorry') }
       } else {
         applyOvr(-15)
         if (next.contract) next.contract = { ...next.contract, role: 'bench' }
         next = addModifier(next, 'career_ruined')
         next.ruinedAtSeasonIndex = next.seasons.length
-        next.celebration = { kind: 'ruin', message: t('celebration.scandal') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.scandal') }
       }
       break
-    }
-    case 'career_ending_injury': {
+    case 'career_ending_injury':
       if (hasModifier(next, 'injury_immunity')) {
-        next.log = [...next.log, t('log.immunity_saved')]
-        next.celebration = { kind: 'fortune', message: t('celebration.immunity_saved') }
+        next.log = [...next.log, msg('log.immunity_saved')]
+        next.celebration = { kind: 'fortune', message: msg('celebration.immunity_saved') }
         break
       }
       if (choiceId === 'retire_medical') {
@@ -230,9 +225,8 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
       }
       applyOvr(-20)
       next = addModifier(next, 'glass_body')
-      next.celebration = { kind: 'ruin', message: t('celebration.career_injury') }
+      next.celebration = { kind: 'ruin', message: msg('celebration.career_injury') }
       break
-    }
     case 'agent_scam': {
       const loss = Math.round(player.wealth * (choiceId === 'sue' ? 0.25 : 0.5))
       player.wealth = Math.max(0, player.wealth - loss)
@@ -243,7 +237,7 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
           releaseClause: Math.round(next.contract.releaseClause * 0.6),
         }
       }
-      next.celebration = { kind: 'ruin', message: t('celebration.scam', { loss: String(loss) }) }
+      next.celebration = { kind: 'ruin', message: msg('celebration.scam', { loss }) }
       break
     }
     case 'doping_temptation':
@@ -253,7 +247,7 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         if (roll.value < 0.25) {
           applyOvr(3)
           next = addModifier(next, 'glass_body')
-          next.celebration = { kind: 'boost', message: t('celebration.risky_boost') }
+          next.celebration = { kind: 'boost', message: msg('celebration.risky_boost') }
           outcomeIndex = 0
         } else {
           next = addModifier(next, 'banned')
@@ -261,27 +255,25 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
           next.ruinedAtSeasonIndex = next.ruinedAtSeasonIndex ?? next.seasons.length
           next.banSeasonsRemaining = 3
           applyOvr(-8)
-          next.celebration = { kind: 'ruin', message: t('celebration.doping') }
+          next.celebration = { kind: 'ruin', message: msg('celebration.doping') }
           outcomeIndex = 1
         }
       } else {
         applyOvr(1)
-        next.log = [...next.log, t('log.clean')]
+        next.log = [...next.log, msg('log.clean')]
         outcomeIndex = 0
       }
       break
-
-    // ——— Regionales ———
     case 'mx_food_poisoning':
       if (choiceId === 'rest') {
         applyOvr(-1)
         next = addModifier(next, 'form_dip')
-        next.celebration = { kind: 'ruin', message: t('celebration.mx_food_rest') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.mx_food_rest') }
         outcomeIndex = 0
       } else {
         applyOvr(-3)
         next = addModifier(next, 'glass_body')
-        next.celebration = { kind: 'ruin', message: t('celebration.mx_food_play') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.mx_food_play') }
         outcomeIndex = 1
       }
       break
@@ -292,16 +284,16 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         if (roll.value < 0.55) {
           applyOvr(2)
           next = addModifier(next, 'form_boost')
-          next.celebration = { kind: 'boost', message: t('celebration.mx_clasico_ok') }
+          next.celebration = { kind: 'boost', message: msg('celebration.mx_clasico_ok') }
           outcomeIndex = 0
         } else {
           applyOvr(-1)
-          next.celebration = { kind: 'ruin', message: t('celebration.mx_clasico_bad') }
+          next.celebration = { kind: 'ruin', message: msg('celebration.mx_clasico_bad') }
           outcomeIndex = 1
         }
       } else {
         if (next.contract) next.contract = { ...next.contract, role: 'bench' }
-        next.log = [...next.log, t('log.fewer_minutes')]
+        next.log = [...next.log, msg('log.fewer_minutes')]
       }
       break
     case 'ar_media_pressure':
@@ -309,18 +301,18 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         applyOvr(1)
         player.wealth += 80_000
         next.wealthEarned += 80_000
-        next.celebration = { kind: 'boost', message: t('celebration.ar_media_ok') }
+        next.celebration = { kind: 'boost', message: msg('celebration.ar_media_ok') }
       } else {
         applyOvr(-1)
         next = addModifier(next, 'form_dip')
-        next.celebration = { kind: 'ruin', message: t('celebration.ar_media_silence') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.ar_media_silence') }
       }
       break
     case 'ar_clasico_week':
       if (choiceId === 'ready') {
         applyOvr(2)
         next.undisputedSeasonsRemaining = Math.max(next.undisputedSeasonsRemaining, 1)
-        next.celebration = { kind: 'boost', message: t('celebration.ar_clasico') }
+        next.celebration = { kind: 'boost', message: msg('celebration.ar_clasico') }
       } else {
         applyOvr(-1)
       }
@@ -343,17 +335,17 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
             }
           }
         }
-        next.celebration = { kind: 'fortune', message: t('celebration.ar_ascenso') }
+        next.celebration = { kind: 'fortune', message: msg('celebration.ar_ascenso') }
       }
       break
     case 'br_calendar_fatigue':
       if (choiceId === 'rotate') {
         applyOvr(1)
-        next.celebration = { kind: 'boost', message: t('celebration.br_rotate') }
+        next.celebration = { kind: 'boost', message: msg('celebration.br_rotate') }
       } else {
         applyOvr(-2)
         next = addModifier(next, 'glass_body')
-        next.celebration = { kind: 'ruin', message: t('celebration.br_push') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.br_push') }
       }
       break
     case 'br_rival_serie_a':
@@ -364,8 +356,8 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
         if (offers.offers.length) {
           next.currentEvent = {
             type: 'offer',
-            title: t('offer.transferTitle'),
-            body: t('offer.transferBody'),
+            title: msg('offer.transferTitle'),
+            body: msg('offer.transferBody'),
             offers: offers.offers,
             canReject: true,
             canNegotiate: true,
@@ -378,24 +370,23 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
       if (choiceId === 'rest') {
         applyOvr(1)
         next = removeModifier(next, 'form_dip')
-        next.celebration = { kind: 'boost', message: t('celebration.br_rest') }
+        next.celebration = { kind: 'boost', message: msg('celebration.br_rest') }
       } else {
         const roll = nextRng(s)
         s = roll.state
         if (roll.value < 0.4) {
           applyOvr(1)
-          next.celebration = { kind: 'fortune', message: t('celebration.br_party_ok') }
+          next.celebration = { kind: 'fortune', message: msg('celebration.br_party_ok') }
         } else {
           applyOvr(-2)
           next = addModifier(next, 'form_dip')
-          next.celebration = { kind: 'ruin', message: t('celebration.br_party_bad') }
+          next.celebration = { kind: 'ruin', message: msg('celebration.br_party_bad') }
         }
       }
       break
     case 'eu_travel_fatigue':
-      if (choiceId === 'recover') {
-        applyOvr(1)
-      } else {
+      if (choiceId === 'recover') applyOvr(1)
+      else {
         applyOvr(-1)
         next = addModifier(next, 'form_dip')
       }
@@ -404,11 +395,11 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
       if (choiceId === 'integrate') {
         applyOvr(2)
         next = removeModifier(next, 'homesick')
-        next.celebration = { kind: 'boost', message: t('celebration.eu_adapt_ok') }
+        next.celebration = { kind: 'boost', message: msg('celebration.eu_adapt_ok') }
       } else {
         next = addModifier(next, 'homesick')
         applyOvr(-1)
-        next.celebration = { kind: 'ruin', message: t('celebration.eu_adapt_bad') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.eu_adapt_bad') }
       }
       break
     case 'mena_exit_clause':
@@ -422,42 +413,51 @@ export function resolveCareerChoice(state: GameState, choiceId: string): Resolve
             yearsRemaining: Math.max(1, next.contract.yearsRemaining),
           }
         }
-        next.celebration = { kind: 'boost', message: t('celebration.mena_money') }
+        next.celebration = { kind: 'boost', message: msg('celebration.mena_money') }
       } else if (next.contract) {
         next.contract = {
           ...next.contract,
           releaseClause: Math.round(next.contract.releaseClause * 1.35),
         }
-        next.celebration = { kind: 'fortune', message: t('celebration.mena_clause') }
+        next.celebration = { kind: 'fortune', message: msg('celebration.mena_clause') }
       }
       break
     case 'mls_adaptation':
       if (choiceId === 'buy_in') {
         applyOvr(2)
-        next.celebration = { kind: 'boost', message: t('celebration.mls_ok') }
+        next.celebration = { kind: 'boost', message: msg('celebration.mls_ok') }
       } else {
         applyOvr(-1)
         next = addModifier(next, 'homesick')
       }
       break
     case 'concacaf_heat':
-      if (choiceId === 'hydrate') {
-        applyOvr(0)
-      } else {
+      if (choiceId !== 'hydrate') {
         applyOvr(-2)
         next = addModifier(next, 'form_dip')
-        next.celebration = { kind: 'ruin', message: t('celebration.heat') }
+        next.celebration = { kind: 'ruin', message: msg('celebration.heat') }
+      } else {
+        applyOvr(0)
       }
       break
     default:
       break
   }
 
+  const choiceDef = def?.choices.find((choice) => choice.id === choiceId)
   next = {
     ...next,
     player,
     rngState: s,
-    log: def ? [...next.log, `${t(def.titleKey)} → ${choiceId}`] : next.log,
+    log: def
+      ? [
+          ...next.log,
+          msg('log.eventChoice', {
+            event: def.titleKey,
+            choice: choiceDef?.labelKey ?? choiceId,
+          }),
+        ]
+      : next.log,
   }
   return { state: next, outcomeIndex }
 }
