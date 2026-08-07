@@ -1,11 +1,9 @@
 import { useEffect } from 'react'
 import { legendById } from '../../data/legends'
-import {
-  ATTRIBUTE_LABELS,
-  ATTRIBUTE_ORDER,
-  recommendedAttribute,
-} from '../../engine/draft'
+import { ATTRIBUTE_LABELS, ATTRIBUTE_ORDER, recommendedAttribute } from '../../engine/draft'
 import type { AttributeKey, GameState } from '../../engine/types'
+import { useI18n } from '../../i18n/config'
+import type { GameTranslate } from '../../i18n/game'
 
 function valueText(key: AttributeKey, value: number): string {
   if (key === 'skillMoves' || key === 'weakFoot') return `${value}★`
@@ -25,33 +23,38 @@ export function DraftPhase({
   onSkip: () => void
   onBack: () => void
 }) {
+  const { t } = useI18n()
+  const gameT: GameTranslate = (key, params) => t('game', key, params)
+
   useEffect(() => {
     if (!state.draft.currentLegendId) onEnsureLegend()
   }, [state.draft.currentLegendId, onEnsureLegend])
 
-  const legend = state.draft.currentLegendId
-    ? legendById(state.draft.currentLegendId)
-    : undefined
+  const legend = state.draft.currentLegendId ? legendById(state.draft.currentLegendId) : undefined
   const recommended = recommendedAttribute(state)
   const selected = new Set(state.draft.picks.map((pick) => pick.attribute))
   const isPurist = state.draftMode === 'purist'
+  const playerName = state.player?.lastName || gameT('common.playerFallback')
 
   return (
     <section className="mx-auto min-h-screen max-w-6xl px-4 py-8">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.24em] text-violet-300">
-            Legend Attribute Draft
+            {gameT('draft.eyebrow')}
           </p>
           <h1 className="mt-1 text-3xl font-black text-white">
-            Ronda {state.draft.picks.length + 1} de {ATTRIBUTE_ORDER.length}
+            {gameT('draft.round', {
+              round: state.draft.picks.length + 1,
+              total: ATTRIBUTE_ORDER.length,
+            })}
           </h1>
-          <p className="mt-1 text-sm text-white/50">
-            Cada leyenda puede aportar un solo atributo. Los atributos confirmados quedan bloqueados.
-          </p>
+          <p className="mt-1 text-sm text-white/50">{gameT('draft.body')}</p>
         </div>
         <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-white/70">
-          {isPurist ? 'PURIST · valores ocultos' : `CLASSIC · ${state.draft.skipsRemaining} cambios`}
+          {isPurist
+            ? gameT('draft.puristBadge')
+            : gameT('draft.classicBadge', { count: state.draft.skipsRemaining })}
         </div>
       </div>
 
@@ -110,15 +113,13 @@ export function DraftPhase({
               <div className="mt-6 rounded-2xl border border-white/10 bg-black/35 p-4">
                 {isPurist ? (
                   <>
-                    <div className="text-sm font-extrabold text-white">Confiá en tu conocimiento</div>
-                    <p className="mt-1 text-xs leading-relaxed text-white/50">
-                      El juego tomará el mejor atributo disponible de esta leyenda. El valor se revela después de confirmar.
-                    </p>
+                    <div className="text-sm font-extrabold text-white">{gameT('draft.puristTitle')}</div>
+                    <p className="mt-1 text-xs leading-relaxed text-white/50">{gameT('draft.puristBody')}</p>
                   </>
                 ) : recommended ? (
                   <>
                     <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-                      Mejor atributo disponible
+                      {gameT('draft.best')}
                     </div>
                     <div className="mt-1 text-2xl font-black text-white">
                       {ATTRIBUTE_LABELS[recommended].short} · {valueText(recommended, legend.attributes[recommended])}
@@ -134,7 +135,7 @@ export function DraftPhase({
                   disabled={!recommended}
                   className="rounded-full bg-white px-6 py-3 text-sm font-extrabold text-black transition hover:bg-white/90 disabled:opacity-40"
                 >
-                  Confirmar atributo
+                  {gameT('draft.confirm')}
                 </button>
                 {!isPurist && (
                   <button
@@ -143,20 +144,22 @@ export function DraftPhase({
                     disabled={state.draft.skipsRemaining <= 0}
                     className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35"
                   >
-                    Cambiar leyenda · {state.draft.skipsRemaining}
+                    {gameT('draft.swap', { count: state.draft.skipsRemaining })}
                   </button>
                 )}
               </div>
             </div>
           ) : (
-            <div className="grid min-h-[420px] place-items-center text-sm text-white/50">Preparando la ronda…</div>
+            <div className="grid min-h-[420px] place-items-center text-sm text-white/50">
+              {gameT('draft.loading')}
+            </div>
           )}
         </div>
 
         <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5">
-          <h3 className="text-lg font-black text-white">Tu jugador</h3>
+          <h3 className="text-lg font-black text-white">{gameT('draft.player')}</h3>
           <p className="mt-1 text-sm text-white/45">
-            {state.player?.lastName} · {state.player?.position}
+            {playerName} · {state.player ? gameT(`position.${state.player.position}`) : '—'}
           </p>
           <div className="mt-5 space-y-2">
             {ATTRIBUTE_ORDER.map((key) => {
@@ -168,7 +171,7 @@ export function DraftPhase({
                 >
                   <div className="w-11 text-xs font-black text-white/45">{ATTRIBUTE_LABELS[key].short}</div>
                   <div className="flex-1 truncate text-sm font-semibold text-white/75">
-                    {pick ? pick.legendName : 'Sin elegir'}
+                    {pick ? pick.legendName : gameT('draft.unpicked')}
                   </div>
                   <div className="text-lg font-black text-white">
                     {pick ? valueText(key, pick.value) : '—'}
@@ -182,7 +185,7 @@ export function DraftPhase({
             onClick={onBack}
             className="mt-5 text-sm text-white/45 underline transition hover:text-white"
           >
-            Volver a identidad y reiniciar draft
+            {gameT('draft.back')}
           </button>
         </div>
       </div>
