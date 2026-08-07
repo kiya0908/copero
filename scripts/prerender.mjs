@@ -113,6 +113,34 @@ function renderSeoBlock(locale, home, page) {
     <!-- copero:seo:end -->`
 }
 
+function renderStarterShell(home, locale) {
+  return `<article class="career-starter" aria-labelledby="career-starter-title">
+    <div class="career-starter__header">
+      <div>
+        <p class="career-starter__eyebrow">${escapeHtml(home.starter.eyebrow)}</p>
+        <h2 id="career-starter-title">${escapeHtml(home.starter.title)}</h2>
+        <p>${escapeHtml(home.starter.body)}</p>
+      </div>
+    </div>
+    <div class="career-starter__body">
+      <div class="career-starter__form">
+        <div class="career-starter__row career-starter__row--identity">
+          <label class="career-starter__field"><span>${escapeHtml(home.starter.lastName)}</span><input disabled placeholder="${escapeHtml(home.starter.lastNamePlaceholder)}" /></label>
+          <label class="career-starter__field career-starter__field--number"><span>${escapeHtml(home.starter.number)}</span><input disabled value="10" /></label>
+        </div>
+        <fieldset class="career-starter__fieldset"><legend>${escapeHtml(home.starter.foot)}</legend><div class="career-starter__segmented"><button class="career-starter__segment" disabled>${escapeHtml(home.starter.left)}</button><button class="career-starter__segment" disabled aria-pressed="true">${escapeHtml(home.starter.right)}</button></div></fieldset>
+        <div class="career-starter__row">
+          <label class="career-starter__field"><span>${escapeHtml(home.starter.nationality)}</span><select disabled><option>${escapeHtml(home.starter.nationality)}</option></select></label>
+          <label class="career-starter__field"><span>${escapeHtml(home.starter.position)}</span><select disabled><option>ST</option></select></label>
+        </div>
+        <fieldset class="career-starter__fieldset"><legend>${escapeHtml(home.starter.draftMode)}</legend><div class="career-starter__modes"><button class="career-starter__mode" disabled aria-pressed="true"><strong>${escapeHtml(home.modes.classic.title)}</strong><span>${escapeHtml(home.starter.classicHint)}</span></button><button class="career-starter__mode" disabled><strong>${escapeHtml(home.modes.purist.title)}</strong><span>${escapeHtml(home.starter.puristHint)}</span></button></div></fieldset>
+        <a class="career-starter__start" href="/${locale}/game"><span>${escapeHtml(home.starter.start)}</span><span aria-hidden="true">→</span></a>
+        <p class="career-starter__microcopy">${escapeHtml(home.starter.microcopy)}</p>
+      </div>
+    </div>
+  </article>`
+}
+
 function renderHomeShell(home, locale) {
   const steps = ['identity', 'draft', 'origin', 'career']
   const mechanics = ['growth', 'clubs', 'events', 'national']
@@ -120,17 +148,21 @@ function renderHomeShell(home, locale) {
 
   return `<div class="marketing-page">
       <main>
-        <section class="site-section site-section--hero">
-          <div class="site-container hero-grid">
+        <section class="site-section site-section--hero" id="play">
+          <div class="site-container play-first-hero">
             <div class="hero-copy">
               <p class="eyebrow">${escapeHtml(home.hero.eyebrow)}</p>
               <h1>${escapeHtml(home.hero.title)}</h1>
               <p class="lead">${escapeHtml(home.hero.body)}</p>
-              <div class="hero-actions">
-                <a class="button button--primary" href="/${locale}/game">${escapeHtml(home.hero.primary)}</a>
-                <a class="button button--secondary" href="#how-to-play">${escapeHtml(home.hero.secondary)}</a>
+              <div class="tag-list">
+                <span class="tag">${escapeHtml(home.hero.tags.browser)}</span>
+                <span class="tag">${escapeHtml(home.hero.tags.draft)}</span>
+                <span class="tag">${escapeHtml(home.hero.tags.career)}</span>
+                <span class="tag">${escapeHtml(home.hero.tags.save)}</span>
               </div>
+              <a class="play-first-hero__how" href="#how-to-play">${escapeHtml(home.hero.secondary)} ↓</a>
             </div>
+            ${renderStarterShell(home, locale)}
           </div>
         </section>
         <section class="site-section" id="how-to-play">
@@ -184,7 +216,7 @@ function renderHomeShell(home, locale) {
               <p class="eyebrow eyebrow--gold">${escapeHtml(home.career.eyebrow)}</p>
               <h2>${escapeHtml(home.career.title)}</h2>
               <p class="lead">${escapeHtml(home.career.body)}</p>
-              <a class="button button--primary" href="/${locale}/game">${escapeHtml(home.career.cta)}</a>
+              <a class="button button--primary" href="#play">${escapeHtml(home.career.cta)}</a>
             </div>
           </div>
         </section>
@@ -201,7 +233,7 @@ function renderHomeShell(home, locale) {
           </div>
         </section>
         <section class="site-section">
-          <div class="site-container"><div class="final-cta"><p class="eyebrow">${escapeHtml(home.finalCta.eyebrow)}</p><h2>${escapeHtml(home.finalCta.title)}</h2><p class="lead">${escapeHtml(home.finalCta.body)}</p><a class="button button--primary" href="/${locale}/game">${escapeHtml(home.finalCta.button)}</a></div></div>
+          <div class="site-container"><div class="final-cta"><p class="eyebrow">${escapeHtml(home.finalCta.eyebrow)}</p><h2>${escapeHtml(home.finalCta.title)}</h2><p class="lead">${escapeHtml(home.finalCta.body)}</p><a class="button button--primary" href="#play">${escapeHtml(home.finalCta.button)}</a></div></div>
         </section>
       </main>
     </div>`
@@ -241,4 +273,4 @@ for (const locale of LOCALES) {
   await writeRoute(join(locale.id, 'game.html'), gameHtml)
 }
 
-console.log('Prerendered localized home and noindex game entry pages.')
+console.log('Prerendered localized play-first home and noindex game entry pages.')
