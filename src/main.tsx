@@ -11,7 +11,13 @@ import './styles/game-ui.css'
 
 initAnalytics()
 
-createRoot(document.getElementById('root')!).render(
+const root = document.getElementById('root')!
+if (root.dataset.prerendered) {
+  root.replaceChildren()
+  root.removeAttribute('data-prerendered')
+}
+
+createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
       <AppRouter />
