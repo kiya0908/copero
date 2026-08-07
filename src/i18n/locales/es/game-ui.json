@@ -43,5 +43,16 @@
   "milestone.first_trophy": "Primer trofeo",
   "milestone.trophy_cabinet": "Cinco o más trofeos",
   "milestone.ovr_85": "Llegaste a 85 OVR",
+  "celebration.nationalTrophy": "¡Título con la selección!",
+  "log.loanReturn": "Fin del préstamo: vuelve a {{team}}",
+  "outcome.starterPlusOne": "+1 OVR · titular",
+  "outcome.plusFourTopClub": "+4 OVR · club top",
+  "outcome.minusFifteenRuin": "-15 OVR · carrera en ruinas",
+  "outcome.minusTwentyFiveFortune": "-25% patrimonio",
+  "outcome.minusFiftyFortune": "-50% patrimonio",
+  "outcome.plusThreeRisky": "+3 OVR · riesgoso",
+  "outcome.suspensionRuin": "Suspensión · carrera en ruinas",
+  "outcome.plusOneClean": "+1 OVR · limpio",
+  "outcome.minusTwoTemporary": "-2 OVR · temporal",
   "common.playerFallback": "JUGADOR"
 }
