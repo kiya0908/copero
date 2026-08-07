@@ -33,7 +33,7 @@
     },
     "eyebrow": "Contact",
     "title": "Contact Copero",
-    "intro": "If you found a bug, have a suggestion or need to report an issue related to the site, you can use the project's public GitHub repository. That is currently the available contact and issue-tracking channel for copero.top.",
+    "intro": "If you found a bug, have a suggestion or need to report an issue related to the site, you can use the public GitHub repository for the project. That is currently the available contact and issue-tracking channel for copero.top.",
     "channelTitle": "Open an issue on GitHub",
     "channelBody": "Use GitHub Issues for bugs, layout problems, translations, game behavior or improvement suggestions.",
     "channelCta": "Go to GitHub Issues",
