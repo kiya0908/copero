@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { LOCALE_META, SUPPORTED_LOCALES, useI18n, type Locale } from '../../i18n/config'
+import { DEFAULT_LOCALE, LOCALE_META, SUPPORTED_LOCALES, useI18n, type Locale } from '../../i18n/config'
 
 const SITE_ORIGIN = 'https://copero.top'
 const OG_LOCALE: Record<Locale, string> = {
@@ -16,7 +16,8 @@ function pagePath(page: SeoPage): string {
 }
 
 function pageUrl(locale: Locale, page: SeoPage): string {
-  return `${SITE_ORIGIN}/${locale}${pagePath(page)}`
+  const suffix = pagePath(page)
+  return locale === DEFAULT_LOCALE ? `${SITE_ORIGIN}${suffix}` : `${SITE_ORIGIN}/${locale}${suffix}`
 }
 
 function homeUrl(locale: Locale): string {
@@ -65,7 +66,7 @@ function addLocalizedAlternates(page: SeoPage) {
   const fallback = document.createElement('link')
   fallback.rel = 'alternate'
   fallback.hreflang = 'x-default'
-  fallback.href = pageUrl('es', page)
+  fallback.href = pageUrl(DEFAULT_LOCALE, page)
   fallback.dataset.coperoHreflang = 'true'
   document.head.append(fallback)
 }
@@ -94,7 +95,7 @@ function setStructuredData(locale: Locale, page: SeoPage, title: string, descrip
     {
       '@type': 'WebSite',
       '@id': `${SITE_ORIGIN}/#website`,
-      url: homeUrl('es'),
+      url: homeUrl(DEFAULT_LOCALE),
       name: 'Copero',
     },
     {
