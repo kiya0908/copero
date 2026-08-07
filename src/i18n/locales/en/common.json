@@ -29,6 +29,11 @@
   },
   "footer": {
     "independent": "An independent football career simulator.",
-    "disclaimer": "Not an official Copero product and not affiliated with clubs or players."
+    "disclaimer": "Not an official Copero product and not affiliated with clubs or players.",
+    "navigation": "Site links",
+    "about": "About",
+    "contact": "Contact",
+    "privacy": "Privacy",
+    "terms": "Terms"
   }
 }

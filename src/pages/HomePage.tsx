@@ -1,4 +1,5 @@
 import { HomepageCareerStarter } from '../components/home/HomepageCareerStarter'
+import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { useI18n } from '../i18n/config'
 
@@ -179,13 +180,7 @@ export function HomePage() {
           </div>
         </section>
       </main>
-
-      <footer className="site-footer">
-        <div className="site-container site-footer__inner">
-          <p>© 2026 copero.top · {t('common', 'footer.independent')}</p>
-          <p>{t('common', 'footer.disclaimer')}</p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

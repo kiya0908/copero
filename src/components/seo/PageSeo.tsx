@@ -8,12 +8,23 @@ const OG_LOCALE: Record<Locale, string> = {
   'zh-cn': 'zh_CN',
 }
 
+export type SeoPage = 'home' | 'game' | 'about' | 'contact' | 'privacy' | 'terms'
+
+function pagePath(page: SeoPage): string {
+  if (page === 'home') return '/'
+  return `/${page}`
+}
+
+function pageUrl(locale: Locale, page: SeoPage): string {
+  return `${SITE_ORIGIN}/${locale}${pagePath(page)}`
+}
+
 function homeUrl(locale: Locale): string {
-  return `${SITE_ORIGIN}/${locale}/`
+  return pageUrl(locale, 'home')
 }
 
 function gameUrl(locale: Locale): string {
-  return `${SITE_ORIGIN}/${locale}/game`
+  return pageUrl(locale, 'game')
 }
 
 function upsertMeta(selector: string, attributes: Record<string, string>) {
@@ -41,12 +52,12 @@ function clearLocalizedAlternates() {
     .forEach((node) => node.remove())
 }
 
-function addLocalizedAlternates() {
+function addLocalizedAlternates(page: SeoPage) {
   for (const locale of SUPPORTED_LOCALES) {
     const link = document.createElement('link')
     link.rel = 'alternate'
     link.hreflang = LOCALE_META[locale].hrefLang
-    link.href = homeUrl(locale)
+    link.href = pageUrl(locale, page)
     link.dataset.coperoHreflang = 'true'
     document.head.append(link)
   }
@@ -54,7 +65,7 @@ function addLocalizedAlternates() {
   const fallback = document.createElement('link')
   fallback.rel = 'alternate'
   fallback.hreflang = 'x-default'
-  fallback.href = homeUrl('es')
+  fallback.href = pageUrl('es', page)
   fallback.dataset.coperoHreflang = 'true'
   document.head.append(fallback)
 }
@@ -70,7 +81,7 @@ function addOgLocaleAlternates(current: Locale) {
   }
 }
 
-function setStructuredData(locale: Locale, title: string, description: string) {
+function setStructuredData(locale: Locale, page: SeoPage, title: string, description: string) {
   let script = document.head.querySelector<HTMLScriptElement>('#copero-structured-data')
   if (!script) {
     script = document.createElement('script')
@@ -79,49 +90,63 @@ function setStructuredData(locale: Locale, title: string, description: string) {
     document.head.append(script)
   }
 
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_ORIGIN}/#website`,
+      url: homeUrl('es'),
+      name: 'Copero',
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${pageUrl(locale, page)}#webpage`,
+      url: pageUrl(locale, page),
+      name: title,
+      description,
+      inLanguage: LOCALE_META[locale].htmlLang,
+      isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
+    },
+  ]
+
+  if (page === 'home') {
+    graph.push({
+      '@type': 'WebApplication',
+      '@id': `${SITE_ORIGIN}/#game`,
+      url: gameUrl(locale),
+      name: 'Copero',
+      applicationCategory: 'GameApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      isAccessibleForFree: true,
+      inLanguage: LOCALE_META[locale].htmlLang,
+      description,
+    })
+  }
+
   script.textContent = JSON.stringify({
     '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'WebSite',
-        '@id': `${SITE_ORIGIN}/#website`,
-        url: homeUrl('es'),
-        name: 'Copero',
-      },
-      {
-        '@type': 'WebPage',
-        '@id': `${homeUrl(locale)}#webpage`,
-        url: homeUrl(locale),
-        name: title,
-        description,
-        inLanguage: LOCALE_META[locale].htmlLang,
-        isPartOf: { '@id': `${SITE_ORIGIN}/#website` },
-      },
-      {
-        '@type': 'WebApplication',
-        '@id': `${SITE_ORIGIN}/#game`,
-        url: gameUrl(locale),
-        name: 'Copero',
-        applicationCategory: 'GameApplication',
-        operatingSystem: 'Any',
-        browserRequirements: 'Requires JavaScript',
-        isAccessibleForFree: true,
-        inLanguage: LOCALE_META[locale].htmlLang,
-        description,
-      },
-    ],
+    '@graph': graph,
   })
 }
 
-export function PageSeo({ page }: { page: 'home' | 'game' }) {
+export function PageSeo({ page }: { page: SeoPage }) {
   const { locale, t } = useI18n()
 
   useEffect(() => {
     const home = page === 'home'
-    const title = home ? t('home', 'seo.title') : t('home', 'seo.ogTitle')
-    const description = home ? t('home', 'seo.description') : t('home', 'seo.ogDescription')
-    const canonical = home ? homeUrl(locale) : gameUrl(locale)
-    const robots = home ? 'index, follow' : 'noindex, nofollow'
+    const game = page === 'game'
+    const title = home
+      ? t('home', 'seo.title')
+      : game
+        ? t('home', 'seo.ogTitle')
+        : t('pages', `${page}.seo.title`)
+    const description = home
+      ? t('home', 'seo.description')
+      : game
+        ? t('home', 'seo.ogDescription')
+        : t('pages', `${page}.seo.description`)
+    const canonical = pageUrl(locale, page)
+    const robots = game ? 'noindex, nofollow' : 'index, follow'
 
     document.documentElement.lang = LOCALE_META[locale].htmlLang
     document.title = title
@@ -150,10 +175,10 @@ export function PageSeo({ page }: { page: 'home' | 'game' }) {
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
 
     clearLocalizedAlternates()
-    if (home) {
-      addLocalizedAlternates()
+    if (!game) {
+      addLocalizedAlternates(page)
       addOgLocaleAlternates(locale)
-      setStructuredData(locale, title, description)
+      setStructuredData(locale, page, title, description)
     } else {
       document.head.querySelector('#copero-structured-data')?.remove()
     }

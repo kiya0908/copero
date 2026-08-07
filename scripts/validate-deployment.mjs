@@ -5,6 +5,7 @@ if (!rawBase) {
 }
 
 const base = rawBase.replace(/\/$/, '')
+const infoPages = ['about', 'contact', 'privacy', 'terms']
 const locales = [
   ['es', 'es'],
   ['en', 'en'],
@@ -51,6 +52,17 @@ for (const [locale, htmlLang] of locales) {
   assert(body.includes('hreflang="x-default" href="https://copero.top/es/"'), `${homePath} is missing x-default`)
   assert(!/name="robots" content="noindex/i.test(body), `${homePath} must remain indexable`)
 
+  for (const page of infoPages) {
+    const pagePath = `/${locale}/${page}`
+    const pageCanonical = `https://copero.top${pagePath}`
+    const info = await html(pagePath)
+    assert(info.response.status === 200, `${pagePath} must return 200`)
+    assert(info.body.includes(`<html lang="${htmlLang}"`), `${pagePath} must expose html lang ${htmlLang}`)
+    assert(info.body.includes(`<link rel="canonical" href="${pageCanonical}"`), `${pagePath} canonical is incorrect`)
+    assert(info.body.includes(`hreflang="x-default" href="https://copero.top/es/${page}"`), `${pagePath} x-default is incorrect`)
+    assert(!/name="robots" content="noindex/i.test(info.body), `${pagePath} must remain indexable`)
+  }
+
   const gamePath = `/${locale}/game`
   const game = await html(gamePath)
   assert(game.response.status === 200, `${gamePath} must return 200`)
@@ -62,6 +74,9 @@ const sitemap = await html('/sitemap.xml')
 assert(sitemap.response.status === 200, '/sitemap.xml must return 200')
 for (const [locale] of locales) {
   assert(sitemap.body.includes(`<loc>https://copero.top/${locale}/</loc>`), `sitemap is missing /${locale}/`)
+  for (const page of infoPages) {
+    assert(sitemap.body.includes(`<loc>https://copero.top/${locale}/${page}</loc>`), `sitemap is missing /${locale}/${page}`)
+  }
 }
 assert(!sitemap.body.includes('/game</loc>'), 'sitemap must not include game routes')
 assert(!sitemap.body.includes('<loc>https://copero.top/</loc>'), 'sitemap must not include redirect-only root')
