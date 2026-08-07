@@ -12,6 +12,13 @@ export type PlayingRole = 'bench' | 'rotation' | 'starter' | 'undisputed'
 export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LM' | 'RM' | 'LW' | 'RW' | 'ST'
 export type PreferredFoot = 'left' | 'right'
 
+export type MessageParams = Record<string, string | number>
+export type MessageDescriptor = {
+  key: string
+  params?: MessageParams
+}
+export type DisplayText = string | MessageDescriptor
+
 export type AttributeKey =
   | 'pace'
   | 'shooting'
@@ -64,7 +71,8 @@ export type SeasonObjectiveKind =
 
 export type SeasonObjective = {
   kind: SeasonObjectiveKind
-  label: string
+  /** New saves use a descriptor/key; old saves may still contain Spanish text. */
+  label: DisplayText
   target: number
   progress: number
   completed?: boolean
@@ -188,7 +196,7 @@ export type SeasonRecord = {
   struggle?: 'relegation_battle' | 'relegated' | 'promoted'
   /** Liga en la que se jugó esa temporada (snapshot) */
   competitionId?: string
-  objectiveResult?: { label: string; completed: boolean; failed?: boolean }
+  objectiveResult?: { label: DisplayText; completed: boolean; failed?: boolean }
 }
 
 export type PendingNationalCallup = {
@@ -230,62 +238,62 @@ export type ActiveEvent =
   | {
       type: 'career_choice'
       eventId: string
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
       impact: CareerEventDef['impact']
-      choices: { id: string; label: string }[]
+      choices: { id: string; label: DisplayText }[]
       regionalBadge?: string
     }
   | {
       type: 'offer'
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
       offers: ClubOffer[]
       canReject: boolean
       canNegotiate: boolean
     }
   | {
       type: 'negotiation'
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
       offer: ClubOffer
     }
   | {
       type: 'season_result'
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
       season: SeasonRecord
     }
   | {
       type: 'national_callup'
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
       projected: SeasonStats
       countryFifa: string
       viaHeritage?: boolean
     }
   | {
       type: 'retire'
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
       reason: 'age' | 'no_offers' | 'medical' | 'ruined'
     }
   | {
       type: 'trait_pick'
-      title: string
-      body: string
-      options: { id: TraitId; label: string; desc: string }[]
+      title: DisplayText
+      body: DisplayText
+      options: { id: TraitId; label: DisplayText; desc: DisplayText }[]
     }
   | {
       type: 'youth_loan_choice'
-      title: string
-      body: string
+      title: DisplayText
+      body: DisplayText
     }
   | {
       type: 'objective_briefing'
-      title: string
-      body: string
-      label: string
+      title: DisplayText
+      body: DisplayText
+      label: DisplayText
       kind?: SeasonObjectiveKind
       imageSrc?: string
     }
@@ -305,7 +313,7 @@ export type GameState = {
   traits: TraitId[]
   careerStage: CareerStage
   seasonObjective: SeasonObjective | null
-  objectiveHistory: { label: string; completed: boolean }[]
+  objectiveHistory: { label: DisplayText; completed: boolean }[]
   milestones: string[]
   banSeasonsRemaining: number
   undisputedSeasonsRemaining: number
@@ -314,12 +322,12 @@ export type GameState = {
   nationalTotals: SeasonStats
   totals: SeasonStats
   wealthEarned: number
-  log: string[]
+  log: DisplayText[]
   currentEvent: ActiveEvent | null
   pendingOffers: ClubOffer[]
   celebration: {
     kind: 'boost' | 'ruin' | 'trophy' | 'fortune'
-    message: string
+    message: DisplayText
     trophies?: import('../data/trophies').TrophyWin[]
   } | null
   activeLoanReturnTeamId: string | null
