@@ -1,0 +1,63 @@
+import { readFile } from 'node:fs/promises'
+
+const locales = ['es', 'en', 'zh-cn']
+const resourceFiles = ['game.json', 'game-ui.json']
+
+async function readJson(path) {
+  return JSON.parse(await readFile(path, 'utf8'))
+}
+
+const keysByLocale = new Map()
+for (const locale of locales) {
+  const merged = {}
+  for (const file of resourceFiles) {
+    Object.assign(merged, await readJson(`src/i18n/locales/${locale}/${file}`))
+  }
+  keysByLocale.set(locale, new Set(Object.keys(merged)))
+}
+
+const reference = keysByLocale.get('es')
+for (const locale of locales.slice(1)) {
+  const keys = keysByLocale.get(locale)
+  const missing = [...reference].filter((key) => !keys.has(key))
+  const extra = [...keys].filter((key) => !reference.has(key))
+  if (missing.length || extra.length) {
+    throw new Error(
+      `${locale} game resources are out of sync. Missing: ${missing.join(', ') || 'none'}. Extra: ${extra.join(', ') || 'none'}.`,
+    )
+  }
+}
+
+const engineFiles = [
+  'src/engine/game.ts',
+  'src/engine/season.ts',
+  'src/engine/objectives.ts',
+  'src/engine/originStart.ts',
+  'src/engine/contract.ts',
+  'src/engine/careerPath.ts',
+  'src/engine/rating.ts',
+  'src/events/resolve.ts',
+]
+
+for (const file of engineFiles) {
+  const source = await readFile(file, 'utf8')
+  if (/from\s+['"][^'"]*i18n\//.test(source) || /from\s+['"][^'"]*i18n['"]/.test(source)) {
+    throw new Error(`${file} imports the UI i18n layer. Engine state must stay locale neutral.`)
+  }
+}
+
+const eventCatalog = await readFile('src/events/catalog.ts', 'utf8')
+if (!eventCatalog.includes('titleKey') || !eventCatalog.includes('bodyKey') || !eventCatalog.includes('labelKey')) {
+  throw new Error('Career event catalog must keep translation keys instead of rendered copy.')
+}
+
+const stateSource = await readFile('src/engine/state.ts', 'utf8')
+const cooldownSource = await readFile('src/engine/eventCooldown.ts', 'utf8')
+if (!cooldownSource.includes("simulador:career:play:v2:") || !cooldownSource.includes("simulador:career:last-save:v2")) {
+  throw new Error('Career save keys changed unexpectedly during the i18n refactor.')
+}
+if (/STORAGE_PREFIX.*locale|LAST_SAVE_KEY.*locale/i.test(stateSource + cooldownSource)) {
+  throw new Error('Locale must not become part of the career save key.')
+}
+
+console.log(`i18n validation passed: ${reference.size} game keys aligned across ${locales.join(', ')}.`)
