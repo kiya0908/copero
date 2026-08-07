@@ -10,6 +10,9 @@ const files = {
   analytics: await readFile(new URL('../src/lib/analytics.ts', import.meta.url), 'utf8'),
 }
 
+const locales = ['es', 'en', 'zh-cn']
+const infoPages = ['about', 'contact', 'privacy', 'terms']
+
 const assertions = [
   ['root HTML is noindex fallback', files.index.includes('<meta name="robots" content="noindex, follow"')],
   ['root redirects permanently to Spanish', files.redirects.includes('/ /es/ 301')],
@@ -18,6 +21,12 @@ const assertions = [
   ['Spanish sitemap homepage', files.sitemap.includes('<loc>https://copero.top/es/</loc>')],
   ['English sitemap homepage', files.sitemap.includes('<loc>https://copero.top/en/</loc>')],
   ['Chinese sitemap homepage', files.sitemap.includes('<loc>https://copero.top/zh-cn/</loc>')],
+  ...locales.flatMap((locale) =>
+    infoPages.map((page) => [
+      `${locale} sitemap ${page}`,
+      files.sitemap.includes(`<loc>https://copero.top/${locale}/${page}</loc>`),
+    ]),
+  ),
   ['sitemap excludes redirect root', !files.sitemap.includes('<loc>https://copero.top/</loc>')],
   ['sitemap excludes noindex game pages', !files.sitemap.includes('/game</loc>')],
   ['Spanish game X-Robots noindex', files.headers.includes('/es/game\n  X-Robots-Tag: noindex, nofollow')],
