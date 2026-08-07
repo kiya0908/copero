@@ -7,6 +7,11 @@ async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'))
 }
 
+function collectLeafKeys(value, prefix = '') {
+  if (!value || typeof value !== 'object') return [prefix]
+  return Object.entries(value).flatMap(([key, child]) => collectLeafKeys(child, prefix ? `${prefix}.${key}` : key))
+}
+
 const keysByLocale = new Map()
 for (const locale of locales) {
   const merged = {}
@@ -24,6 +29,23 @@ for (const locale of locales.slice(1)) {
   if (missing.length || extra.length) {
     throw new Error(
       `${locale} game resources are out of sync. Missing: ${missing.join(', ') || 'none'}. Extra: ${extra.join(', ') || 'none'}.`,
+    )
+  }
+}
+
+const pageKeys = new Map()
+for (const locale of locales) {
+  const pages = await readJson(`src/i18n/locales/${locale}/pages.json`)
+  pageKeys.set(locale, new Set(collectLeafKeys(pages)))
+}
+const pageReference = pageKeys.get('es')
+for (const locale of locales.slice(1)) {
+  const keys = pageKeys.get(locale)
+  const missing = [...pageReference].filter((key) => !keys.has(key))
+  const extra = [...keys].filter((key) => !pageReference.has(key))
+  if (missing.length || extra.length) {
+    throw new Error(
+      `${locale} info-page resources are out of sync. Missing: ${missing.join(', ') || 'none'}. Extra: ${extra.join(', ') || 'none'}.`,
     )
   }
 }
@@ -60,4 +82,6 @@ if (/STORAGE_PREFIX.*locale|LAST_SAVE_KEY.*locale/i.test(stateSource + cooldownS
   throw new Error('Locale must not become part of the career save key.')
 }
 
-console.log(`i18n validation passed: ${reference.size} game keys aligned across ${locales.join(', ')}.`)
+console.log(
+  `i18n validation passed: ${reference.size} game keys and ${pageReference.size} info-page keys aligned across ${locales.join(', ')}.`,
+)
