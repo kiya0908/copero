@@ -9,6 +9,7 @@
     "extract": "node scripts/extract-catalog.mjs",
     "mirror:assets": "node scripts/mirror-copero-assets.mjs",
     "lint": "oxlint",
+    "smoke:flow": "node scripts/smoke-game-flow.mjs",
     "validate:launch": "node scripts/validate-launch.mjs",
     "preview": "vite preview"
   },
