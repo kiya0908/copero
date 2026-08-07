@@ -42,7 +42,7 @@ export function KitPreview({
   const t = normalizeHex(tertiary, '#111111')
   const solid = nearSame(p, s) || (nearWhite(s) && nearWhite(p))
   const ink = luminance(solid ? p : s) > 0.55 ? '#111111' : '#ffffff'
-  const display = (lastName.trim() || 'APELLIDO').toUpperCase().slice(0, 12)
+  const display = (lastName.trim() || '—').toUpperCase().slice(0, 12)
   const patternId = `kit-${p.replace('#', '')}-${s.replace('#', '')}`
 
   return (

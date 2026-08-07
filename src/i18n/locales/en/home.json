@@ -1,0 +1,126 @@
+{
+  "seo": {
+    "title": "Copero Game Online · Football Career Simulator",
+    "description": "Create a footballer, complete an eight-attribute draft, choose a club and play through contracts, transfers, national-team call-ups, trophies and career decisions.",
+    "ogTitle": "Copero · Football Career Simulator",
+    "ogDescription": "Build a player from eight attributes and play through an entire football career in your browser."
+  },
+  "hero": {
+    "eyebrow": "Football Career Simulator",
+    "title": "Build a player. Play an entire career.",
+    "body": "Copero is a browser football career simulator. Choose an identity and position, build eight attributes from football legends, then decide how your career develops through clubs, contracts, events and international football.",
+    "primary": "Start a career",
+    "secondary": "See how it works",
+    "tags": {
+      "browser": "Browser game",
+      "draft": "8-attribute draft",
+      "career": "Full career",
+      "save": "Local save"
+    }
+  },
+  "resultCard": {
+    "eyebrow": "Career result",
+    "number": "10",
+    "overallLabel": "Peak OVR",
+    "name": "YOUR CAREER",
+    "description": "The final summary brings together your rating, attributes, clubs, statistics, trophies and career path.",
+    "stats": {
+      "rating": "Final grade",
+      "clubs": "Clubs",
+      "trophies": "Trophies"
+    }
+  },
+  "howTo": {
+    "eyebrow": "How to play",
+    "title": "From the first attribute to retirement",
+    "body": "A career moves through clear stages while keeping one continuous game state from start to finish.",
+    "steps": {
+      "identity": {
+        "title": "Create your player",
+        "body": "Choose a surname, shirt number, preferred foot, nationality, optional family nationality and position."
+      },
+      "draft": {
+        "title": "Complete 8 rounds",
+        "body": "Each legend contributes their best still-available attribute until PAC, SHO, PAS, DRI, DEF, PHY, SKL and WF are complete."
+      },
+      "origin": {
+        "title": "Choose your starting path",
+        "body": "You receive three origin clubs balanced around development, exposure, minutes and difficulty."
+      },
+      "career": {
+        "title": "Play the career",
+        "body": "Simulate seasons, negotiate contracts, take transfers, respond to events, represent a national team and eventually retire."
+      }
+    }
+  },
+  "modes": {
+    "eyebrow": "Draft modes",
+    "title": "Classic or Purist",
+    "body": "Both modes feed into the same career. The difference is how much information you get during the draft.",
+    "classic": {
+      "title": "Classic",
+      "body": "Shows each legend's values and gives you up to five rerolls before you confirm an attribute."
+    },
+    "purist": {
+      "title": "Purist",
+      "body": "Hides the values and removes rerolls, so you choose using football knowledge alone."
+    }
+  },
+  "mechanics": {
+    "eyebrow": "Real game mechanics",
+    "title": "Your decisions change the career path",
+    "body": "Copero is more than a result screen. Attributes, potential, squad role, club reputation, objectives and events combine to create different careers.",
+    "items": {
+      "growth": {
+        "title": "Attributes and potential",
+        "body": "Each position applies different weights to the eight attributes and sets a potential ceiling for development."
+      },
+      "clubs": {
+        "title": "Clubs, roles and contracts",
+        "body": "Bench, rotation, starter and undisputed roles affect minutes and salary; you can also negotiate terms and move clubs."
+      },
+      "events": {
+        "title": "Events and traits",
+        "body": "Chosen traits change how often certain events appear, and decisions can improve or derail a career."
+      },
+      "national": {
+        "title": "National team and trophies",
+        "body": "A call-up can come through your main or family nationality, with separate international statistics and trophies."
+      }
+    }
+  },
+  "career": {
+    "eyebrow": "Career result",
+    "title": "The final result tells the whole career",
+    "body": "At retirement you receive a D-to-S grade and a summary of peak OVR, potential, statistics, wealth, trophies, objectives and clubs. The result card can be copied, shared or downloaded as an image.",
+    "cta": "Build my career"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Frequently asked questions",
+    "items": {
+      "free": {
+        "question": "Does Copero run in the browser?",
+        "answer": "Yes. The current experience is a web application and does not require a separate client installation."
+      },
+      "save": {
+        "question": "Is my career saved?",
+        "answer": "Yes. Game state is stored locally in the browser. Switching from /es/game to /en/game or /zh-cn/game keeps the same career."
+      },
+      "classic": {
+        "question": "What changes between Classic and Purist?",
+        "answer": "Classic reveals attributes and gives five legend rerolls. Purist hides values and does not allow rerolls."
+      },
+      "official": {
+        "question": "Is this an official product?",
+        "answer": "No. copero.top is an independent project and does not claim official affiliation with Copero, clubs or players."
+      }
+    }
+  },
+  "finalCta": {
+    "eyebrow": "Your next career",
+    "title": "Choose eight attributes and see how far you can go.",
+    "body": "Start a new career or continue the existing local save in the same browser.",
+    "button": "Play Copero"
+  }
+}

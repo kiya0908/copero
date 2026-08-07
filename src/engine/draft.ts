@@ -23,14 +23,14 @@ export const ATTRIBUTE_ORDER: AttributeKey[] = [
 ]
 
 export const ATTRIBUTE_LABELS: Record<AttributeKey, { short: string; label: string }> = {
-  pace: { short: 'PAC', label: 'Velocidad' },
-  shooting: { short: 'SHO', label: 'Tiro' },
-  passing: { short: 'PAS', label: 'Pase' },
-  dribbling: { short: 'DRI', label: 'Regate' },
-  defending: { short: 'DEF', label: 'Defensa' },
-  physical: { short: 'PHY', label: 'Físico' },
-  skillMoves: { short: 'SKL', label: 'Filigranas' },
-  weakFoot: { short: 'WF', label: 'Pierna mala' },
+  pace: { short: 'PAC', label: 'attribute.pace' },
+  shooting: { short: 'SHO', label: 'attribute.shooting' },
+  passing: { short: 'PAS', label: 'attribute.passing' },
+  dribbling: { short: 'DRI', label: 'attribute.dribbling' },
+  defending: { short: 'DEF', label: 'attribute.defending' },
+  physical: { short: 'PHY', label: 'attribute.physical' },
+  skillMoves: { short: 'SKL', label: 'attribute.skillMoves' },
+  weakFoot: { short: 'WF', label: 'attribute.weakFoot' },
 }
 
 export function emptyAttributes(): PlayerAttributes {

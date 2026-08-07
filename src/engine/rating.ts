@@ -10,7 +10,7 @@ export type CareerRating = {
 
 export function calculateCareerRating(state: GameState): CareerRating {
   const player = state.player
-  if (!player) return { score: 0, grade: 'D', label: 'Carrera incompleta' }
+  if (!player) return { score: 0, grade: 'D', label: 'rating.incomplete' }
 
   const peakOverall = Math.max(
     player.peakOverall ?? player.overall,
@@ -41,9 +41,9 @@ export function calculateCareerRating(state: GameState): CareerRating {
       awards * 20,
   )
 
-  if (score >= 760) return { score, grade: 'S', label: 'Leyenda del fútbol' }
-  if (score >= 620) return { score, grade: 'A', label: 'Estrella mundial' }
-  if (score >= 485) return { score, grade: 'B', label: 'Figura internacional' }
-  if (score >= 350) return { score, grade: 'C', label: 'Profesional consolidado' }
-  return { score, grade: 'D', label: 'Carrera de lucha' }
+  if (score >= 760) return { score, grade: 'S', label: 'rating.legend' }
+  if (score >= 620) return { score, grade: 'A', label: 'rating.worldStar' }
+  if (score >= 485) return { score, grade: 'B', label: 'rating.international' }
+  if (score >= 350) return { score, grade: 'C', label: 'rating.established' }
+  return { score, grade: 'D', label: 'rating.fighter' }
 }

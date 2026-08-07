@@ -1,0 +1,126 @@
+{
+  "seo": {
+    "title": "Copero 在线游戏 · 足球生涯模拟器",
+    "description": "创建一名球员，完成八项属性 Draft，选择起步俱乐部，并经历合同、转会、国家队、奖杯与职业生涯事件。",
+    "ogTitle": "Copero · 足球生涯模拟器",
+    "ogDescription": "用八项属性构建球员，并在浏览器里完成一整段足球职业生涯。"
+  },
+  "hero": {
+    "eyebrow": "Football Career Simulator",
+    "title": "打造一名球员，踢完整段职业生涯。",
+    "body": "Copero 是一款浏览器足球生涯模拟游戏。你先确定身份与位置，从足球传奇球员中完成八项属性 Draft，再通过俱乐部、合同、事件和国家队选择决定职业轨迹。",
+    "primary": "开始一段生涯",
+    "secondary": "了解怎么玩",
+    "tags": {
+      "browser": "浏览器直接玩",
+      "draft": "8 项属性 Draft",
+      "career": "完整职业生涯",
+      "save": "本地存档"
+    }
+  },
+  "resultCard": {
+    "eyebrow": "Career Result",
+    "number": "10",
+    "overallLabel": "巅峰 OVR",
+    "name": "你的职业生涯",
+    "description": "退役后的结果会汇总生涯评分、属性、效力俱乐部、数据、奖杯和完整轨迹。",
+    "stats": {
+      "rating": "最终评级",
+      "clubs": "俱乐部",
+      "trophies": "奖杯"
+    }
+  },
+  "howTo": {
+    "eyebrow": "怎么玩",
+    "title": "从第一项属性一直踢到退役",
+    "body": "整局游戏按清晰阶段推进，并从开局到结算持续使用同一份职业生涯状态。",
+    "steps": {
+      "identity": {
+        "title": "创建球员",
+        "body": "选择姓氏、号码、惯用脚、国籍、可选的家庭国籍和场上位置。"
+      },
+      "draft": {
+        "title": "完成 8 轮 Draft",
+        "body": "每名传奇球员提供尚未选择的最佳属性，直到 PAC、SHO、PAS、DRI、DEF、PHY、SKL、WF 全部确定。"
+      },
+      "origin": {
+        "title": "选择起步路线",
+        "body": "系统会给出三家起步俱乐部，在成长空间、曝光、出场时间和挑战难度之间形成不同取舍。"
+      },
+      "career": {
+        "title": "推进职业生涯",
+        "body": "模拟赛季、谈合同、接受转会、处理随机事件、代表国家队比赛，最终走到退役。"
+      }
+    }
+  },
+  "modes": {
+    "eyebrow": "Draft Modes",
+    "title": "Classic 或 Purist",
+    "body": "两种模式进入的是同一套职业生涯系统，区别在于 Draft 阶段能看到多少信息。",
+    "classic": {
+      "title": "Classic",
+      "body": "显示传奇球员的属性数值，并允许最多更换 5 次传奇球员后再确认属性。"
+    },
+    "purist": {
+      "title": "Purist",
+      "body": "隐藏属性数值且不能更换传奇球员，只能依靠你对足球的了解做选择。"
+    }
+  },
+  "mechanics": {
+    "eyebrow": "真实游戏机制",
+    "title": "你的选择会改变职业轨迹",
+    "body": "Copero 不只是生成一张结果图。属性、潜力、球队角色、俱乐部声望、赛季目标和随机事件会共同影响每段生涯。",
+    "items": {
+      "growth": {
+        "title": "属性与潜力",
+        "body": "不同位置对八项属性采用不同权重，并由此得到限制后续成长上限的潜力值。"
+      },
+      "clubs": {
+        "title": "俱乐部、角色与合同",
+        "body": "替补、轮换、主力和绝对主力会影响出场与薪资；你还可以谈判合同条件并转会。"
+      },
+      "events": {
+        "title": "事件与 Trait",
+        "body": "开局选择的 Trait 会改变部分事件出现概率，而事件中的决定可能让生涯变好，也可能把它拖入低谷。"
+      },
+      "national": {
+        "title": "国家队与奖杯",
+        "body": "你可能通过本人国籍或家庭国籍获得国家队征召，国家队数据和国际赛事奖杯会独立记录。"
+      }
+    }
+  },
+  "career": {
+    "eyebrow": "Career Result",
+    "title": "最终结果卡记录整段职业生涯",
+    "body": "退役后会得到 D 到 S 的生涯评级，并汇总巅峰 OVR、潜力、比赛数据、财富、奖杯、赛季目标与效力俱乐部。结果可以复制、分享或下载为图片。",
+    "cta": "创建我的职业生涯"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "常见问题",
+    "items": {
+      "free": {
+        "question": "Copero 可以直接在浏览器玩吗？",
+        "answer": "可以。当前版本就是 Web 应用，不需要额外安装客户端。"
+      },
+      "save": {
+        "question": "职业生涯会保存吗？",
+        "answer": "会。游戏状态保存在当前浏览器本地。从 /es/game 切换到 /en/game 或 /zh-cn/game 时仍然继续同一份生涯。"
+      },
+      "classic": {
+        "question": "Classic 和 Purist 有什么区别？",
+        "answer": "Classic 会显示属性并提供 5 次更换传奇球员的机会；Purist 隐藏数值并且不能更换。"
+      },
+      "official": {
+        "question": "这是官方 Copero 产品吗？",
+        "answer": "不是。copero.top 是独立项目，不宣称与 Copero、俱乐部或球员存在官方隶属关系。"
+      }
+    }
+  },
+  "finalCta": {
+    "eyebrow": "下一段生涯",
+    "title": "选出八项属性，看看你最终能走多远。",
+    "body": "你可以开始新生涯，也可以在同一浏览器继续已有本地存档。",
+    "button": "开始玩 Copero"
+  }
+}

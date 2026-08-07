@@ -3,7 +3,6 @@ import type { ClubOffer, GameState, Position, PreferredFoot, TraitId } from './t
 import { allCareerEvents, getEventDef } from '../events/catalog'
 import { resolveCareerChoice } from '../events/resolve'
 import { eventChoiceVisual } from '../data/eventAssets'
-import { t } from '../i18n/es'
 import {
   academyTeamsForCountry,
   competitionsForCountry,
@@ -12,11 +11,12 @@ import {
   teamsInCompetition,
 } from '../data/catalog'
 import { nationalCupName } from '../data/trophies'
-import { negotiateOffer, roleLabel, buildOffer } from './contract'
-import { deriveCareerStage, stageLabel } from './careerPath'
-import { clampOverall, formatMoney } from './development'
+import { negotiateOffer, buildOffer } from './contract'
+import { deriveCareerStage } from './careerPath'
+import { clampOverall } from './development'
+import { msg } from './messages'
 import { hasModifier } from './modifiers'
-import { generateSeasonObjective, pickTraitOptions, traitMeta } from './objectives'
+import { generateSeasonObjective, pickTraitOptions } from './objectives'
 import { academyStartRole, originOvrDelta } from './originStart'
 import { nextRng, pickWeighted } from './rng'
 import { resolveLoanReturn, shouldRetire, simulateOneSeason, applyNationalCallup, rejectNationalCallup } from './season'
@@ -36,8 +36,8 @@ function toRetireEvent(state: GameState, reason: 'age' | 'no_offers' | 'medical'
     phase: 'summary',
     currentEvent: {
       type: 'retire',
-      title: t('retire.title'),
-      body: t(`retire.${reason}`),
+      title: msg('retire.title'),
+      body: msg(`retire.${reason}`),
       reason,
     },
   }
@@ -68,7 +68,6 @@ function eventMatchesContext(state: GameState, e: ReturnType<typeof allCareerEve
   if (e.requiresTraits?.length && !e.requiresTraits.every((tr) => traits.includes(tr))) return false
   if (e.blocksTraits?.length && e.blocksTraits.some((tr) => traits.includes(tr))) return false
 
-  // Adaptación europea: solo si el jugador no es europeo de origen
   if (e.id === 'eu_adaptation') {
     const nat = getCountry(state.player.nationalityFifa)
     if (nat?.confederation === 'UEFA') return false
@@ -93,7 +92,6 @@ function traitWeightBoost(state: GameState, eventId: string, base: number): numb
     w *= 1.35
   }
   if (traits.includes('loyal') && eventId === 'rival_offer') w *= 0.55
-  // Regionales un poco más frecuentes cuando aplican
   const def = getEventDef(eventId)
   if (def?.regional) w *= 1.25
   return w
@@ -115,7 +113,7 @@ function buildCareerEvent(state: GameState): GameState {
 
   const team = state.currentTeamId ? getTeam(state.currentTeamId) : undefined
   const badge = def.regional
-    ? getCountry(team?.country_fifa_code ?? state.player.nationalityFifa)?.name_es
+    ? team?.country_fifa_code ?? state.player.nationalityFifa
     : undefined
 
   return {
@@ -124,10 +122,10 @@ function buildCareerEvent(state: GameState): GameState {
     currentEvent: {
       type: 'career_choice',
       eventId: def.id,
-      title: t(def.titleKey),
-      body: t(def.bodyKey),
+      title: msg(def.titleKey),
+      body: msg(def.bodyKey),
       impact: def.impact,
-      choices: def.choices.map((c) => ({ id: c.id, label: t(c.labelKey) })),
+      choices: def.choices.map((choice) => ({ id: choice.id, label: msg(choice.labelKey) })),
       regionalBadge: badge,
     },
   }
@@ -140,9 +138,13 @@ function maybeOpenTraitPick(state: GameState): GameState {
     ...picked.state,
     currentEvent: {
       type: 'trait_pick',
-      title: t('traits.title'),
-      body: t('traits.body'),
-      options: picked.options.map((o) => ({ id: o.id, label: o.label, desc: o.desc })),
+      title: msg('traits.title'),
+      body: msg('traits.body'),
+      options: picked.options.map((option) => ({
+        id: option.id,
+        label: msg(option.labelKey),
+        desc: msg(option.descKey),
+      })),
     },
   }
 }
@@ -163,7 +165,6 @@ function assignObjective(state: GameState): GameState {
   }
 }
 
-/** Tras traspaso/firma: objetivo en HUD sin card. */
 function markObjectiveBriefedSilent(state: GameState): GameState {
   const obj = state.seasonObjective
   if (!obj || obj.briefed) return state
@@ -172,14 +173,12 @@ function markObjectiveBriefedSilent(state: GameState): GameState {
 
 function ensureObjective(state: GameState): GameState {
   const obj = state.seasonObjective
-  if (obj && !obj.completed && !obj.failed) {
-    return markObjectiveBriefedSilent(state)
-  }
+  if (obj && !obj.completed && !obj.failed) return markObjectiveBriefedSilent(state)
   return markObjectiveBriefedSilent(assignObjective(state))
 }
 
 function maybeBriefThenAdvance(state: GameState): GameState {
-  let next = ensureObjective(state)
+  const next = ensureObjective(state)
   return advanceAfterDecision(next)
 }
 
@@ -193,7 +192,7 @@ function syncMilestones(state: GameState): GameState {
   if (stage === 'continental') add('stage_continental')
   if (stage === 'elite') add('stage_elite')
   if (state.nationalTotals.appearances > 0) add('national_debut')
-  const trophies = state.seasons.reduce((n, s) => n + s.trophies.length, 0) + (state.nationalTrophies?.length ?? 0)
+  const trophies = state.seasons.reduce((n, season) => n + season.trophies.length, 0) + (state.nationalTrophies?.length ?? 0)
   if (trophies >= 1) add('first_trophy')
   if (trophies >= 5) add('trophy_cabinet')
   if ((state.player?.overall ?? 0) >= 85) add('ovr_85')
@@ -268,10 +267,10 @@ export function confirmOriginClub(state: GameState, teamId: string): GameState {
       offer.role === 'undisputed' ? Math.max(state.undisputedSeasonsRemaining, 1) : state.undisputedSeasonsRemaining,
     log: [
       ...state.log,
-      t('log.signed', {
+      msg('log.signed', {
         team: team?.name ?? offer.teamId,
-        wage: formatMoney(offer.annualWage),
-        role: roleLabel(offer.role),
+        wage: offer.annualWage,
+        role: offer.role,
       }),
       ovrAdj.reason,
     ],
@@ -279,12 +278,8 @@ export function confirmOriginClub(state: GameState, teamId: string): GameState {
   }
   next = { ...next, careerStage: deriveCareerStage(next) }
   next = maybeOpenTraitPick(next)
-  if (!next.currentEvent) {
-    next = maybeOfferYouthLoanCard(next)
-  }
-  if (!next.currentEvent) {
-    next = maybeBriefThenAdvance(next)
-  }
+  if (!next.currentEvent) next = maybeOfferYouthLoanCard(next)
+  if (!next.currentEvent) next = maybeBriefThenAdvance(next)
   saveState(next)
   return next
 }
@@ -296,8 +291,8 @@ function maybeOfferYouthLoanCard(state: GameState): GameState {
     youthLoanOffered: true,
     currentEvent: {
       type: 'youth_loan_choice',
-      title: t('youthLoan.title'),
-      body: t('youthLoan.body'),
+      title: msg('youthLoan.title'),
+      body: msg('youthLoan.body'),
     },
   }
 }
@@ -311,8 +306,8 @@ export function respondYouthLoanChoice(state: GameState, requestLoan: boolean): 
     if (generated.offers.length) {
       next.currentEvent = {
         type: 'offer',
-        title: t('youthLoan.offerTitle'),
-        body: t('youthLoan.offerBody'),
+        title: msg('youthLoan.offerTitle'),
+        body: msg('youthLoan.offerBody'),
         offers: generated.offers,
         canReject: true,
         canNegotiate: false,
@@ -335,16 +330,11 @@ export function chooseTraits(state: GameState, traitIds: TraitId[]): GameState {
     traits: unique,
     traitsChosen: true,
     currentEvent: null,
-    log: [
-      ...state.log,
-      `Rasgos: ${unique.map((id) => traitMeta(id)?.label ?? id).join(', ')}`,
-    ],
+    log: [...state.log, msg('log.traits', { traits: unique.join(',') })],
     step: state.step + 1,
   }
   next = maybeOfferYouthLoanCard(next)
-  if (!next.currentEvent) {
-    next = maybeBriefThenAdvance(next)
-  }
+  if (!next.currentEvent) next = maybeBriefThenAdvance(next)
   saveState(next)
   return next
 }
@@ -353,21 +343,18 @@ export function rollOriginClub(state: GameState): { state: GameState; teamId: st
   if (!state.player) return { state, teamId: null }
   const comps = competitionsForCountry(state.player.nationalityFifa)
   let s = state.rngState
-  let poolTeams = comps.flatMap((c) => teamsInCompetition(c.id))
-  if (poolTeams.length === 0) {
-    poolTeams = academyTeamsForCountry(state.player.nationalityFifa)
-  }
+  let poolTeams = comps.flatMap((competition) => teamsInCompetition(competition.id))
+  if (poolTeams.length === 0) poolTeams = academyTeamsForCountry(state.player.nationalityFifa)
   if (poolTeams.length === 0) return { state, teamId: null }
-  // Sesgo suave: grandes y chicos aparecen con peso similar (más variedad).
-  const weighted = poolTeams.map((t) => {
-    const rep = t.international_reputation ?? 1
+  const weighted = poolTeams.map((team) => {
+    const rep = team.international_reputation ?? 1
     let weight = 4
     if (rep >= 5) weight = 3
     else if (rep >= 4) weight = 4
     else if (rep >= 3) weight = 5
     else if (rep <= 1) weight = 6
     else weight = 5
-    return { item: t, weight }
+    return { item: team, weight }
   })
   const pick = pickWeighted(s, weighted)
   s = pick.state
@@ -376,9 +363,9 @@ export function rollOriginClub(state: GameState): { state: GameState; teamId: st
 
 export function acceptOffer(state: GameState, offerId: string): GameState {
   const offer =
-    state.pendingOffers.find((o) => o.id === offerId) ||
+    state.pendingOffers.find((candidate) => candidate.id === offerId) ||
     (state.currentEvent?.type === 'offer'
-      ? state.currentEvent.offers.find((o) => o.id === offerId)
+      ? state.currentEvent.offers.find((candidate) => candidate.id === offerId)
       : undefined)
   if (!offer || !state.player) return state
 
@@ -387,11 +374,7 @@ export function acceptOffer(state: GameState, offerId: string): GameState {
     ...state.player,
     wealth: state.player.wealth + (isLoan ? 0 : offer.signingBonus),
   }
-
-  // Si ya hay club padre (otra cesión), conservarlo; si no, el actual es el padre.
-  const loanParent = isLoan
-    ? state.activeLoanReturnTeamId ?? state.currentTeamId
-    : null
+  const loanParent = isLoan ? state.activeLoanReturnTeamId ?? state.currentTeamId : null
   const signBonus = isLoan ? 0 : offer.signingBonus
 
   let next: GameState = {
@@ -418,13 +401,11 @@ export function acceptOffer(state: GameState, offerId: string): GameState {
         : state.undisputedSeasonsRemaining,
     log: [
       ...state.log,
-      isLoan
-        ? `Cesión a ${getTeam(offer.teamId)?.name ?? offer.teamId} (${roleLabel(offer.role)})`
-        : t('log.signed', {
-            team: getTeam(offer.teamId)?.name ?? offer.teamId,
-            wage: formatMoney(offer.annualWage),
-            role: roleLabel(offer.role),
-          }),
+      msg(isLoan ? 'log.loanSigned' : 'log.signed', {
+        team: getTeam(offer.teamId)?.name ?? offer.teamId,
+        wage: offer.annualWage,
+        role: offer.role,
+      }),
     ],
     step: state.step + 1,
   }
@@ -432,7 +413,6 @@ export function acceptOffer(state: GameState, offerId: string): GameState {
   next = { ...next, careerStage: deriveCareerStage(next) }
   next = syncMilestones(next)
   next = assignObjective(next)
-  // Tras traspaso: objetivo solo en perfil (sin card que repita la firma)
   next = markObjectiveBriefedSilent(next)
   next = advanceAfterDecision(next)
   saveState(next)
@@ -446,9 +426,8 @@ export function rejectOffers(state: GameState): GameState {
     pendingOffers: [],
     currentEvent: null,
     step: state.step + 1,
-    log: [...state.log, t('log.rejected_offers')],
+    log: [...state.log, msg('log.rejected_offers')],
   }
-  // Rechazar ofertas de cesión = volver al club padre
   if (next.activeLoanReturnTeamId && next.contract && next.contract.yearsRemaining <= 0) {
     next = resolveLoanReturn(next)
   }
@@ -466,18 +445,22 @@ export function rejectOffers(state: GameState): GameState {
 
 export function openNegotiation(state: GameState, offerId: string): GameState {
   const offer =
-    state.pendingOffers.find((o) => o.id === offerId) ||
+    state.pendingOffers.find((candidate) => candidate.id === offerId) ||
     (state.currentEvent?.type === 'offer'
-      ? state.currentEvent.offers.find((o) => o.id === offerId)
+      ? state.currentEvent.offers.find((candidate) => candidate.id === offerId)
       : undefined)
   if (!offer) return state
   const next: GameState = {
     ...state,
-    pendingOffers: state.pendingOffers.length ? state.pendingOffers : state.currentEvent?.type === 'offer' ? state.currentEvent.offers : [offer],
+    pendingOffers: state.pendingOffers.length
+      ? state.pendingOffers
+      : state.currentEvent?.type === 'offer'
+        ? state.currentEvent.offers
+        : [offer],
     currentEvent: {
       type: 'negotiation',
-      title: t('negotiate.title'),
-      body: t('negotiate.body', { team: getTeam(offer.teamId)?.name ?? offer.teamId }),
+      title: msg('negotiate.title'),
+      body: msg('negotiate.body', { team: getTeam(offer.teamId)?.name ?? offer.teamId }),
       offer,
     },
   }
@@ -494,20 +477,20 @@ export function submitNegotiation(
   let next: GameState = { ...state, rngState: result.state }
 
   if (result.result === 'walked') {
-    const remaining = state.pendingOffers.filter((o) => o.id !== result.offer.id)
+    const remaining = state.pendingOffers.filter((offer) => offer.id !== result.offer.id)
     if (remaining.length === 0 && !state.currentTeamId) {
       const academy = generateAcademyOffers({ ...next, pendingOffers: [] })
       next = academy.state
       next.currentEvent = {
         type: 'offer',
-        title: t('offer.academyTitle'),
-        body: t('negotiate.walked'),
+        title: msg('offer.academyTitle'),
+        body: msg('negotiate.walked'),
         offers: academy.offers,
         canReject: false,
         canNegotiate: true,
       }
       next.pendingOffers = academy.offers
-      next.log = [...next.log, t('log.walked')]
+      next.log = [...next.log, msg('log.walked')]
       saveState(next)
       return next
     }
@@ -515,51 +498,47 @@ export function submitNegotiation(
       ...next,
       currentEvent: {
         type: 'offer',
-        title: t('offer.transferTitle'),
-        body: t('negotiate.walked'),
+        title: msg('offer.transferTitle'),
+        body: msg('negotiate.walked'),
         offers: remaining,
         canReject: Boolean(state.currentTeamId),
         canNegotiate: true,
       },
       pendingOffers: remaining,
-      log: [...next.log, t('log.walked')],
+      log: [...next.log, msg('log.walked')],
     }
     if (remaining.length === 0) {
-      next = rejectOffers({
+      return rejectOffers({
         ...next,
         currentEvent: {
           type: 'offer',
-          title: t('offer.transferTitle'),
-          body: t('negotiate.walked'),
+          title: msg('offer.transferTitle'),
+          body: msg('negotiate.walked'),
           offers: [],
           canReject: true,
           canNegotiate: true,
         },
       })
-      return next
     }
     saveState(next)
     return next
   }
 
-  const updatedOffers = state.pendingOffers.map((o) =>
-    o.id === result.offer.id ? result.offer : o,
+  const updatedOffers = state.pendingOffers.map((offer) =>
+    offer.id === result.offer.id ? result.offer : offer,
   )
   next = {
     ...next,
     pendingOffers: updatedOffers,
     currentEvent: {
       type: 'offer',
-      title: result.result === 'accepted' ? t('negotiate.accepted') : t('negotiate.counter'),
-      body:
-        result.result === 'accepted'
-          ? t('negotiate.acceptedBody')
-          : t('negotiate.counterBody'),
+      title: msg(result.result === 'accepted' ? 'negotiate.accepted' : 'negotiate.counter'),
+      body: msg(result.result === 'accepted' ? 'negotiate.acceptedBody' : 'negotiate.counterBody'),
       offers: updatedOffers,
       canReject: result.offer.kind !== 'academy',
       canNegotiate: result.offer.negotiationRound < 3,
     },
-    log: [...next.log, result.result === 'accepted' ? t('log.deal') : t('log.counter')],
+    log: [...next.log, msg(result.result === 'accepted' ? 'log.deal' : 'log.counter')],
   }
   saveState(next)
   return next
@@ -584,7 +563,7 @@ export function previewCareerChoice(
     state.currentEvent?.type === 'career_choice' ? state.currentEvent.eventId : '',
     choiceId,
   )
-  const outcomes = visual?.outcomes ?? [{ tone: 'neutral' as const, label: 'Continuar' }]
+  const outcomes = visual?.outcomes ?? [{ tone: 'neutral' as const, label: 'actions.continue' }]
   return {
     choiceId,
     winningIndex: Math.min(resolved.outcomeIndex ?? 0, Math.max(0, outcomes.length - 1)),
@@ -593,9 +572,7 @@ export function previewCareerChoice(
   }
 }
 
-export function commitCareerChoiceResult(
-  resolved: ReturnType<typeof resolveCareerChoice>,
-): GameState {
+export function commitCareerChoiceResult(resolved: ReturnType<typeof resolveCareerChoice>): GameState {
   let next = resolved.state
   if (resolved.forceRetire) {
     next = toRetireEvent(next, resolved.forceRetire)
@@ -603,26 +580,18 @@ export function commitCareerChoiceResult(
     return next
   }
   next = syncMilestones(next)
-  // boost/fortune/ruin sin trofeos: al log, sin click "Seguir"
   next = absorbSoftCelebration(next)
-  if (!next.currentEvent && !next.celebration) {
-    next = advanceAfterDecision(next)
-  }
+  if (!next.currentEvent && !next.celebration) next = advanceAfterDecision(next)
   saveState(next)
   return next
 }
 
-/** Celebraciones de evento: van al log; solo trophy pide UI. */
 function absorbSoftCelebration(state: GameState): GameState {
-  const c = state.celebration
-  if (!c) return state
-  if (c.kind === 'trophy' || (c.trophies && c.trophies.length > 0)) return state
-  if (c.kind === 'boost' || c.kind === 'fortune' || c.kind === 'ruin') {
-    return {
-      ...state,
-      celebration: null,
-      log: [...state.log, c.message],
-    }
+  const celebration = state.celebration
+  if (!celebration) return state
+  if (celebration.kind === 'trophy' || (celebration.trophies && celebration.trophies.length > 0)) return state
+  if (celebration.kind === 'boost' || celebration.kind === 'fortune' || celebration.kind === 'ruin') {
+    return { ...state, celebration: null, log: [...state.log, celebration.message] }
   }
   return state
 }
@@ -638,13 +607,13 @@ export function callAgentRerollOffers(state: GameState): GameState {
     pendingOffers: generated.offers,
     currentEvent: {
       type: 'offer',
-      title: 'Mercado de pases',
-      body: 'Tu representante movió el mercado. ¿Gloria o billetera?',
+      title: msg('offer.transferTitle'),
+      body: msg('offer.transferBody'),
       offers: generated.offers,
       canReject: true,
       canNegotiate: true,
     },
-    log: [...state.log, 'Llamaste al representante: nuevas ofertas.'],
+    log: [...state.log, msg('log.agent')],
   }
   saveState(next)
   return next
@@ -660,7 +629,6 @@ export function continueAfterSeason(state: GameState): GameState {
 export function dismissCelebration(state: GameState): GameState {
   let next: GameState = { ...state, celebration: null }
 
-  // Tras escándalo con ruina: ofertas de ligas menores antes de seguir
   if (!next.currentEvent && hasModifier(next, 'career_ruined')) {
     const current = next.currentTeamId ? getTeam(next.currentTeamId) : undefined
     const alreadyAtMinor = (current?.international_reputation ?? 99) <= 2
@@ -670,8 +638,8 @@ export function dismissCelebration(state: GameState): GameState {
       if (recovery.offers.length) {
         next.currentEvent = {
           type: 'offer',
-          title: t('offer.recoveryTitle'),
-          body: t('offer.recoveryBody'),
+          title: msg('offer.recoveryTitle'),
+          body: msg('offer.recoveryBody'),
           offers: recovery.offers,
           canReject: true,
           canNegotiate: true,
@@ -683,13 +651,9 @@ export function dismissCelebration(state: GameState): GameState {
     }
   }
 
-  // Tras celebración de evento / firma: briefing o avanzar temporada
   if (!next.currentEvent) {
-    if (next.seasons.length === 0) {
-      next = maybeBriefThenAdvance(next)
-    } else {
-      next = advanceAfterDecision(next)
-    }
+    if (next.seasons.length === 0) next = maybeBriefThenAdvance(next)
+    else next = advanceAfterDecision(next)
   }
   saveState(next)
   return next
@@ -698,9 +662,7 @@ export function dismissCelebration(state: GameState): GameState {
 function advanceAfterDecision(state: GameState): GameState {
   let next = syncMilestones(state)
   const retire = shouldRetire(next)
-  if (retire.retire && retire.reason) {
-    return toRetireEvent(next, retire.reason)
-  }
+  if (retire.retire && retire.reason) return toRetireEvent(next, retire.reason)
 
   if (!next.currentTeamId || !next.contract) {
     const academy = generateAcademyOffers(next)
@@ -708,8 +670,8 @@ function advanceAfterDecision(state: GameState): GameState {
     if (!academy.offers.length) return toRetireEvent(next, 'no_offers')
     next.currentEvent = {
       type: 'offer',
-      title: t('offer.academyTitle'),
-      body: t('offer.academyBody'),
+      title: msg('offer.academyTitle'),
+      body: msg('offer.academyBody'),
       offers: academy.offers,
       canReject: false,
       canNegotiate: true,
@@ -720,8 +682,7 @@ function advanceAfterDecision(state: GameState): GameState {
 
   next = ensureObjective(next)
 
-  const period =
-    next.seasons.length === 0 ? 1 : MODE_CONFIG[next.mode].periodLengthSeasons
+  const period = next.seasons.length === 0 ? 1 : MODE_CONFIG[next.mode].periodLengthSeasons
   let lastSeason = null as ReturnType<typeof simulateOneSeason>['season'] | null
 
   for (let i = 0; i < period; i += 1) {
@@ -729,29 +690,21 @@ function advanceAfterDecision(state: GameState): GameState {
     next = sim.state
     lastSeason = sim.season
     const midRetire = shouldRetire(next)
-    if (midRetire.retire && midRetire.reason) {
-      return toRetireEvent(next, midRetire.reason)
-    }
+    if (midRetire.retire && midRetire.reason) return toRetireEvent(next, midRetire.reason)
   }
 
   if (lastSeason) {
     const age = next.player?.age ?? lastSeason.age
-    const obj = next.seasonObjective
-    const objLine = obj
-      ? obj.completed
-        ? `Objetivo: ✓ ${obj.label}`
-        : `Objetivo: ✗ ${obj.label}`
-      : ''
     next.currentEvent = {
       type: 'season_result',
-      title: `Fin de temporada · ${age} años`,
-      body: [stageLabel(next.careerStage), objLine].filter(Boolean).join(' · '),
+      title: msg('season.resultTitle', { age }),
+      body: msg(`stage.${next.careerStage}`),
       season: lastSeason,
     }
     if (lastSeason.trophies.length) {
       next.celebration = {
         kind: 'trophy',
-        message: t('celebration.trophy'),
+        message: msg('celebration.trophy'),
         trophies: lastSeason.trophies,
       }
     }
@@ -764,7 +717,6 @@ function advanceAfterDecision(state: GameState): GameState {
 export function afterSeasonContinue(state: GameState): GameState {
   let next: GameState = { ...state, currentEvent: null }
 
-  // Fin de cesión: seguir a préstamo o volver al padre (antes del briefing)
   if (next.activeLoanReturnTeamId && next.contract && next.contract.yearsRemaining <= 0) {
     if (loanPerformanceAllowsContinue(next) && (next.player?.age ?? 99) <= 22) {
       const generated = generateYouthLoanOffers(next)
@@ -772,8 +724,8 @@ export function afterSeasonContinue(state: GameState): GameState {
       if (generated.offers.length) {
         next.currentEvent = {
           type: 'offer',
-          title: t('youthLoan.continueTitle'),
-          body: t('youthLoan.continueBody'),
+          title: msg('youthLoan.continueTitle'),
+          body: msg('youthLoan.continueBody'),
           offers: generated.offers,
           canReject: true,
           canNegotiate: false,
@@ -786,14 +738,11 @@ export function afterSeasonContinue(state: GameState): GameState {
     next = resolveLoanReturn(next)
   }
 
-  // Objetivo del próximo bloque: no interstitial; se asigna al quedarse o al firmar
   const needsNewObjective =
     !next.seasonObjective ||
     Boolean(next.seasonObjective.completed) ||
     Boolean(next.seasonObjective.failed)
-  if (needsNewObjective) {
-    next = { ...next, seasonObjective: null }
-  }
+  if (needsNewObjective) next = { ...next, seasonObjective: null }
 
   next = syncMilestones(next)
 
@@ -809,18 +758,14 @@ export function afterSeasonContinue(state: GameState): GameState {
   return next
 }
 
-/** Compat: si quedó un briefing viejo en save, continuar sin card. */
 export function dismissObjectiveBriefing(state: GameState): GameState {
   let next: GameState = {
     ...state,
     currentEvent: state.currentEvent?.type === 'objective_briefing' ? null : state.currentEvent,
   }
   next = ensureObjective(next)
-  if (next.seasons.length === 0) {
-    next = advanceAfterDecision(next)
-  } else {
-    next = continueCareerPipeline(next)
-  }
+  if (next.seasons.length === 0) next = advanceAfterDecision(next)
+  else next = continueCareerPipeline(next)
   saveState(next)
   return next
 }
@@ -833,15 +778,18 @@ function continueCareerPipeline(state: GameState): GameState {
     const countryFifa = pending.countryFifa || next.player.nationalityFifa
     const country = getCountry(countryFifa)
     const confCup = nationalCupName(country?.confederation)
-    const p = pending.projected
-    const heritageLine = pending.viaHeritage
-      ? `Te llama por la nacionalidad de tu familiar. `
-      : ''
+    const projected = pending.projected
     next.currentEvent = {
       type: 'national_callup',
-      title: pending.viaHeritage ? 'Convocatoria · nacionalidad familiar' : 'Convocatoria a la selección',
-      body: `${heritageLine}${country?.name_es ?? 'Tu país'} te llama. Proyección: ${p.appearances} PJ · ${p.goals} GLS · ${p.assists} AST. En esta ventana podés pelear ${confCup} / Mundial.`,
-      projected: p,
+      title: msg(pending.viaHeritage ? 'national.heritageTitle' : 'national.callupTitle'),
+      body: msg('national.callupBody', {
+        countryFifa,
+        apps: projected.appearances,
+        goals: projected.goals,
+        assists: projected.assists,
+        cup: confCup,
+      }),
+      projected,
       countryFifa,
       viaHeritage: pending.viaHeritage,
     }
@@ -849,9 +797,7 @@ function continueCareerPipeline(state: GameState): GameState {
   }
 
   const contract = next.contract
-  if (!next.player || !contract) {
-    return advanceAfterDecision(next)
-  }
+  if (!next.player || !contract) return advanceAfterDecision(next)
 
   const chance = MODE_CONFIG[next.mode].personalEventChance
   const roll = nextRng(next.rngState)
@@ -870,8 +816,8 @@ function continueCareerPipeline(state: GameState): GameState {
       if (recovery.offers.length) {
         next.currentEvent = {
           type: 'offer',
-          title: t('offer.recoveryTitle'),
-          body: t('offer.recoveryBody'),
+          title: msg('offer.recoveryTitle'),
+          body: msg('offer.recoveryBody'),
           offers: recovery.offers,
           canReject: !contractEnding,
           canNegotiate: true,
@@ -883,19 +829,23 @@ function continueCareerPipeline(state: GameState): GameState {
     const offers = generateTransferOffers(next)
     next = offers.state
     if (offers.offers.length) {
-      const hasRenewal = offers.offers.some((o) => o.kind === 'renewal')
+      const hasRenewal = offers.offers.some((offer) => offer.kind === 'renewal')
       next.currentEvent = {
         type: 'offer',
-        title: contractEnding
-          ? hasRenewal
-            ? t('offer.contractExpiredRenewTitle')
-            : t('offer.renewalTitle')
-          : t('offer.transferTitle'),
-        body: contractEnding
-          ? hasRenewal
-            ? t('offer.contractExpiredRenewBody')
-            : t('offer.renewalBody')
-          : t('offer.transferBody'),
+        title: msg(
+          contractEnding
+            ? hasRenewal
+              ? 'offer.contractExpiredRenewTitle'
+              : 'offer.renewalTitle'
+            : 'offer.transferTitle',
+        ),
+        body: msg(
+          contractEnding
+            ? hasRenewal
+              ? 'offer.contractExpiredRenewBody'
+              : 'offer.renewalBody'
+            : 'offer.transferBody',
+        ),
         offers: offers.offers,
         canReject: !contractEnding,
         canNegotiate: true,
@@ -903,9 +853,7 @@ function continueCareerPipeline(state: GameState): GameState {
       next.pendingOffers = offers.offers
       return next
     }
-    if (contractEnding) {
-      return toRetireEvent(next, 'no_offers')
-    }
+    if (contractEnding) return toRetireEvent(next, 'no_offers')
   }
 
   if (roll.value < chance) {
@@ -934,5 +882,5 @@ export function goToSummary(state: GameState): GameState {
 
 export function eventLabel(eventId: string): string {
   const def = getEventDef(eventId)
-  return def ? t(def.titleKey) : eventId
+  return def?.titleKey ?? eventId
 }

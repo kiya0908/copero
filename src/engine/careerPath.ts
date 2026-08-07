@@ -23,7 +23,6 @@ export function deriveCareerStage(state: GameState): CareerStage {
   return 'local'
 }
 
-/** Clubes escaparate sudamericanos / top que abren Europa. */
 export function isShowcaseClub(team: Team | undefined): boolean {
   if (!team) return false
   if (team.international_reputation >= 4) return true
@@ -31,17 +30,16 @@ export function isShowcaseClub(team: Team | undefined): boolean {
   return false
 }
 
-/** Score 0–100 de atractivo para scouts según forma reciente. */
 export function prestigePathScore(state: GameState): number {
   const player = state.player
   if (!player) return 0
   const current = state.currentTeamId ? getTeam(state.currentTeamId) : undefined
   const clubRep = current?.international_reputation ?? 1
   const recent = state.seasons.slice(-3)
-  const goals = recent.reduce((n, s) => n + s.stats.goals + s.stats.assists, 0)
-  const apps = recent.reduce((n, s) => n + s.stats.appearances, 0)
-  const trophies = recent.reduce((n, s) => n + s.trophies.length, 0)
-  const starterSeasons = recent.filter((s) => s.role === 'starter' || s.role === 'undisputed').length
+  const goals = recent.reduce((n, season) => n + season.stats.goals + season.stats.assists, 0)
+  const apps = recent.reduce((n, season) => n + season.stats.appearances, 0)
+  const trophies = recent.reduce((n, season) => n + season.trophies.length, 0)
+  const starterSeasons = recent.filter((season) => season.role === 'starter' || season.role === 'undisputed').length
   const ntCaps = state.nationalTotals.appearances
 
   let score = player.overall * 0.55
@@ -68,13 +66,9 @@ export function pathReasonFor(
 ): OfferPathReason {
   if (kind === 'loan') return 'loan_development'
   if (kind === 'renewal') return 'local_scout'
-  if (formativeTeamId && dest.id === formativeTeamId && current && dest.id !== current.id) {
-    return 'home_return'
-  }
+  if (formativeTeamId && dest.id === formativeTeamId && current && dest.id !== current.id) return 'home_return'
   if (!current) return 'local_scout'
-  if (dest.country_fifa_code === current.country_fifa_code) {
-    return 'local_scout'
-  }
+  if (dest.country_fifa_code === current.country_fifa_code) return 'local_scout'
   if (dest.confederation === current.confederation) {
     if (dest.international_reputation >= 4) return 'continental_leap'
     return 'regional_step'
@@ -85,37 +79,9 @@ export function pathReasonFor(
 }
 
 export function pathReasonLabel(reason: OfferPathReason | undefined): string {
-  switch (reason) {
-    case 'local_scout':
-      return 'Ojeador local'
-    case 'regional_step':
-      return 'Salto regional'
-    case 'continental_leap':
-      return 'Salto continental'
-    case 'elite_pull':
-      return 'Tirón de elite'
-    case 'loan_development':
-      return 'Préstamo de formación'
-    case 'home_return':
-      return 'Vuelta triunfal'
-    case 'showcase_exit':
-      return 'Salida de escaparate'
-    case 'recovery':
-      return 'Segunda oportunidad'
-    default:
-      return ''
-  }
+  return reason ? `pathReason.${reason}` : ''
 }
 
 export function stageLabel(stage: CareerStage): string {
-  switch (stage) {
-    case 'local':
-      return 'Escenario local'
-    case 'regional':
-      return 'Escenario regional'
-    case 'continental':
-      return 'Escenario continental'
-    case 'elite':
-      return 'Escenario de elite'
-  }
+  return `stage.${stage}`
 }

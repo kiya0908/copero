@@ -1,6 +1,6 @@
-import { nextRng, pickOne, randomInt } from './rng'
-import { estimateMarketValue } from './development'
 import { getTeam } from '../data/catalog'
+import { estimateMarketValue } from './development'
+import { nextRng, pickOne, randomInt } from './rng'
 import type { ClubOffer, PlayingRole, Player } from './types'
 
 const ROLE_WAGE_MULT: Record<PlayingRole, number> = {
@@ -143,17 +143,9 @@ export function negotiateOffer(
   }
 }
 
+/** Translation key only; UI owns localization. */
 export function roleLabel(role: PlayingRole): string {
-  switch (role) {
-    case 'bench':
-      return 'Banco'
-    case 'rotation':
-      return 'Rotación'
-    case 'starter':
-      return 'Titular'
-    case 'undisputed':
-      return 'Titularidad absoluta'
-  }
+  return `role.${role}`
 }
 
 export function pickRoleForAsk(current: PlayingRole): PlayingRole {

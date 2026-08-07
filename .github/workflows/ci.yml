@@ -25,7 +25,13 @@ jobs:
         run: npm run lint
       - name: Validate launch configuration
         run: npm run validate:launch
+      - name: Validate i18n architecture
+        run: node scripts/validate-i18n.mjs
       - name: Smoke test complete game flow
         run: npm run smoke:flow
-      - name: Build
+      - name: Build and prerender
         run: npm run build
+      - name: Validate localized SEO output
+        run: npm run validate:seo
+      - name: Validate release readiness
+        run: npm run validate:release
