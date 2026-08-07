@@ -18,7 +18,7 @@ export function SiteHeader() {
           <span>Copero</span>
         </Link>
 
-        <nav className="site-nav" aria-label="Primary">
+        <nav className="site-nav" aria-label={t('common', 'nav.primary')}>
           <a href="#how-to-play">{t('common', 'nav.howToPlay')}</a>
           <a href="#mechanics">{t('common', 'nav.mechanics')}</a>
           <a href="#faq">{t('common', 'nav.faq')}</a>
