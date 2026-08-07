@@ -36,6 +36,8 @@ const [
   notFound,
   state,
   packageJson,
+  viteConfig,
+  seoPreview,
 ] = await Promise.all([
   read('.env.example'),
   read('src/lib/analytics.ts'),
@@ -51,6 +53,8 @@ const [
   read('src/components/pages/NotFoundPage.tsx'),
   read('src/engine/state.ts'),
   read('package.json'),
+  read('vite.config.ts'),
+  read('scripts/serve-built-site.mjs'),
 ])
 
 const sourceFiles = await collectSourceFiles('src/')
@@ -91,7 +95,24 @@ const checks = [
   ['header uses the public favicon asset', siteHeader.includes('src="/favicon.svg"')],
   ['prerender contains the play-first starter shell', prerender.includes('renderStarterShell') && prerender.includes('id="play"')],
   ['default locale promoter requires prerendered root HTML', promoter.includes('data-prerendered="page"') && promoter.includes('dist')],
-  ['build runs default locale promotion', packageJson.includes('node scripts/promote-default-locale.mjs')],
+  [
+    'Vite build lifecycle owns all static SEO postprocessing',
+    viteConfig.includes("name: 'copero-static-seo-build'") &&
+      viteConfig.includes("apply: 'build'") &&
+      viteConfig.includes('async closeBundle()') &&
+      viteConfig.includes("'scripts/prerender.mjs'") &&
+      viteConfig.includes("'scripts/patch-contact-prerender.mjs'") &&
+      viteConfig.includes("'scripts/promote-default-locale.mjs'"),
+  ],
+  ['package build delegates output generation to Vite', packageJson.includes('"build": "tsc -b && vite build"')],
+  [
+    'crawler-style local SEO preview is available',
+    packageJson.includes('"preview:seo": "npm run build && node scripts/serve-built-site.mjs"'),
+  ],
+  [
+    'SEO preview resolves extensionless routes to static HTML',
+    seoPreview.includes("const html = join(DIST, `${clean}.html`)") && seoPreview.includes("join(DIST, clean, 'index.html')"),
+  ],
   ['homepage starter CSS is loaded', main.includes("import './styles/homepage-starter.css'")],
   ['homepage starter has mobile layout fallback', homepageStarterCss.includes('@media (max-width: 720px)')],
   ['homepage starter has touch hover fallback', homepageStarterCss.includes('@media (hover: none)')],
@@ -106,7 +127,6 @@ const checks = [
   ['runtime 404 clears stale hreflang', notFound.includes('link[rel="alternate"][hreflang]')],
   ['runtime 404 is noindex', notFound.includes("ensureMeta('robots', 'noindex, nofollow')")],
   ['save state remains locale-neutral', !/locale\s*:/.test(state)],
-  ['build still includes prerender', packageJson.includes('vite build && node scripts/prerender.mjs')],
   ['production source has no design-reference runtime imports', runtimeDesignReferenceImports.length === 0],
   ['production source has no hard-coded GA4 measurement ID', hardcodedGaIds.length === 0],
 ]
