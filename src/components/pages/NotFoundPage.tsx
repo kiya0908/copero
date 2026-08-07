@@ -1,44 +1,62 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import {
+  DEFAULT_LOCALE,
+  LOCALE_META,
+  localeFromPathname,
+  translate,
+  type Locale,
+} from '../../i18n/config'
+
+function ensureMeta(name: string, content: string) {
+  let meta = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.name = name
+    document.head.append(meta)
+  }
+  meta.content = content
+}
 
 export function NotFoundPage() {
+  const location = useLocation()
+  const locale: Locale = localeFromPathname(location.pathname) ?? DEFAULT_LOCALE
+  const t = (key: string) => translate(locale, 'common', key)
+
   useEffect(() => {
-    const previousTitle = document.title
-    const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]')
-    const previousRobots = robots?.content
+    document.documentElement.lang = LOCALE_META[locale].htmlLang
+    document.title = `${t('notFound.title')} · Copero`
+    ensureMeta('robots', 'noindex, nofollow')
+    ensureMeta('description', t('notFound.body'))
 
-    document.title = 'Página no encontrada · Copero'
-    if (robots) robots.content = 'noindex, nofollow'
-
-    return () => {
-      document.title = previousTitle
-      if (robots && previousRobots) robots.content = previousRobots
-    }
-  }, [])
+    document.head.querySelector('link[rel="canonical"]')?.remove()
+    document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((node) => node.remove())
+    document.head.querySelectorAll('meta[property="og:locale:alternate"]').forEach((node) => node.remove())
+    document.head.querySelector('#copero-structured-data')?.remove()
+  }, [locale])
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-16">
-      <section className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center sm:p-12">
-        <p className="text-xs font-black uppercase tracking-[0.3em] text-violet-300">Error 404</p>
-        <h1 className="mt-4 text-4xl font-black text-white">Esta página no existe</h1>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-white/55">
-          El simulador está disponible en la página principal. Volvé para crear tu jugador y empezar una nueva carrera.
-        </p>
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <Link
-            to="/"
-            className="rounded-full bg-white px-6 py-3 text-sm font-extrabold text-black transition hover:bg-white/90"
-          >
-            Volver al juego
-          </Link>
-          <a
-            href="mailto:support@copero.top"
-            className="rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
-          >
-            Contactar soporte
-          </a>
-        </div>
-      </section>
-    </main>
+    <div className="game-page-shell">
+      <main className="game-grid-shell flex min-h-screen items-center justify-center py-16">
+        <section className="game-surface game-surface--strong w-full max-w-xl p-8 text-center sm:p-12">
+          <p className="game-eyebrow">Error 404</p>
+          <h1 className="game-title game-title--h1 mt-4">{t('notFound.title')}</h1>
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-[var(--copero-muted)]">
+            {t('notFound.body')}
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link to={`/${locale}/`} className="game-button game-button--primary game-button--md">
+              {t('notFound.back')}
+            </Link>
+            <a
+              href="mailto:support@copero.top"
+              className="game-button game-button--secondary game-button--md"
+            >
+              {t('notFound.support')}
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
   )
 }
