@@ -1,0 +1,27 @@
+{
+  "brand": "Copero",
+  "nav": {
+    "home": "首页",
+    "howToPlay": "怎么玩",
+    "mechanics": "核心机制",
+    "faq": "常见问题",
+    "play": "开始游戏"
+  },
+  "language": {
+    "label": "语言"
+  },
+  "actions": {
+    "playNow": "立即开始",
+    "continueCareer": "继续生涯",
+    "backHome": "返回首页"
+  },
+  "status": {
+    "loading": "加载中",
+    "empty": "暂无数据",
+    "error": "发生错误"
+  },
+  "footer": {
+    "independent": "独立制作的足球生涯模拟游戏。",
+    "disclaimer": "并非 Copero 官方产品，也不隶属于任何俱乐部或球员。"
+  }
+}
