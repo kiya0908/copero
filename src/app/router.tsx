@@ -10,7 +10,9 @@ import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms'] as const satisfies readonly InfoPageKind[]
 
 function seoPageFromPath(pathname: string): SeoPage {
-  const segment = pathname.split('/').filter(Boolean)[1]
+  const segments = pathname.split('/').filter(Boolean)
+  if (isSupportedLocale(segments[0])) segments.shift()
+  const segment = segments[0]
   if (segment === 'game') return 'game'
   if (INFO_PAGES.includes(segment as InfoPageKind)) return segment as InfoPageKind
   return 'home'
@@ -21,10 +23,19 @@ function LocaleSeo() {
   return <PageSeo page={seoPageFromPath(pathname)} />
 }
 
-function LocaleLayout() {
+function DefaultLocaleLayout() {
+  return (
+    <I18nProvider locale={DEFAULT_LOCALE}>
+      <LocaleSeo />
+      <Outlet />
+    </I18nProvider>
+  )
+}
+
+function PrefixedLocaleLayout() {
   const { locale } = useParams()
 
-  if (!isSupportedLocale(locale)) return <NotFoundPage />
+  if (!isSupportedLocale(locale) || locale === DEFAULT_LOCALE) return <NotFoundPage />
 
   return (
     <I18nProvider locale={locale}>
@@ -34,17 +45,20 @@ function LocaleLayout() {
   )
 }
 
+function DefaultLocaleRedirect() {
+  const location = useLocation()
+  const suffix = location.pathname.replace(/^\/es(?=\/|$)/, '') || '/'
+  return <Navigate to={`${suffix}${location.search}${location.hash}`} replace />
+}
+
 export function AppRouter() {
   return (
     <>
       <AnalyticsRouteTracker />
       <Routes>
-        <Route path="/" element={<Navigate to={`/${DEFAULT_LOCALE}/`} replace />} />
-        <Route path="/game" element={<Navigate to={`/${DEFAULT_LOCALE}/game`} replace />} />
-        {INFO_PAGES.map((page) => (
-          <Route key={page} path={`/${page}`} element={<Navigate to={`/${DEFAULT_LOCALE}/${page}`} replace />} />
-        ))}
-        <Route path="/:locale" element={<LocaleLayout />}>
+        <Route path="/es/*" element={<DefaultLocaleRedirect />} />
+
+        <Route element={<DefaultLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
           <Route path="about" element={<InfoPage page="about" />} />
@@ -52,6 +66,16 @@ export function AppRouter() {
           <Route path="privacy" element={<InfoPage page="privacy" />} />
           <Route path="terms" element={<InfoPage page="terms" />} />
         </Route>
+
+        <Route path="/:locale" element={<PrefixedLocaleLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="game" element={<GamePage />} />
+          <Route path="about" element={<InfoPage page="about" />} />
+          <Route path="contact" element={<InfoPage page="contact" />} />
+          <Route path="privacy" element={<InfoPage page="privacy" />} />
+          <Route path="terms" element={<InfoPage page="terms" />} />
+        </Route>
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>

@@ -1,21 +1,16 @@
 import { Link } from 'react-router-dom'
-import { useI18n } from '../../i18n/config'
+import { localizePath, useI18n } from '../../i18n/config'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function SiteHeader() {
   const { locale, t } = useI18n()
-  const home = `/${locale}/`
+  const home = localizePath('/', locale)
 
   return (
     <header className="site-header">
       <div className="site-container site-header__inner">
         <Link className="brand-lockup" to={home} aria-label={t('common', 'brand')}>
-          <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-              <path d="M12 3l6 4v10l-6 4-6-4V7l6-4Z" />
-              <path d="M9 10.5l3-2 3 2v3l-3 2-3-2v-3Z" />
-            </svg>
-          </span>
+          <img className="brand-mark" src="/favicon.svg" alt="" width="42" height="42" aria-hidden="true" />
           <span>Copero</span>
         </Link>
 

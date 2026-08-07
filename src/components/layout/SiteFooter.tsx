@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useI18n } from '../../i18n/config'
+import { localizePath, useI18n } from '../../i18n/config'
 
 const FOOTER_LINKS = ['about', 'contact', 'privacy', 'terms'] as const
 
@@ -15,7 +15,7 @@ export function SiteFooter() {
         </div>
         <nav className="site-footer__nav" aria-label={t('common', 'footer.navigation')}>
           {FOOTER_LINKS.map((page) => (
-            <Link key={page} to={`/${locale}/${page}`}>
+            <Link key={page} to={localizePath(`/${page}`, locale)}>
               {t('common', `footer.${page}`)}
             </Link>
           ))}
