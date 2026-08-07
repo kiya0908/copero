@@ -14,9 +14,13 @@ import {
 import { ClubOfferCard, MarketHeader, OfferGrid, RetireCard } from '../ui/ClubOfferCard'
 import { EventChoiceCards, type ChoiceSpinResult } from '../ui/EventChoiceCards'
 import { PlayerShell } from '../ui/PlayerShell'
+import { GameBadge, GameButton, Metric, SectionTitle, StatusPanel, Surface } from '../ui/Primitives'
 import { SeasonResultCard } from '../ui/SeasonResultCard'
 import { StatIcons } from '../ui/StatIcons'
 import { TrophyCelebration } from '../ui/TrophyCelebration'
+
+const fieldClass =
+  'mt-1 w-full rounded-[var(--copero-radius)] border border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_68%,transparent)] px-3 py-2 text-sm text-[color:var(--copero-fg)] outline-none transition focus:border-[color:var(--copero-accent)]'
 
 export function CareerPhase({
   state,
@@ -55,7 +59,7 @@ export function CareerPhase({
   onChooseTraits: (ids: TraitId[]) => void
   onRespondYouthLoan: (requestLoan: boolean) => void
 }) {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
   const gameT: GameTranslate = (key, params) => t('game', key, params)
   const event = state.currentEvent
 
@@ -81,7 +85,7 @@ export function CareerPhase({
     : 0
 
   const left = (
-    <div className="space-y-3">
+    <div className="game-panel-stack">
       {event?.type === 'trait_pick' && (
         <TraitPickPanel
           title={event.title}
@@ -92,34 +96,34 @@ export function CareerPhase({
       )}
 
       {event?.type === 'youth_loan_choice' && (
-        <div className="glass-card space-y-3 rounded-2xl p-4">
-          <h3 className="font-display text-lg font-extrabold text-white">
-            {resolveGameText(gameT, event.title)}
-          </h3>
-          <p className="text-sm text-white/60">{resolveGameText(gameT, event.body)}</p>
+        <Surface tone="strong" className="space-y-4 p-4 sm:p-5">
+          <div>
+            <SectionTitle as="h3">{resolveGameText(gameT, event.title)}</SectionTitle>
+            <p className="mt-2 text-sm leading-relaxed text-[color:var(--copero-muted)]">{resolveGameText(gameT, event.body)}</p>
+          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => onRespondYouthLoan(false)}
-              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10"
+              className="game-card-action rounded-[var(--copero-radius-lg)] border border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_54%,transparent)] px-4 py-3 text-left"
             >
-              <div className="text-sm font-extrabold text-white/85">{gameT('youthLoan.stay')}</div>
-              <div className="mt-1 text-[11px] text-white/45">{gameT('youthLoan.stayHint')}</div>
+              <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-fg)]">{gameT('youthLoan.stay')}</div>
+              <div className="mt-1 text-[11px] text-[color:var(--copero-muted)]">{gameT('youthLoan.stayHint')}</div>
             </button>
             <button
               type="button"
               onClick={() => onRespondYouthLoan(true)}
-              className="rounded-2xl border border-sky-400/40 bg-sky-500/15 px-4 py-3 text-left transition hover:bg-sky-500/25"
+              className="game-card-action rounded-[var(--copero-radius-lg)] border border-[color:color-mix(in_oklch,var(--copero-accent)_34%,var(--copero-border))] bg-[color:color-mix(in_oklch,var(--copero-accent)_10%,transparent)] px-4 py-3 text-left"
             >
-              <div className="text-sm font-extrabold text-sky-100">{gameT('youthLoan.request')}</div>
-              <div className="mt-1 text-[11px] text-white/50">{gameT('youthLoan.requestHint')}</div>
+              <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-accent)]">{gameT('youthLoan.request')}</div>
+              <div className="mt-1 text-[11px] text-[color:var(--copero-muted)]">{gameT('youthLoan.requestHint')}</div>
             </button>
           </div>
-        </div>
+        </Surface>
       )}
 
       {event?.type === 'offer' && (
-        <div className="glass-card space-y-3 rounded-2xl p-4">
+        <Surface tone="strong" className="space-y-4 p-4 sm:p-5">
           <MarketHeader
             title={resolveGameText(gameT, event.title)}
             subtitle={resolveGameText(gameT, event.body) || gameT('offer.marketSubtitle')}
@@ -146,29 +150,21 @@ export function CareerPhase({
             )}
           </OfferGrid>
           {showRetire && <RetireCard onRetire={onRetire} />}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-2 border-t border-[color:var(--copero-border)] pt-3">
             {event.canNegotiate && event.offers[0] && (
-              <button
-                type="button"
-                className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/80 hover:border-white/40 hover:text-white"
-                onClick={() => onNegotiate(event.offers[0].id)}
-              >
+              <GameButton type="button" size="sm" variant="secondary" onClick={() => onNegotiate(event.offers[0].id)}>
                 {gameT('offer.negotiate')}
-              </button>
+              </GameButton>
             )}
             {!state.agentRerollUsed &&
               state.currentTeamId &&
               event.offers.some((offer) => offer.kind === 'transfer') && (
-                <button
-                  type="button"
-                  className="rounded-full bg-emerald-500/20 px-3 py-1.5 text-xs font-extrabold uppercase tracking-wide text-emerald-300 hover:bg-emerald-500/30"
-                  onClick={onCallAgent}
-                >
+                <GameButton type="button" size="sm" onClick={onCallAgent}>
                   {gameT('offer.agent')}
-                </button>
+                </GameButton>
               )}
           </div>
-        </div>
+        </Surface>
       )}
 
       {event?.type === 'negotiation' && (
@@ -184,20 +180,18 @@ export function CareerPhase({
       )}
 
       {event?.type === 'career_choice' && (
-        <div className="space-y-2">
-          <EventChoiceCards
-            eventId={event.eventId}
-            title={resolveGameText(gameT, event.title)}
-            body={resolveGameText(gameT, event.body)}
-            choices={event.choices.map((choice) => ({
-              id: choice.id,
-              label: resolveGameText(gameT, choice.label),
-            }))}
-            impact={event.impact}
-            onPreview={onPreviewChoice}
-            onCommit={onCommitChoice}
-          />
-        </div>
+        <EventChoiceCards
+          eventId={event.eventId}
+          title={resolveGameText(gameT, event.title)}
+          body={resolveGameText(gameT, event.body)}
+          choices={event.choices.map((choice) => ({
+            id: choice.id,
+            label: resolveGameText(gameT, choice.label),
+          }))}
+          impact={event.impact}
+          onPreview={onPreviewChoice}
+          onCommit={onCommitChoice}
+        />
       )}
 
       {event?.type === 'season_result' && (
@@ -216,23 +210,14 @@ export function CareerPhase({
         />
       )}
 
-      {event?.type === 'national_callup' && (
-        <NationalCallupPanel
-          event={event}
-          onRespond={onRespondCallup}
-        />
-      )}
+      {event?.type === 'national_callup' && <NationalCallupPanel event={event} onRespond={onRespondCallup} />}
 
       {!event && !state.celebration && (
-        <div className="glass-card space-y-3 rounded-2xl p-4">
-          <button
-            type="button"
-            onClick={onContinueSeason}
-            className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-black"
-          >
+        <Surface tone="accent" className="p-4">
+          <GameButton type="button" size="lg" onClick={onContinueSeason}>
             {gameT('season.simulate')}
-          </button>
-        </div>
+          </GameButton>
+        </Surface>
       )}
     </div>
   )
@@ -280,46 +265,44 @@ function NationalCallupPanel({
   })
 
   return (
-    <div className="glass-card space-y-3 rounded-2xl p-4">
+    <Surface tone="accent" className="space-y-4 p-4 sm:p-5 game-accent-glow">
       <div className="flex items-center gap-3">
         {country && <img src={flagUrl(country.iso_alpha2)} alt="" className="h-6 w-9 rounded-sm" />}
         {country?.logo_url && <img src={country.logo_url} alt="" className="h-10 w-10 object-contain" />}
         <div>
-          <h3 className="font-display text-lg font-extrabold">{resolveGameText(gameT, event.title)}</h3>
-          <p className="text-sm text-white/55">{countryName}</p>
+          <SectionTitle as="h3">{resolveGameText(gameT, event.title)}</SectionTitle>
+          <p className="mt-1 text-sm text-[color:var(--copero-muted)]">{countryName}</p>
         </div>
       </div>
-      <p className="text-sm text-white/65">{body}</p>
-      {event.viaHeritage && (
-        <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-100/90">
-          {gameT('national.heritageNote')}
-        </div>
-      )}
-      <StatIcons
-        appearances={event.projected.appearances}
-        goals={event.projected.goals}
-        assists={event.projected.assists}
-        animate={false}
-      />
+      <p className="text-sm leading-relaxed text-[color:var(--copero-muted)]">{body}</p>
+      {event.viaHeritage && <StatusPanel tone="warning">{gameT('national.heritageNote')}</StatusPanel>}
+      <div className="rounded-[var(--copero-radius)] border border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_58%,transparent)] p-3">
+        <StatIcons
+          appearances={event.projected.appearances}
+          goals={event.projected.goals}
+          assists={event.projected.assists}
+          animate={false}
+        />
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <button
           type="button"
           onClick={() => onRespond(true)}
-          className="rounded-2xl border border-emerald-400/40 bg-emerald-500/15 px-4 py-3 text-left transition hover:bg-emerald-500/25"
+          className="game-card-action rounded-[var(--copero-radius-lg)] border border-[color:color-mix(in_oklch,var(--copero-accent)_35%,var(--copero-border))] bg-[color:color-mix(in_oklch,var(--copero-accent)_11%,transparent)] px-4 py-3 text-left"
         >
-          <div className="text-sm font-extrabold text-emerald-200">{gameT('national.accept')}</div>
-          <div className="mt-1 text-[11px] text-white/50">{gameT('national.acceptHint')}</div>
+          <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-accent)]">{gameT('national.accept')}</div>
+          <div className="mt-1 text-[11px] text-[color:var(--copero-muted)]">{gameT('national.acceptHint')}</div>
         </button>
         <button
           type="button"
           onClick={() => onRespond(false)}
-          className="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10"
+          className="game-card-action rounded-[var(--copero-radius-lg)] border border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_52%,transparent)] px-4 py-3 text-left"
         >
-          <div className="text-sm font-extrabold text-white/80">{gameT('national.reject')}</div>
-          <div className="mt-1 text-[11px] text-white/45">{gameT('national.rejectHint')}</div>
+          <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-fg)]">{gameT('national.reject')}</div>
+          <div className="mt-1 text-[11px] text-[color:var(--copero-muted)]">{gameT('national.rejectHint')}</div>
         </button>
       </div>
-    </div>
+    </Surface>
   )
 }
 
@@ -339,19 +322,19 @@ function TraitPickPanel({
   const [selected, setSelected] = useState<TraitId[]>([])
 
   const toggle = (id: TraitId) => {
-    setSelected((prev) => {
-      if (prev.includes(id)) return prev.filter((item) => item !== id)
-      if (prev.length >= 2) return [prev[1]!, id]
-      return [...prev, id]
+    setSelected((previous) => {
+      if (previous.includes(id)) return previous.filter((item) => item !== id)
+      if (previous.length >= 2) return [previous[1]!, id]
+      return [...previous, id]
     })
   }
 
   return (
-    <div className="glass-card space-y-4 rounded-2xl p-4">
+    <Surface tone="strong" className="space-y-4 p-4 sm:p-5">
       <div>
-        <h3 className="font-display text-lg font-extrabold text-white">{resolveGameText(gameT, title)}</h3>
-        <p className="mt-1 text-sm text-white/55">{resolveGameText(gameT, body)}</p>
-        <p className="mt-1 text-[11px] text-white/40">{gameT('traits.pickHint')}</p>
+        <SectionTitle as="h3">{resolveGameText(gameT, title)}</SectionTitle>
+        <p className="mt-2 text-sm text-[color:var(--copero-muted)]">{resolveGameText(gameT, body)}</p>
+        <p className="mt-1 text-[11px] text-[color:var(--copero-muted)]">{gameT('traits.pickHint')}</p>
       </div>
       <div className="grid gap-2">
         {options.map((option) => {
@@ -361,31 +344,27 @@ function TraitPickPanel({
               key={option.id}
               type="button"
               onClick={() => toggle(option.id)}
-              className={`rounded-2xl border px-4 py-3 text-left transition ${
+              className={`game-card-action rounded-[var(--copero-radius-lg)] border px-4 py-3 text-left ${
                 active
-                  ? 'border-white bg-white/10'
-                  : 'border-white/10 bg-black/30 hover:border-white/25'
+                  ? 'border-[color:var(--copero-accent)] bg-[color:color-mix(in_oklch,var(--copero-accent)_10%,transparent)]'
+                  : 'border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_52%,transparent)]'
               }`}
             >
-              <div className="text-sm font-extrabold text-white">{resolveGameText(gameT, option.label)}</div>
-              <div className="mt-1 text-[12px] text-white/50">{resolveGameText(gameT, option.desc)}</div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-fg)]">
+                  {resolveGameText(gameT, option.label)}
+                </div>
+                {active && <GameBadge tone="accent">✓</GameBadge>}
+              </div>
+              <div className="mt-1 text-[12px] text-[color:var(--copero-muted)]">{resolveGameText(gameT, option.desc)}</div>
             </button>
           )
         })}
       </div>
-      <button
-        type="button"
-        disabled={selected.length === 0}
-        onClick={() => onConfirm(selected)}
-        className={`rounded-full px-5 py-2.5 text-sm font-semibold ${
-          selected.length
-            ? 'bg-white text-black hover:bg-white/90'
-            : 'cursor-not-allowed bg-white/20 text-white/40'
-        }`}
-      >
+      <GameButton type="button" disabled={selected.length === 0} onClick={() => onConfirm(selected)}>
         {gameT('traits.confirm')}
-      </button>
-    </div>
+      </GameButton>
+    </Surface>
   )
 }
 
@@ -433,39 +412,23 @@ function NegotiationPanel({
   }
 
   return (
-    <div className="glass-card relative space-y-3 overflow-hidden rounded-2xl p-4">
+    <Surface tone="strong" className="relative space-y-4 overflow-hidden p-4 sm:p-5">
       {team?.logo_url && (
-        <img
-          src={team.logo_url}
-          alt=""
-          className="pointer-events-none absolute -right-6 -top-4 h-40 w-40 object-contain opacity-[0.12]"
-        />
+        <img src={team.logo_url} alt="" className="pointer-events-none absolute -right-6 -top-4 h-40 w-40 object-contain opacity-[0.08]" />
       )}
       <div className="relative z-10 flex items-center gap-3">
-        {team?.logo_url ? (
-          <img src={team.logo_url} alt="" className="h-12 w-12 object-contain" />
-        ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">?</div>
-        )}
+        <span className="game-icon-tile h-12 w-12 bg-white p-1.5">
+          {team?.logo_url ? <img src={team.logo_url} alt="" className="h-full w-full object-contain" /> : '?'}
+        </span>
         <div>
-          <h3 className="font-display text-lg font-extrabold uppercase tracking-wide">
-            {resolveGameText(gameT, title)}
-          </h3>
-          <p className="text-sm text-white/55">{resolveGameText(gameT, body)}</p>
+          <SectionTitle as="h3">{resolveGameText(gameT, title)}</SectionTitle>
+          <p className="mt-1 text-sm text-[color:var(--copero-muted)]">{resolveGameText(gameT, body)}</p>
         </div>
       </div>
 
-      <div className="relative z-10 grid grid-cols-2 gap-3 rounded-xl border border-white/10 bg-black/30 p-3">
-        <div>
-          <div className="text-[10px] uppercase tracking-wide text-white/40">{gameT('negotiate.offered')}</div>
-          <div className="text-sm text-white/70">{formatMoneyForLocale(locale, offer.annualWage)}{gameT('offer.year')}</div>
-        </div>
-        <div>
-          <div className="text-[10px] uppercase tracking-wide text-white/40">{gameT('negotiate.asking')}</div>
-          <div className="money-neon font-display text-lg font-extrabold">
-            {formatMoneyForLocale(locale, effectiveWage)}{gameT('offer.year')}
-          </div>
-        </div>
+      <div className="relative z-10 grid grid-cols-2 gap-3">
+        <Metric label={gameT('negotiate.offered')} value={`${formatMoneyForLocale(locale, offer.annualWage)}${gameT('offer.year')}`} />
+        <Metric label={gameT('negotiate.asking')} value={`${formatMoneyForLocale(locale, effectiveWage)}${gameT('offer.year')}`} tone="accent" />
       </div>
 
       <div className="relative z-10 flex flex-wrap gap-2">
@@ -477,83 +440,55 @@ function NegotiationPanel({
             ['y1', gameT('negotiate.presetYear')],
           ] as const
         ).map(([kind, label]) => (
-          <button
-            key={kind}
-            type="button"
-            onClick={() => applyPreset(kind)}
-            className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white/80 hover:border-emerald-400/40 hover:text-emerald-300"
-          >
+          <GameButton key={kind} type="button" size="sm" variant="secondary" onClick={() => applyPreset(kind)}>
             {label}
-          </button>
+          </GameButton>
         ))}
       </div>
 
       {otherOffers.length >= 1 && (
-        <div className="relative z-10 space-y-2">
-          <div className="text-[10px] font-bold uppercase tracking-wide text-white/40">
+        <StatusPanel tone="neutral" className="relative z-10">
+          <div className="font-[family-name:var(--copero-font-mono)] text-[10px] font-bold uppercase tracking-wide text-[color:var(--copero-muted)]">
             {gameT('negotiate.usePressure')}
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             {otherOffers.map((candidate) => {
               const otherTeam = getTeam(candidate.teamId)
               const active = pressureId === candidate.id
               return (
-                <button
+                <GameButton
                   key={candidate.id}
                   type="button"
+                  size="sm"
+                  variant={active ? 'primary' : 'secondary'}
                   onClick={() => setPressureId(active ? null : candidate.id)}
-                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] ${
-                    active
-                      ? 'border-emerald-400/50 bg-emerald-500/20 text-emerald-200'
-                      : 'border-white/15 text-white/60 hover:border-white/30'
-                  }`}
                 >
                   {otherTeam?.logo_url && <img src={otherTeam.logo_url} alt="" className="h-4 w-4 object-contain" />}
                   {formatMoneyForLocale(locale, candidate.annualWage)}
-                </button>
+                </GameButton>
               )
             })}
           </div>
           {pressure && (
-            <button
-              type="button"
-              className="text-[11px] text-white/40 underline"
-              onClick={() => onNegotiateOther(pressure.id)}
-            >
+            <GameButton type="button" size="sm" variant="ghost" className="mt-2" onClick={() => onNegotiateOther(pressure.id)}>
               {gameT('negotiate.switchOffer')}
-            </button>
+            </GameButton>
           )}
-        </div>
+        </StatusPanel>
       )}
 
-      <div className="relative z-10 grid gap-2 sm:grid-cols-2">
-        <label className="text-xs text-white/50">
+      <div className="relative z-10 grid gap-3 sm:grid-cols-2">
+        <label className="text-xs text-[color:var(--copero-muted)]">
           {gameT('negotiate.wage')}
-          <input
-            type="number"
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
-            value={wage}
-            onChange={(e) => setWage(Number(e.target.value) || wage)}
-          />
+          <input type="number" className={fieldClass} value={wage} onChange={(event) => setWage(Number(event.target.value) || wage)} />
         </label>
-        <label className="text-xs text-white/50">
+        <label className="text-xs text-[color:var(--copero-muted)]">
           {gameT('negotiate.years')}
-          <input
-            type="number"
-            min={1}
-            max={5}
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
-            value={years}
-            onChange={(e) => setYears(Number(e.target.value) || years)}
-          />
+          <input type="number" min={1} max={5} className={fieldClass} value={years} onChange={(event) => setYears(Number(event.target.value) || years)} />
         </label>
-        <label className="text-xs text-white/50">
+        <label className="text-xs text-[color:var(--copero-muted)]">
           {gameT('negotiate.role')}
-          <select
-            className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
-            value={role}
-            onChange={(e) => setRole(e.target.value as PlayingRole)}
-          >
+          <select className={fieldClass} value={role} onChange={(event) => setRole(event.target.value as PlayingRole)}>
             {(['bench', 'rotation', 'starter', 'undisputed'] as const).map((candidateRole) => (
               <option key={candidateRole} value={candidateRole}>
                 {gameT(roleLabel(candidateRole))}
@@ -561,25 +496,17 @@ function NegotiationPanel({
             ))}
           </select>
         </label>
-        <label className="text-xs text-white/50">
+        <label className="text-xs text-[color:var(--copero-muted)]">
           {gameT('negotiate.clause')}
-          <div className="mt-1 flex items-center gap-2">
-            <input
-              type="number"
-              className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white"
-              value={clause}
-              onChange={(e) => setClause(Number(e.target.value) || clause)}
-            />
-            <span className="whitespace-nowrap text-xs font-semibold text-white/70">
-              {formatMoneyForLocale(locale, clause)}
-            </span>
+          <div className="flex items-center gap-2">
+            <input type="number" className={fieldClass} value={clause} onChange={(event) => setClause(Number(event.target.value) || clause)} />
+            <GameBadge mono className="mt-1 whitespace-nowrap">{formatMoneyForLocale(locale, clause)}</GameBadge>
           </div>
         </label>
       </div>
-      <div className="relative z-10 flex flex-wrap gap-2">
-        <button
+      <div className="relative z-10 flex flex-wrap gap-2 border-t border-[color:var(--copero-border)] pt-3">
+        <GameButton
           type="button"
-          className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-black"
           onClick={() =>
             onSubmit({
               annualWage: effectiveWage,
@@ -591,15 +518,11 @@ function NegotiationPanel({
           }
         >
           {gameT('negotiate.submit')}
-        </button>
-        <button
-          type="button"
-          className="rounded-full border border-white/25 px-4 py-2 text-sm"
-          onClick={onBack}
-        >
+        </GameButton>
+        <GameButton type="button" variant="secondary" onClick={onBack}>
           {gameT('negotiate.back')}
-        </button>
+        </GameButton>
       </div>
-    </div>
+    </Surface>
   )
 }
