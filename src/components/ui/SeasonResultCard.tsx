@@ -4,22 +4,21 @@ import type { SeasonRecord } from '../../engine/types'
 import { useI18n } from '../../i18n/config'
 import { formatMoneyForLocale, type GameTranslate } from '../../i18n/game'
 import { OvrBadge } from './OvrBadge'
+import { GameBadge, GameButton, Metric, StatusPanel, Surface } from './Primitives'
 import { StatIcons } from './StatIcons'
 import { TrophyIcon } from './TrophyIcon'
 
-function seasonForm(season: SeasonRecord): { key: string; cls: string } {
+function seasonForm(season: SeasonRecord): { key: string; tone: 'danger' | 'success' | 'info' | 'gold' } {
   const apps = Math.max(1, season.stats.appearances)
   const contrib = (season.stats.goals + season.stats.assists) / apps
-  if (season.injured || season.suspended) return { key: 'season.form.bad', cls: 'bg-rose-500/25 text-rose-200' }
-  if (season.role === 'bench' && apps < 15) return { key: 'season.form.bad', cls: 'bg-rose-500/25 text-rose-200' }
+  if (season.injured || season.suspended) return { key: 'season.form.bad', tone: 'danger' }
+  if (season.role === 'bench' && apps < 15) return { key: 'season.form.bad', tone: 'danger' }
   if (contrib >= 0.45 || (season.role === 'undisputed' && apps >= 28)) {
-    return { key: 'season.form.excellent', cls: 'bg-emerald-500/25 text-emerald-200' }
+    return { key: 'season.form.excellent', tone: 'success' }
   }
-  if (contrib >= 0.22 || season.role === 'starter') {
-    return { key: 'season.form.good', cls: 'bg-sky-500/25 text-sky-200' }
-  }
-  if (contrib >= 0.1) return { key: 'season.form.regular', cls: 'bg-amber-500/20 text-amber-200' }
-  return { key: 'season.form.bad', cls: 'bg-rose-500/25 text-rose-200' }
+  if (contrib >= 0.22 || season.role === 'starter') return { key: 'season.form.good', tone: 'info' }
+  if (contrib >= 0.1) return { key: 'season.form.regular', tone: 'gold' }
+  return { key: 'season.form.bad', tone: 'danger' }
 }
 
 export function SeasonResultCard({
@@ -48,29 +47,33 @@ export function SeasonResultCard({
   const form = seasonForm(season)
 
   return (
-    <div className="glass-card space-y-4 rounded-2xl p-4">
+    <Surface tone={season.trophies.length > 0 ? 'gold' : 'strong'} className="space-y-4 p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           {parentTeam && (
             <>
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/95 p-1.5 ring-1 ring-black/10">
+              <span className="game-icon-tile h-12 w-12 bg-white p-1.5">
                 {parentTeam.logo_url ? (
                   <img src={parentTeam.logo_url} alt="" className="h-full w-full object-contain" />
                 ) : (
                   <span className="text-black/40">?</span>
                 )}
               </span>
-              <span className="text-white/40">→</span>
+              <span className="text-[color:var(--copero-muted)]">→</span>
             </>
           )}
           {team?.logo_url ? (
-            <img src={team.logo_url} alt="" className="h-14 w-14 object-contain" />
+            <span className="game-icon-tile h-14 w-14 bg-white p-1.5">
+              <img src={team.logo_url} alt="" className="h-full w-full object-contain" />
+            </span>
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10">?</div>
+            <span className="game-icon-tile h-14 w-14">?</span>
           )}
           <div className="min-w-0">
-            <h3 className="font-display text-lg font-extrabold text-white">{title}</h3>
-            <p className="truncate text-sm text-white/55">{team?.name ?? season.teamId}</p>
+            <h3 className="font-[family-name:var(--copero-font-display)] text-lg font-black uppercase text-[color:var(--copero-fg)]">
+              {title}
+            </h3>
+            <p className="truncate text-sm text-[color:var(--copero-muted)]">{team?.name ?? season.teamId}</p>
             {season.loan && parentTeam && (
               <p className="mt-0.5 text-[11px] text-sky-200/80">
                 {gameT('season.loanedBy', { team: parentTeam.name })}
@@ -79,99 +82,49 @@ export function SeasonResultCard({
             {season.loan && !parentTeam && (
               <p className="mt-0.5 text-[11px] text-sky-200/80">{gameT('season.onLoan')}</p>
             )}
-            {stageLabelText && (
-              <p className="mt-0.5 text-[11px] uppercase tracking-wide text-white/40">{stageLabelText}</p>
-            )}
+            {stageLabelText && <GameBadge mono className="mt-2">{stageLabelText}</GameBadge>}
           </div>
         </div>
         <OvrBadge overall={season.overall} size="md" />
       </div>
 
       {objectiveLabel && (
-        <div
-          className={`rounded-xl border px-3 py-2 text-sm ${
-            objectiveCompleted
-              ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-100'
-              : objectiveFailed
-                ? 'border-rose-400/40 bg-rose-500/15 text-rose-100'
-                : 'border-white/10 bg-white/5 text-white/70'
-          }`}
-        >
-          <span className="text-[10px] uppercase tracking-wide opacity-70">{gameT('season.objective')} · </span>
-          {objectiveCompleted ? '✓ ' : objectiveFailed ? '✗ ' : ''}
-          {objectiveLabel}
-        </div>
+        <StatusPanel tone={objectiveCompleted ? 'success' : objectiveFailed ? 'danger' : 'neutral'}>
+          <span className="game-eyebrow">{gameT('season.objective')}</span>
+          <div className="mt-1 text-sm font-semibold text-[color:var(--copero-fg)]">
+            {objectiveCompleted ? '✓ ' : objectiveFailed ? '✗ ' : ''}
+            {objectiveLabel}
+          </div>
+        </StatusPanel>
       )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wide text-white/40">{gameT('season.age')}</div>
-          <div className="text-lg font-bold tabular-nums">{playerAge}</div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wide text-white/40">{gameT('hud.value')}</div>
-          <div className="money-neon text-lg font-extrabold tabular-nums">
-            {formatMoneyForLocale(locale, season.marketValue)}
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wide text-white/40">{gameT('season.salary')}</div>
-          <div className="text-lg font-bold tabular-nums text-white">
-            {formatMoneyForLocale(locale, season.wage)}
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2">
-          <div className="text-[10px] uppercase tracking-wide text-white/40">{gameT('season.form')}</div>
-          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-bold ${form.cls}`}>
-            {gameT(form.key)}
-          </span>
-        </div>
+        <Metric label={gameT('season.age')} value={playerAge} />
+        <Metric label={gameT('hud.value')} value={formatMoneyForLocale(locale, season.marketValue)} tone="accent" />
+        <Metric label={gameT('season.salary')} value={formatMoneyForLocale(locale, season.wage)} />
+        <Metric label={gameT('season.form')} value={<GameBadge tone={form.tone}>{gameT(form.key)}</GameBadge>} />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-white/15 px-2.5 py-1 text-[11px] text-white/70">
-          {gameT(roleLabel(season.role))}
-        </span>
-        {season.loan && (
-          <span className="rounded-full border border-dashed border-sky-400/50 bg-sky-500/20 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-sky-200">
-            {gameT('season.loan')}
-          </span>
-        )}
-        {season.injured && (
-          <span className="rounded-full bg-rose-500/20 px-2.5 py-1 text-[11px] text-rose-200">
-            {gameT('season.injured')}
-          </span>
-        )}
-        {season.suspended && (
-          <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[11px] text-amber-200">
-            {gameT('season.suspended')}
-          </span>
-        )}
-        {season.struggle === 'promoted' && (
-          <span className="rounded-md bg-emerald-500/25 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-100">
-            {gameT('season.promotion')}
-          </span>
-        )}
-        {season.struggle === 'relegated' && (
-          <span className="rounded-full bg-rose-600/30 px-2.5 py-1 text-[11px] font-bold text-rose-100">
-            {gameT('season.relegation')}
-          </span>
-        )}
-        {season.struggle === 'relegation_battle' && (
-          <span className="rounded-full bg-orange-500/25 px-2.5 py-1 text-[11px] text-orange-100">
-            {gameT('season.relegationBattle')}
-          </span>
-        )}
+        <GameBadge>{gameT(roleLabel(season.role))}</GameBadge>
+        {season.loan && <GameBadge tone="info">{gameT('season.loan')}</GameBadge>}
+        {season.injured && <GameBadge tone="danger">{gameT('season.injured')}</GameBadge>}
+        {season.suspended && <GameBadge tone="gold">{gameT('season.suspended')}</GameBadge>}
+        {season.struggle === 'promoted' && <GameBadge tone="success">{gameT('season.promotion')}</GameBadge>}
+        {season.struggle === 'relegated' && <GameBadge tone="danger">{gameT('season.relegation')}</GameBadge>}
+        {season.struggle === 'relegation_battle' && <GameBadge tone="gold">{gameT('season.relegationBattle')}</GameBadge>}
       </div>
 
-      <StatIcons
-        appearances={season.stats.appearances}
-        goals={season.stats.goals}
-        assists={season.stats.assists}
-      />
+      <div className="rounded-[var(--copero-radius)] border border-[color:var(--copero-border)] bg-[color:color-mix(in_oklch,var(--copero-bg)_60%,transparent)] p-3">
+        <StatIcons
+          appearances={season.stats.appearances}
+          goals={season.stats.goals}
+          assists={season.stats.assists}
+        />
+      </div>
 
       {season.trophies.length > 0 && (
-        <div className="flex flex-wrap gap-2 border-t border-white/10 pt-3">
+        <div className="flex flex-wrap gap-2 border-t border-[color:var(--copero-border)] pt-3">
           {season.trophies.map((trophy, index) => (
             <TrophyIcon
               key={`${trophy.id}-${index}`}
@@ -183,13 +136,9 @@ export function SeasonResultCard({
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={onContinue}
-        className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-white/90 active:scale-[0.99]"
-      >
+      <GameButton type="button" onClick={onContinue}>
         {gameT('season.continue')}
-      </button>
-    </div>
+      </GameButton>
+    </Surface>
   )
 }
