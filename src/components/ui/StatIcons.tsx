@@ -1,8 +1,9 @@
+import { useI18n } from '../../i18n/config'
+import type { GameTranslate } from '../../i18n/game'
 import { AnimatedNumber } from './AnimatedNumber'
 
 type IconProps = { className?: string }
 
-/** PJ — cancha con área */
 export function MatchesIcon({ className = 'h-5 w-5' }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden>
@@ -14,7 +15,6 @@ export function MatchesIcon({ className = 'h-5 w-5' }: IconProps) {
   )
 }
 
-/** GLS — pelota clásica */
 export function GoalsIcon({ className = 'h-5 w-5' }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden>
@@ -30,7 +30,6 @@ export function GoalsIcon({ className = 'h-5 w-5' }: IconProps) {
   )
 }
 
-/** AST — bota + pase */
 export function AssistsIcon({ className = 'h-5 w-5' }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden>
@@ -40,13 +39,7 @@ export function AssistsIcon({ className = 'h-5 w-5' }: IconProps) {
         strokeWidth="1.6"
         strokeLinecap="round"
       />
-      <path
-        d="M5.5 18.2c1.8.9 3.6 1.1 5.2.2"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        opacity="0.7"
-      />
+      <path d="M5.5 18.2c1.8.9 3.6 1.1 5.2.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.7" />
       <path
         d="M15.5 13.5 20 9.2M17.2 9.4l2.8-.2-.3 2.7"
         stroke="currentColor"
@@ -72,22 +65,27 @@ export function StatIcons({
   animate?: boolean
   compact?: boolean
 }) {
+  const { t } = useI18n()
+  const gameT: GameTranslate = (key, params) => t('game', key, params)
   const Num = ({ n }: { n: number }) =>
     animate ? <AnimatedNumber value={n} className="tabular-nums" /> : <span className="tabular-nums">{n}</span>
+  const matchesLabel = gameT('summary.matches')
+  const goalsLabel = gameT('summary.goals')
+  const assistsLabel = gameT('summary.assists')
 
   if (compact) {
     const icon = 'h-3.5 w-3.5 shrink-0'
     return (
       <div className="flex items-center gap-2.5 text-[11px] font-semibold">
-        <span className="inline-flex min-w-[2.25rem] items-center gap-0.5 text-emerald-400" title="Partidos">
+        <span className="inline-flex min-w-[2.25rem] items-center gap-0.5 text-[color:var(--copero-accent)]" title={matchesLabel}>
           <MatchesIcon className={icon} />
           <Num n={appearances} />
         </span>
-        <span className="inline-flex min-w-[2.25rem] items-center gap-0.5 text-white" title="Goles">
+        <span className="inline-flex min-w-[2.25rem] items-center gap-0.5 text-[color:var(--copero-fg)]" title={goalsLabel}>
           <GoalsIcon className={icon} />
           <Num n={goals} />
         </span>
-        <span className="inline-flex min-w-[2.25rem] items-center gap-0.5 text-sky-300" title="Asistencias">
+        <span className="inline-flex min-w-[2.25rem] items-center gap-0.5 text-sky-300" title={assistsLabel}>
           <AssistsIcon className={icon} />
           <Num n={assists} />
         </span>
@@ -97,20 +95,20 @@ export function StatIcons({
 
   return (
     <div className="flex flex-wrap gap-4 text-sm font-semibold">
-      <div className="flex items-center gap-1.5 text-emerald-400" title="Partidos">
+      <div className="flex items-center gap-1.5 text-[color:var(--copero-accent)]" title={matchesLabel}>
         <MatchesIcon className="h-5 w-5" />
         <Num n={appearances} />
-        <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-400/60">PJ</span>
+        <span className="font-[family-name:var(--copero-font-mono)] text-[9px] font-medium uppercase tracking-wide opacity-65">M</span>
       </div>
-      <div className="flex items-center gap-1.5 text-white" title="Goles">
+      <div className="flex items-center gap-1.5 text-[color:var(--copero-fg)]" title={goalsLabel}>
         <GoalsIcon className="h-5 w-5" />
         <Num n={goals} />
-        <span className="text-[10px] font-medium uppercase tracking-wide text-white/50">GLS</span>
+        <span className="font-[family-name:var(--copero-font-mono)] text-[9px] font-medium uppercase tracking-wide opacity-55">G</span>
       </div>
-      <div className="flex items-center gap-1.5 text-sky-300" title="Asistencias">
+      <div className="flex items-center gap-1.5 text-sky-300" title={assistsLabel}>
         <AssistsIcon className="h-5 w-5" />
         <Num n={assists} />
-        <span className="text-[10px] font-medium uppercase tracking-wide text-sky-300/60">AST</span>
+        <span className="font-[family-name:var(--copero-font-mono)] text-[9px] font-medium uppercase tracking-wide opacity-65">A</span>
       </div>
     </div>
   )
