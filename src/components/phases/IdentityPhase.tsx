@@ -9,6 +9,11 @@ import { positionLabel } from '../ui/positions'
 
 const INITIAL_COUNTRIES = 24
 const PRIORITY_FIFA = ['ARG', 'BRA', 'MEX', 'URU', 'COL', 'CHI', 'ESP', 'ENG', 'ITA', 'FRA', 'GER', 'POR', 'USA', 'NED', 'BEL']
+const DEFAULT_NATIONALITY =
+  PRIORITY_FIFA.find((code) => allCountries.some((country) => country.fifa_code === code)) ??
+  allCountries[0]?.fifa_code ??
+  null
+const DEFAULT_POSITION: Position = 'ST'
 
 export function IdentityPhase({
   onSubmit,
@@ -25,11 +30,11 @@ export function IdentityPhase({
   onBack?: () => void
 }) {
   const [search, setSearch] = useState('')
-  const [nationalityFifa, setNationalityFifa] = useState<string | null>(null)
+  const [nationalityFifa, setNationalityFifa] = useState<string | null>(DEFAULT_NATIONALITY)
   const [heritageNationalityFifa, setHeritageNationalityFifa] = useState<string | null>(null)
   const [heritageSearch, setHeritageSearch] = useState('')
   const [showHeritage, setShowHeritage] = useState(false)
-  const [position, setPosition] = useState<Position | null>(null)
+  const [position, setPosition] = useState<Position | null>(DEFAULT_POSITION)
   const [lastName, setLastName] = useState('')
   const [preferredNumber, setPreferredNumber] = useState(10)
   const [preferredFoot, setPreferredFoot] = useState<PreferredFoot>('right')
@@ -85,7 +90,10 @@ export function IdentityPhase({
   return (
     <section className="mx-auto max-w-6xl px-4 py-8">
       <div className="glass-card rounded-3xl border border-white/10 p-5 sm:p-7">
-        <h2 className="mb-6 text-3xl font-bold text-white">{t('identity.title')}</h2>
+        <h2 className="mb-2 text-3xl font-bold text-white">{t('identity.title')}</h2>
+        <p className="mb-6 text-sm leading-relaxed text-white/50">
+          Elegí nacionalidad y posición. Dejamos una opción inicial seleccionada para que puedas continuar de inmediato y cambiarla si querés.
+        </p>
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="space-y-4">
@@ -145,13 +153,7 @@ export function IdentityPhase({
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (showHeritage) {
-                      setShowHeritage(false)
-                    } else {
-                      setShowHeritage(true)
-                    }
-                  }}
+                  onClick={() => setShowHeritage((current) => !current)}
                   className={`rounded-full px-3 py-1 text-[11px] font-semibold transition ${
                     heritageNationalityFifa || showHeritage
                       ? 'bg-sky-400 text-black'
@@ -209,7 +211,14 @@ export function IdentityPhase({
           </div>
 
           <div className="flex flex-col">
-            <h3 className="mb-3 text-sm font-semibold text-white/70">{t('identity.nationality')}</h3>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold text-white/70">{t('identity.nationality')}</h3>
+              {selectedCountry && (
+                <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                  ✓ {selectedCountry.name_es}
+                </span>
+              )}
+            </div>
             <div className="relative mb-3">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40">⌕</span>
               <input
@@ -257,15 +266,22 @@ export function IdentityPhase({
           </div>
 
           <div>
-            <h3 className="mb-3 text-sm font-semibold text-white/70">{t('identity.position')}</h3>
-            <PitchPositionPicker value={position} onChange={(p) => setPosition(p)} />
-            {position && (
-              <p className="mt-3 text-center text-sm text-white/50">{positionLabel(position)}</p>
-            )}
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold text-white/70">{t('identity.position')}</h3>
+              {position && (
+                <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+                  ✓ {positionLabel(position)}
+                </span>
+              )}
+            </div>
+            <PitchPositionPicker value={position} onChange={setPosition} />
+            <p className="mt-3 text-center text-sm text-white/50">
+              Tocá cualquier posición en la cancha para cambiarla.
+            </p>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap justify-between gap-3">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           {onBack ? (
             <button
               type="button"
@@ -277,29 +293,36 @@ export function IdentityPhase({
           ) : (
             <span />
           )}
-          <button
-            type="button"
-            disabled={!canConfirm}
-            onClick={() => {
-              if (!nationalityFifa || !position) return
-              onSubmit({
-                lastName,
-                preferredNumber,
-                preferredFoot,
-                position,
-                nationalityFifa,
-                heritageNationalityFifa:
-                  heritageNationalityFifa && heritageNationalityFifa !== nationalityFifa
-                    ? heritageNationalityFifa
-                    : null,
-              })
-            }}
-            className={`rounded-full px-8 py-2.5 font-semibold transition ${
-              canConfirm ? 'bg-white text-black hover:bg-white/90' : 'cursor-not-allowed bg-white/20 text-white/40'
-            }`}
-          >
-            Confirmar identidad
-          </button>
+          <div className="flex flex-col items-end gap-2">
+            {!canConfirm && (
+              <p className="text-xs font-semibold text-amber-300">
+                Elegí una nacionalidad y una posición para continuar.
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={!canConfirm}
+              onClick={() => {
+                if (!nationalityFifa || !position) return
+                onSubmit({
+                  lastName,
+                  preferredNumber,
+                  preferredFoot,
+                  position,
+                  nationalityFifa,
+                  heritageNationalityFifa:
+                    heritageNationalityFifa && heritageNationalityFifa !== nationalityFifa
+                      ? heritageNationalityFifa
+                      : null,
+                })
+              }}
+              className={`rounded-full px-8 py-2.5 font-semibold transition ${
+                canConfirm ? 'bg-white text-black hover:bg-white/90' : 'cursor-not-allowed bg-white/20 text-white/40'
+              }`}
+            >
+              Confirmar identidad
+            </button>
+          </div>
         </div>
       </div>
     </section>
