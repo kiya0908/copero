@@ -3,7 +3,7 @@ import type { EventOutcomePill } from '../../data/eventAssets'
 import { eventChoiceVisual } from '../../data/eventAssets'
 import { useI18n } from '../../i18n/config'
 import type { GameTranslate } from '../../i18n/game'
-import { GameBadge, GameButton, SectionEyebrow, SectionTitle, Surface } from './Primitives'
+import { GameBadge, GameButton, SectionTitle, Surface } from './Primitives'
 
 export type ChoiceSpinResult = {
   choiceId: string
@@ -146,8 +146,7 @@ export function EventChoiceCards({
   return (
     <Surface tone={impact === 'ruin' ? 'danger' : 'strong'} className={`space-y-4 p-4 sm:p-5 transition-opacity duration-300 ${exiting ? 'opacity-40' : 'opacity-100'}`}>
       <div>
-        <SectionEyebrow>{gameT('career.event')}</SectionEyebrow>
-        <SectionTitle as="h3" className="mt-2">{title}</SectionTitle>
+        <SectionTitle as="h3">{title}</SectionTitle>
         <p className="mt-2 text-sm leading-relaxed text-[color:var(--copero-muted)]">{body}</p>
       </div>
 
