@@ -47,7 +47,7 @@ function initGoogleAnalytics(): void {
   window.gtag('js', new Date())
   window.gtag('config', GA_MEASUREMENT_ID, {
     anonymize_ip: true,
-    send_page_view: true,
+    send_page_view: false,
   })
   appendScript(
     'copero-google-analytics',
@@ -76,6 +76,15 @@ export function initAnalytics(): void {
   if (!analyticsEnabled || typeof document === 'undefined') return
   initGoogleAnalytics()
   initClarity()
+}
+
+export function trackPageView(path: string): void {
+  if (!analyticsEnabled || !GA_MEASUREMENT_ID || typeof window === 'undefined') return
+
+  window.gtag?.('event', 'page_view', {
+    page_path: path,
+    page_location: `${window.location.origin}${path}`,
+  })
 }
 
 export function trackGameEvent(name: GameAnalyticsEvent, params: AnalyticsParams = {}): void {
