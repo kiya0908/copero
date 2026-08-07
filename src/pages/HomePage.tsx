@@ -2,9 +2,10 @@ import { HomepageCareerStarter } from '../components/home/HomepageCareerStarter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { useI18n } from '../i18n/config'
 
+const ABOUT_PARAGRAPH_KEYS = ['one', 'two'] as const
 const STEP_KEYS = ['identity', 'draft', 'origin', 'career'] as const
 const MECHANIC_KEYS = ['growth', 'clubs', 'events', 'national'] as const
-const FAQ_KEYS = ['free', 'save', 'classic', 'official'] as const
+const FAQ_KEYS = ['what', 'play', 'career', 'football', 'free', 'save', 'classic', 'official'] as const
 
 function CareerResultPreview() {
   const { t } = useI18n()
@@ -65,6 +66,20 @@ export function HomePage() {
           </div>
         </section>
 
+        <section className="site-section site-section--seo-intro" id="what-is-copero">
+          <div className="site-container seo-intro-grid">
+            <div className="section-heading section-heading--wide">
+              <p className="eyebrow">{t('home', 'about.eyebrow')}</p>
+              <h2>{t('home', 'about.title')}</h2>
+            </div>
+            <div className="seo-copy">
+              {ABOUT_PARAGRAPH_KEYS.map((key) => (
+                <p key={key}>{t('home', `about.paragraphs.${key}`)}</p>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="site-section" id="how-to-play">
           <div className="site-container">
             <div className="section-heading">
@@ -72,7 +87,7 @@ export function HomePage() {
               <h2>{t('home', 'howTo.title')}</h2>
               <p className="lead">{t('home', 'howTo.body')}</p>
             </div>
-            <div className="card-grid card-grid--four">
+            <div className="card-grid card-grid--two seo-step-grid">
               {STEP_KEYS.map((key, index) => (
                 <article className="content-card" key={key}>
                   <span className="step-number">{String(index + 1).padStart(2, '0')}</span>
