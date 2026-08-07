@@ -43,5 +43,16 @@
   "milestone.first_trophy": "First trophy",
   "milestone.trophy_cabinet": "Five or more trophies",
   "milestone.ovr_85": "Reached 85 OVR",
+  "celebration.nationalTrophy": "You won a title with the national team!",
+  "log.loanReturn": "Loan ended: return to {{team}}",
+  "outcome.starterPlusOne": "+1 OVR · starter",
+  "outcome.plusFourTopClub": "+4 OVR · top club",
+  "outcome.minusFifteenRuin": "-15 OVR · career ruined",
+  "outcome.minusTwentyFiveFortune": "-25% wealth",
+  "outcome.minusFiftyFortune": "-50% wealth",
+  "outcome.plusThreeRisky": "+3 OVR · risky",
+  "outcome.suspensionRuin": "Suspension · career ruined",
+  "outcome.plusOneClean": "+1 OVR · clean",
+  "outcome.minusTwoTemporary": "-2 OVR · temporary",
   "common.playerFallback": "PLAYER"
 }
