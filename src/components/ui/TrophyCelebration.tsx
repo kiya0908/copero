@@ -1,7 +1,7 @@
 import type { TrophyWin } from '../../data/trophies'
 import { useI18n } from '../../i18n/config'
 import type { GameTranslate } from '../../i18n/game'
-import { GameBadge, GameButton, SectionTitle, Surface } from './Primitives'
+import { GameButton, SectionTitle, Surface } from './Primitives'
 import { TrophyIcon } from './TrophyIcon'
 
 export function TrophyCelebration({
@@ -36,8 +36,7 @@ export function TrophyCelebration({
           ))}
         </div>
         <div className="relative mt-5">
-          <GameBadge tone="gold" className="mx-auto">TROPHY</GameBadge>
-          <SectionTitle as="h3" className="mt-3">{message}</SectionTitle>
+          <SectionTitle as="h3">{message}</SectionTitle>
           <p className="mt-2 text-sm text-[color:var(--copero-muted)]">{trophies.map((trophy) => trophy.name).join(' · ')}</p>
           <GameButton type="button" variant="gold" className="mt-5" onClick={onDismiss}>
             {gameT('celebration.dismiss')}
