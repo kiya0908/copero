@@ -1,6 +1,8 @@
 import { getTeam } from '../data/catalog'
+import { msg } from './messages'
 import { nextRng, pickOne } from './rng'
 import type {
+  DisplayText,
   GameState,
   PlayingRole,
   Position,
@@ -10,36 +12,16 @@ import type {
   TraitId,
 } from './types'
 
-const TRAIT_POOL: { id: TraitId; label: string; desc: string }[] = [
-  {
-    id: 'ambitious',
-    label: 'Ambicioso',
-    desc: 'Más ofertas de salto; menos paciencia en clubes chicos.',
-  },
-  {
-    id: 'loyal',
-    label: 'Leal',
-    desc: 'Más renovaciones y peso local; menos fuga temprana.',
-  },
-  {
-    id: 'party_risk',
-    label: 'Vida nocturna',
-    desc: 'Más eventos de riesgo y escándalos; a veces rachas creativas.',
-  },
-  {
-    id: 'professional',
-    label: 'Profesional',
-    desc: 'Mejor desarrollo y menos lesiones por descuido.',
-  },
-  {
-    id: 'media_magnet',
-    label: 'Magneto mediático',
-    desc: 'Más foco de prensa: oportunidades y presión.',
-  },
+const TRAIT_POOL: { id: TraitId; labelKey: string; descKey: string }[] = [
+  { id: 'ambitious', labelKey: 'trait.ambitious.label', descKey: 'trait.ambitious.desc' },
+  { id: 'loyal', labelKey: 'trait.loyal.label', descKey: 'trait.loyal.desc' },
+  { id: 'party_risk', labelKey: 'trait.party_risk.label', descKey: 'trait.party_risk.desc' },
+  { id: 'professional', labelKey: 'trait.professional.label', descKey: 'trait.professional.desc' },
+  { id: 'media_magnet', labelKey: 'trait.media_magnet.label', descKey: 'trait.media_magnet.desc' },
 ]
 
 export function traitMeta(id: TraitId) {
-  return TRAIT_POOL.find((t) => t.id === id)
+  return TRAIT_POOL.find((trait) => trait.id === id)
 }
 
 export function allTraitOptions() {
@@ -54,24 +36,23 @@ export function pickTraitOptions(state: GameState, count = 3): { state: GameStat
     const pick = pickOne(s, pool)
     s = pick.state
     options.push(pick.item)
-    const idx = pool.findIndex((t) => t.id === pick.item.id)
+    const idx = pool.findIndex((trait) => trait.id === pick.item.id)
     if (idx >= 0) pool.splice(idx, 1)
   }
   return { state: { ...state, rngState: s }, options }
 }
 
+function starterObjective(target: number): SeasonObjective {
+  return { kind: 'starter_minutes', label: msg('objective.starterMinutes', { target }), target, progress: 0 }
+}
+
+function contributionObjective(target: number): SeasonObjective {
+  return { kind: 'goal_contrib', label: msg('objective.goalContrib', { target }), target, progress: 0 }
+}
+
 export function generateSeasonObjective(state: GameState): { state: GameState; objective: SeasonObjective } {
   if (!state.player || !state.currentTeamId || !state.contract) {
-    return {
-      state,
-      objective: {
-        kind: 'starter_minutes',
-        label: 'Jugar 20 partidos',
-        target: 20,
-        progress: 0,
-        briefed: false,
-      },
-    }
+    return { state, objective: { ...starterObjective(20), briefed: false } }
   }
 
   let s = state.rngState
@@ -84,97 +65,46 @@ export function generateSeasonObjective(state: GameState): { state: GameState; o
   type Cand = { item: SeasonObjective; weight: number }
   const candidates: Cand[] = []
 
-  if (role === 'bench' || role === 'rotation') {
-    candidates.push({
-      item: {
-        kind: 'starter_minutes',
-        label: 'Conseguir 18 partidos',
-        target: 18,
-        progress: 0,
-      },
-      weight: 28,
-    })
-  } else {
-    candidates.push({
-      item: {
-        kind: 'starter_minutes',
-        label: 'Jugar al menos 28 partidos',
-        target: 28,
-        progress: 0,
-      },
-      weight: 18,
-    })
-  }
+  candidates.push({ item: starterObjective(role === 'bench' || role === 'rotation' ? 18 : 28), weight: role === 'bench' || role === 'rotation' ? 28 : 18 })
 
   if (attack) {
     const target = pos === 'ST' ? 12 : 8
-    candidates.push({
-      item: {
-        kind: 'goal_contrib',
-        label: `Sumar ${target} goles o asistencias`,
-        target,
-        progress: 0,
-      },
-      weight: 24,
-    })
+    candidates.push({ item: contributionObjective(target), weight: 24 })
   } else {
-    candidates.push({
-      item: {
-        kind: 'goal_contrib',
-        label: 'Aportar 4 goles o asistencias',
-        target: 4,
-        progress: 0,
-      },
-      weight: 12,
-    })
+    candidates.push({ item: contributionObjective(4), weight: 12 })
   }
 
   if (rep <= 2) {
     candidates.push({
-      item: {
-        kind: 'avoid_relegation',
-        label: 'Evitar el descenso',
-        target: 1,
-        progress: 0,
-      },
+      item: { kind: 'avoid_relegation', label: msg('objective.avoidRelegation'), target: 1, progress: 0 },
       weight: 22,
     })
   }
 
   if (rep >= 2) {
     candidates.push({
-      item: {
-        kind: 'win_trophy',
-        label: 'Levantar un trofeo',
-        target: 1,
-        progress: 0,
-      },
+      item: { kind: 'win_trophy', label: msg('objective.winTrophy'), target: 1, progress: 0 },
       weight: rep >= 4 ? 16 : 10,
     })
   }
 
   if (state.player.overall >= 68 && state.player.age >= 18) {
     candidates.push({
-      item: {
-        kind: 'national_callup',
-        label: 'Ser convocado a la selección',
-        target: 1,
-        progress: 0,
-      },
+      item: { kind: 'national_callup', label: msg('objective.nationalCallup'), target: 1, progress: 0 },
       weight: 14,
     })
   }
 
-  const total = candidates.reduce((n, c) => n + c.weight, 0)
+  const total = candidates.reduce((sum, candidate) => sum + candidate.weight, 0)
   const roll = nextRng(s)
   s = roll.state
   let acc = 0
   let chosen = candidates[0]!.item
   const r = roll.value * total
-  for (const c of candidates) {
-    acc += c.weight
+  for (const candidate of candidates) {
+    acc += candidate.weight
     if (r <= acc) {
-      chosen = c.item
+      chosen = candidate.item
       break
     }
   }
@@ -187,7 +117,7 @@ export function previewObjectiveForClub(
   player: { position: Position; overall: number; age: number } | null | undefined,
   teamId: string,
   role: PlayingRole,
-): { kind: SeasonObjectiveKind; label: string } {
+): { kind: SeasonObjectiveKind; label: DisplayText } {
   const team = getTeam(teamId)
   const rep = team?.international_reputation ?? 1
   const pos = player?.position ?? 'CM'
@@ -195,30 +125,22 @@ export function previewObjectiveForClub(
   const age = player?.age ?? 20
   const attack = ['ST', 'LW', 'RW', 'CAM'].includes(pos) || ['LM', 'RM', 'CM'].includes(pos)
 
-  // Prioridad canchera: club chico → descenso; banco → minutos; resto → goles/trofeo
-  if (rep <= 2) {
-    return { kind: 'avoid_relegation', label: 'Evitar el descenso' }
-  }
+  if (rep <= 2) return { kind: 'avoid_relegation', label: msg('objective.avoidRelegation') }
   if (role === 'bench' || role === 'rotation') {
-    return { kind: 'starter_minutes', label: 'Conseguir 18 partidos' }
+    return { kind: 'starter_minutes', label: msg('objective.starterMinutes', { target: 18 }) }
   }
   if (attack) {
     const target = pos === 'ST' ? 12 : 8
-    return { kind: 'goal_contrib', label: `Sumar ${target} goles o asistencias` }
+    return { kind: 'goal_contrib', label: msg('objective.goalContrib', { target }) }
   }
-  if (rep >= 3) {
-    return { kind: 'win_trophy', label: 'Levantar un trofeo' }
-  }
+  if (rep >= 3) return { kind: 'win_trophy', label: msg('objective.winTrophy') }
   if (overall >= 68 && age >= 18) {
-    return { kind: 'national_callup', label: 'Ser convocado a la selección' }
+    return { kind: 'national_callup', label: msg('objective.nationalCallup') }
   }
-  return { kind: 'starter_minutes', label: 'Jugar al menos 28 partidos' }
+  return { kind: 'starter_minutes', label: msg('objective.starterMinutes', { target: 28 }) }
 }
 
-export function evaluateSeasonObjective(
-  state: GameState,
-  season: SeasonRecord,
-): SeasonObjective | null {
+export function evaluateSeasonObjective(state: GameState, season: SeasonRecord): SeasonObjective | null {
   const obj = state.seasonObjective
   if (!obj) return null
 
@@ -246,7 +168,7 @@ export function evaluateSeasonObjective(
       break
     case 'national_callup':
       next.progress = state.pendingNationalCallup ? 1 : 0
-      next.completed = Boolean(state.pendingNationalCallup) || state.nationalTeamPeriods.some((p) => p.age === season.age)
+      next.completed = Boolean(state.pendingNationalCallup) || state.nationalTeamPeriods.some((period) => period.age === season.age)
       next.failed = !next.completed
       break
   }
