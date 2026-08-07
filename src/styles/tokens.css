@@ -1,0 +1,40 @@
+:root {
+  --bg: oklch(14% 0.03 252);
+  --surface: oklch(19% 0.026 248);
+  --surface-2: oklch(22% 0.026 248);
+  --surface-soft: color-mix(in oklch, var(--surface) 84%, transparent);
+  --fg: oklch(96% 0.01 110);
+  --muted: oklch(74% 0.018 240);
+  --border: oklch(30% 0.024 246);
+  --accent: oklch(80% 0.22 145);
+  --accent-hover: color-mix(in oklch, var(--accent) 88%, white);
+  --accent-ink: color-mix(in oklch, var(--bg) 82%, black);
+  --accent-soft: color-mix(in oklch, var(--accent) 14%, transparent);
+  --gold: oklch(82% 0.17 92);
+  --gold-soft: color-mix(in oklch, var(--gold) 14%, transparent);
+  --gold-border: color-mix(in oklch, var(--gold) 34%, var(--border));
+  --danger: oklch(62% 0.19 24);
+  --focus-ring: color-mix(in oklch, var(--accent) 88%, white);
+  --pitch-line: color-mix(in oklch, var(--fg) 14%, transparent);
+  --shadow-soft: 0 22px 60px color-mix(in oklch, var(--bg) 72%, black);
+  --shadow-accent: 0 14px 30px color-mix(in oklch, var(--accent) 22%, transparent);
+  --font-display-stack: "Arial Black", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+  --font-body-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono-stack: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --container: 1180px;
+  --gutter: clamp(16px, 3vw, 24px);
+  --radius: 14px;
+  --radius-lg: 24px;
+}
+
+@theme {
+  --font-sans: var(--font-body-stack);
+  --font-display: var(--font-display-stack);
+  --font-mono: var(--font-mono-stack);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-ovr: var(--gold);
+  --color-money: var(--accent);
+}
