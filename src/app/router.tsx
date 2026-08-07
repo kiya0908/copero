@@ -41,6 +41,9 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<Navigate to={`/${DEFAULT_LOCALE}/`} replace />} />
         <Route path="/game" element={<Navigate to={`/${DEFAULT_LOCALE}/game`} replace />} />
+        {INFO_PAGES.map((page) => (
+          <Route key={page} path={`/${page}`} element={<Navigate to={`/${DEFAULT_LOCALE}/${page}`} replace />} />
+        ))}
         <Route path="/:locale" element={<LocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
