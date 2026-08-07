@@ -26,6 +26,7 @@ export function HomepageCareerStarter() {
   const [preferredNumber, setPreferredNumber] = useState(10)
   const [preferredFoot, setPreferredFoot] = useState<PreferredFoot>('right')
   const [nationalityFifa, setNationalityFifa] = useState(DEFAULT_NATIONALITY)
+  const [heritageNationalityFifa, setHeritageNationalityFifa] = useState('')
   const [position, setPosition] = useState<Position>('ST')
   const [draftMode, setDraftMode] = useState<DraftMode>('classic')
 
@@ -40,6 +41,10 @@ export function HomepageCareerStarter() {
     return [...priority, ...rest]
   }, [locale])
 
+  const heritageCountries = useMemo(
+    () => countries.filter((country) => country.fifa_code !== nationalityFifa),
+    [countries, nationalityFifa],
+  )
   const selectedCountry = allCountries.find((country) => country.fifa_code === nationalityFifa) ?? null
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -51,7 +56,7 @@ export function HomepageCareerStarter() {
       position,
       nationality: nationalityFifa,
       preferred_foot: preferredFoot,
-      has_heritage_nationality: false,
+      has_heritage_nationality: Boolean(heritageNationalityFifa),
       entry: 'homepage',
     })
 
@@ -61,7 +66,7 @@ export function HomepageCareerStarter() {
       preferredFoot,
       position,
       nationalityFifa,
-      heritageNationalityFifa: null,
+      heritageNationalityFifa: heritageNationalityFifa || null,
     })
     const readyForDraft = initializeDraft(created)
     saveState(readyForDraft)
@@ -134,7 +139,14 @@ export function HomepageCareerStarter() {
           <div className="career-starter__row">
             <label className="career-starter__field">
               <span>{t('home', 'starter.nationality')}</span>
-              <select value={nationalityFifa} onChange={(event) => setNationalityFifa(event.target.value)}>
+              <select
+                value={nationalityFifa}
+                onChange={(event) => {
+                  const next = event.target.value
+                  setNationalityFifa(next)
+                  if (heritageNationalityFifa === next) setHeritageNationalityFifa('')
+                }}
+              >
                 {countries.map((country) => (
                   <option key={country.fifa_code} value={country.fifa_code}>
                     {countryDisplayName(locale, country)}
@@ -153,6 +165,24 @@ export function HomepageCareerStarter() {
               </select>
             </label>
           </div>
+
+          <details className="career-starter__optional">
+            <summary>
+              <span>{t('game', 'identity.heritage')}</span>
+              <small>{t('game', 'identity.heritageHint')}</small>
+            </summary>
+            <label className="career-starter__field">
+              <span>{t('game', 'identity.heritage')}</span>
+              <select value={heritageNationalityFifa} onChange={(event) => setHeritageNationalityFifa(event.target.value)}>
+                <option value="">— {t('game', 'identity.optional')} —</option>
+                {heritageCountries.map((country) => (
+                  <option key={country.fifa_code} value={country.fifa_code}>
+                    {countryDisplayName(locale, country)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </details>
 
           <fieldset className="career-starter__fieldset">
             <legend>{t('home', 'starter.draftMode')}</legend>
