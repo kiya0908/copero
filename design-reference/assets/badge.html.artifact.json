@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "assets/badge.html",
+  "entry": "assets/badge.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-08-05T13:27:04.507Z",
+  "updatedAt": "2026-08-05T13:27:04.507Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>copero App UI Kit</title>
+  <link rel="stylesheet" href="../../colors_and_type.css" />
+  <style>
+    body { padding: 32px; }
+    .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 28px; align-items: center; }
+    .panel, .card, .result-card { padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: linear-gradient(180deg, color-mix(in oklch, var(--surface) 92%, transparent), color-mix(in oklch, var(--bg) 24%, black)); box-shadow: var(--shadow-soft); }
+    .panel { background: color-mix(in oklch, var(--surface) 90%, transparent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+    .link { display: inline-flex; margin-top: 14px; color: var(--accent); font-weight: 700; text-decoration: none; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+    .nav { display: flex; justify-content: space-between; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .badge { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(145deg, color-mix(in oklch, var(--surface) 78%, var(--accent) 22%), color-mix(in oklch, var(--surface) 86%, black)); border: 1px solid color-mix(in oklch, var(--accent) 34%, var(--border)); }
+    .logo { font-family: var(--font-display); text-transform: uppercase; font-size: 20px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 13px 22px; border-radius: 999px; font-weight: 700; border: 1px solid transparent; }
+    .btn-primary { background: var(--accent); color: color-mix(in oklch, var(--bg) 78%, black); }
+    .switcher { display: inline-flex; gap: 6px; padding: 6px; background: color-mix(in oklch, var(--surface) 80%, transparent); border-radius: 999px; border: 1px solid var(--border); }
+    .chip { min-width: 48px; padding: 8px 10px; border-radius: 999px; text-align: center; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+    .chip.active { background: var(--fg); color: var(--bg); }
+    .result-card { padding: 26px; border-radius: 32px; border: 1px solid color-mix(in oklch, var(--gold) 20%, var(--border)); background: radial-gradient(circle at top right, color-mix(in oklch, var(--gold) 24%, transparent), transparent 36%), linear-gradient(180deg, color-mix(in oklch, var(--surface) 76%, black), color-mix(in oklch, var(--bg) 78%, black)); }
+    @media (max-width: 920px) { .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="wrap" data-od-id="app-kit-index">
+    <section id="topnav-slot" data-od-id="app-kit-module-topnav"></section>
+    <section class="hero" data-od-id="app-kit-hero">
+      <div>
+        <span class="eyebrow">Applied Interface Kit</span>
+        <h1>copero 应用化 UI Kit</h1>
+        <p class="lead">这里不是抽象组件墓地，而是把设计系统落进真实内容站表面。先看品牌组件，再看页面壳层，再看内容流。</p>
+        <div class="row" style="margin-top: 20px;"><span class="tag">响应式内容站</span><span class="tag">职业结果卡</span><span class="tag">多语言入口</span><span class="tag">真实 CTA</span></div>
+      </div>
+      <div id="career-card-slot" data-od-id="kit-result-card"></div>
+    </section>
+    <section class="grid" data-od-id="app-kit-links">
+      <a class="card" href="components.html" data-od-id="kit-link-components"><span class="eyebrow">Components</span><h3>核心组件</h3><p style="color: var(--muted);">导航、按钮、结果卡、状态行、语言切换。</p><span class="link">打开 →</span></a>
+      <a class="card" href="homepage-shell.html" data-od-id="kit-link-homepage"><span class="eyebrow">Homepage Shell</span><h3>首页壳层</h3><p style="color: var(--muted);">提炼自源项目的首页结构与节奏。</p><span class="link">打开 →</span></a>
+      <a class="card" href="content-stream.html" data-od-id="kit-link-content"><span class="eyebrow">Content Stream</span><h3>攻略与内容流</h3><p style="color: var(--muted);">展示内容卡片系统如何形成点击路径。</p><span class="link">打开 →</span></a>
+      <a class="card" href="career-card.html" data-od-id="kit-link-career"><span class="eyebrow">Brand Component</span><h3>职业结果卡</h3><p style="color: var(--muted);">最强品牌组件，负责承载“人生结果”叙事。</p><span class="link">打开 →</span></a>
+    </section>
+    <section class="panel" data-od-id="app-kit-module-map">
+      <span class="eyebrow">Module Map</span>
+      <h3>模块化入口</h3>
+      <p style="color: var(--muted);">复用时优先从 `components/` 拿模块，再按页面需求组合。不要每次从零搭一个假新系统。</p>
+      <div class="row" style="margin-top: 14px;"><span class="tag">components/topnav.html</span><span class="tag">components/career-card-module.html</span><span class="tag">components/content-stream-module.html</span></div>
+    </section>
+    <section class="panel" data-od-id="app-kit-module-preview">
+      <span class="eyebrow">Composed Module Preview</span>
+      <h3>内容流模块挂载结果</h3>
+      <p style="color: var(--muted);">下面这块由 `components/content-stream-module.html` 注入，证明这个 kit 不是写死在一个 HTML 文件里。</p>
+      <div id="content-stream-slot" style="margin-top: 18px;"></div>
+    </section>
+  </main>
+  <script type="module">
+    const mounts = [
+      ["./components/topnav.html", "topnav-slot"],
+      ["./components/career-card-module.html", "career-card-slot"],
+      ["./components/content-stream-module.html", "content-stream-slot"]
+    ];
+
+    await Promise.all(mounts.map(async ([path, slotId]) => {
+      const response = await fetch(path);
+      const markup = await response.text();
+      document.getElementById(slotId).innerHTML = markup;
+    }));
+  </script>
+</body>
+</html>

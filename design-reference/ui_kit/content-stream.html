@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>内容流系统</title>
+  <link rel="stylesheet" href="../../colors_and_type.css" />
+  <style>
+    body { padding: 32px; }
+    .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+    .card { padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: linear-gradient(180deg, color-mix(in oklch, var(--surface) 92%, transparent), color-mix(in oklch, var(--bg) 24%, black)); box-shadow: var(--shadow-soft); display: grid; gap: 16px; }
+    .thumb { aspect-ratio: 16 / 11; border-radius: 22px; padding: 18px; display: grid; align-items: end; background: radial-gradient(circle at 20% 20%, color-mix(in oklch, var(--gold) 14%, transparent), transparent 30%), linear-gradient(140deg, color-mix(in oklch, var(--surface) 84%, transparent), color-mix(in oklch, var(--bg) 28%, black)); }
+    .meta-row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .pill { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; background: color-mix(in oklch, var(--gold) 16%, transparent); color: var(--gold); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <main class="wrap" data-od-id="content-stream-page">
+    <section>
+      <span class="eyebrow">Content Stream</span>
+      <h1>攻略与内容流系统</h1>
+      <p class="lead">这类产品首页不是资讯堆砌，而是最能带点击的内容块编排。每张卡都应该把用户继续往下推，而不是停住看热闹。</p>
+    </section>
+    <section class="grid" data-od-id="content-cards-grid">
+      <article class="card"><div class="thumb">攻略封面 · 最佳属性路线 / 球员卡视觉</div><div class="meta-row"><span class="pill">属性推荐</span><span class="meta num">06 min read</span></div><h3>最佳开局属性怎么点，才更容易刷出传奇线？</h3><p style="color: var(--muted);">拆边锋、中场、前锋三种开局，直接给用户最有爽感的路线。</p></article>
+      <article class="card"><div class="thumb">对比封面 · 双路线版式</div><div class="meta-row"><span class="pill">玩法对比</span><span class="meta num">04 min read</span></div><h3>Copero 风格和 El Ídolo 风格，谁更适合你？</h3><p style="color: var(--muted);">比较节奏、随机感和分享爽点，帮助用户先决定去哪一款。</p></article>
+      <article class="card"><div class="thumb">高评分技巧封面 · 金色奖杯标签</div><div class="meta-row"><span class="pill">高分技巧</span><span class="meta num">05 min read</span></div><h3>想刷出高评分职业卡，哪些选择最容易翻车？</h3><p style="color: var(--muted);">最常见误区摊开讲，别让用户首局就踢废直接流失。</p></article>
+    </section>
+  </main>
+</body>
+</html>

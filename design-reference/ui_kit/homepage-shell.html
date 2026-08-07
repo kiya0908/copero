@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>首页壳层</title>
+  <link rel="stylesheet" href="../../colors_and_type.css" />
+  <style>
+    body { padding: 24px; }
+    .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 24px; }
+    .nav, .section, .result { padding: 24px; border-radius: 24px; border: 1px solid var(--border); background: linear-gradient(180deg, color-mix(in oklch, var(--surface) 92%, transparent), color-mix(in oklch, var(--bg) 24%, black)); box-shadow: var(--shadow-soft); }
+    .nav { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 24px; align-items: center; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+    .result { border-radius: 32px; border-color: color-mix(in oklch, var(--gold) 20%, var(--border)); background: radial-gradient(circle at top right, color-mix(in oklch, var(--gold) 24%, transparent), transparent 36%), linear-gradient(180deg, color-mix(in oklch, var(--surface) 76%, black), color-mix(in oklch, var(--bg) 78%, black)); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+    .mini { padding: 20px; border-radius: 20px; border: 1px solid color-mix(in oklch, var(--fg) 8%, transparent); background: color-mix(in oklch, var(--surface) 70%, transparent); }
+    @media (max-width: 920px) { .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="wrap" data-od-id="homepage-shell">
+    <section class="nav" data-od-id="shell-nav"><strong style="font-family: var(--font-display); text-transform: uppercase;">copero hub</strong><span style="color: var(--muted);">如何玩 · 攻略 · 对比 · 分享墙</span></section>
+    <section class="hero" data-od-id="shell-hero">
+      <div class="section"><span class="eyebrow">Homepage Shell</span><h1>几分钟踢完一生</h1><p class="lead">这是内容站首页的标准骨架：大叙事标题、强 CTA、标签信号、结果卡并列出现。</p><div class="row"><span class="tag">免费浏览器游戏</span><span class="tag">一局几分钟</span><span class="tag">结果卡可分享</span></div></div>
+      <div class="result"><p class="eyebrow" style="color: var(--gold);">Legend Route · RW #7</p><h2 style="font-size: clamp(56px, 9vw, 96px);">07</h2><p style="color: var(--muted);">边锋怪物 · Mateo Cruz</p><p>92 Overall · 三冠王</p></div>
+    </section>
+    <section class="grid" data-od-id="shell-sections">
+      <article class="mini"><span class="eyebrow">Section 01</span><h3>4 步玩法</h3><p style="color: var(--muted);">解释上手节奏，不写成长文规则书。</p></article>
+      <article class="mini"><span class="eyebrow">Section 02</span><h3>为什么会火</h3><p style="color: var(--muted);">强调人生结果、传播感和重开循环。</p></article>
+      <article class="mini"><span class="eyebrow">Section 03</span><h3>内容预览</h3><p style="color: var(--muted);">攻略流、对比流、高分技巧流。</p></article>
+      <article class="mini"><span class="eyebrow">Section 04</span><h3>多语言 / 社区</h3><p style="color: var(--muted);">为 i18n 和分享墙预留真实结构。</p></article>
+    </section>
+  </main>
+</body>
+</html>

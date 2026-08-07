@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>职业结果卡</title>
+  <link rel="stylesheet" href="../../colors_and_type.css" />
+  <style>
+    body { padding: 32px; display: grid; place-items: center; min-height: 100vh; }
+    .card {
+      width: min(560px, 100%);
+      padding: 28px;
+      border-radius: 32px;
+      border: 1px solid color-mix(in oklch, var(--gold) 20%, var(--border));
+      background: radial-gradient(circle at top right, color-mix(in oklch, var(--gold) 24%, transparent), transparent 36%), linear-gradient(180deg, color-mix(in oklch, var(--surface) 76%, black), color-mix(in oklch, var(--bg) 78%, black));
+      box-shadow: var(--shadow-soft);
+    }
+    .top { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .score { width: 88px; aspect-ratio: 1; border-radius: 22px; display: grid; place-items: center; background: color-mix(in oklch, var(--surface) 70%, black); border: 1px solid color-mix(in oklch, var(--accent) 22%, var(--border)); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+    .stat { padding: 14px; border-radius: 18px; background: color-mix(in oklch, var(--surface) 70%, transparent); border: 1px solid color-mix(in oklch, var(--fg) 9%, transparent); }
+    .timeline { display: grid; gap: 12px; margin-top: 22px; }
+    .row { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center; }
+    .bar { height: 14px; border-radius: 999px; background: color-mix(in oklch, var(--fg) 7%, transparent); border: 1px solid color-mix(in oklch, var(--fg) 8%, transparent); overflow: hidden; }
+    .bar::before { content: ""; display: block; height: 100%; width: var(--fill); background: linear-gradient(90deg, color-mix(in oklch, var(--accent) 84%, white), color-mix(in oklch, var(--gold) 56%, white)); }
+  </style>
+</head>
+<body>
+  <article class="card" data-od-id="career-card-page">
+    <div class="top">
+      <div>
+        <p class="eyebrow" style="color: var(--gold);">Legend Route · RW #7</p>
+        <h1 style="font-size: clamp(72px, 12vw, 124px);">07</h1>
+      </div>
+      <div class="score"><div><strong class="num" style="font-family: var(--font-display); font-size: 32px;">92</strong><div class="meta">Overall</div></div></div>
+    </div>
+    <h2 style="font-size: clamp(28px, 3vw, 40px);">边锋怪物 · Mateo Cruz</h2>
+    <p style="color: var(--muted); margin-top: 6px;">17 岁出道，24 岁打出爆点，29 岁捧起欧冠后退役。</p>
+    <div class="grid">
+      <div class="stat"><span class="meta">最佳赛季</span><strong class="num">31 G/A</strong></div>
+      <div class="stat"><span class="meta">冠军时刻</span><strong>三冠王</strong></div>
+      <div class="stat"><span class="meta">人设评价</span><strong>街头巨星</strong></div>
+    </div>
+    <div class="timeline">
+      <div class="row"><span class="meta">18</span><div class="bar" style="--fill: 38%;"></div></div>
+      <div class="row"><span class="meta">23</span><div class="bar" style="--fill: 68%;"></div></div>
+      <div class="row"><span class="meta">29</span><div class="bar" style="--fill: 92%;"></div></div>
+    </div>
+  </article>
+</body>
+</html>
