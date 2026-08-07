@@ -29,6 +29,11 @@
   },
   "footer": {
     "independent": "Simulador independiente de carrera futbolística.",
-    "disclaimer": "No es un producto oficial de Copero ni está afiliado a clubes o jugadores."
+    "disclaimer": "No es un producto oficial de Copero ni está afiliado a clubes o jugadores.",
+    "navigation": "Enlaces del sitio",
+    "about": "Sobre Copero",
+    "contact": "Contacto",
+    "privacy": "Privacidad",
+    "terms": "Términos"
   }
 }
