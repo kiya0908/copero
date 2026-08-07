@@ -26,6 +26,12 @@ const es: Record<string, string> = {
   'summary.wealth': 'Fortuna',
   'summary.restart': 'Nueva carrera',
   'summary.shareText': 'Mi carrera en Copero: {grade} · OVR máximo {ovr} · {matches} partidos · {goals} goles · {trophies} trofeos.',
+  'rating.incomplete': 'Carrera incompleta',
+  'rating.S': 'Leyenda del fútbol',
+  'rating.A': 'Estrella mundial',
+  'rating.B': 'Figura internacional',
+  'rating.C': 'Profesional consolidado',
+  'rating.D': 'Carrera de lucha',
   'outcome.continue': 'Continuar',
   'outcome.noChange': 'Sin cambios',
   'outcome.seeOffers': 'Ver ofertas',
@@ -74,6 +80,7 @@ const en: Record<string, string> = {
   'career.negotiation.offered': 'Offered', 'career.negotiation.asking': 'You ask', 'career.negotiation.starter': 'Starter', 'career.negotiation.oneMoreYear': '+1 year', 'career.negotiation.pressure': 'Use another offer as leverage', 'career.negotiation.switch': 'Switch to negotiate that offer',
   'season.title': 'Season {season}',
   'summary.grade': 'Career grade', 'summary.clubCareer': 'Club career', 'summary.nationalCareer': 'National team', 'summary.wealth': 'Wealth', 'summary.restart': 'New career', 'summary.shareText': 'My Copero career: {grade} · peak OVR {ovr} · {matches} matches · {goals} goals · {trophies} trophies.',
+  'rating.incomplete': 'Incomplete career', 'rating.S': 'Football legend', 'rating.A': 'World star', 'rating.B': 'International standout', 'rating.C': 'Established professional', 'rating.D': 'Fighting career',
   'outcome.continue': 'Continue', 'outcome.noChange': 'No change', 'outcome.seeOffers': 'See offers', 'outcome.stay': 'Stay', 'outcome.suspension': 'Suspension', 'outcome.starting': 'Starting role', 'outcome.topClub': 'Top club', 'outcome.undisputed': 'Undisputed starter', 'outcome.injuryImmunity': 'Injury immunity', 'outcome.career45': 'Career to age 45', 'outcome.ruin': 'Career ruined', 'outcome.benchSeason': 'Bench for 1 season', 'outcome.medicalRetirement': 'Medical retirement', 'outcome.wealth25': '-25% wealth', 'outcome.wealth50': '-50% wealth', 'outcome.risky': 'Risky', 'outcome.clean': 'Clean', 'outcome.nextStarter': 'Starter next period', 'outcome.temporary': 'Temporary', 'outcome.lessMinutes': 'Fewer minutes', 'outcome.formDip': 'Poor form', 'outcome.recover': 'Recover', 'outcome.injuryRisk': 'Injury risk', 'outcome.performance': 'Performance', 'outcome.criticism': 'Criticism', 'outcome.promotion': 'Promotion', 'outcome.glassBody': 'Fragile body', 'outcome.luck': 'Luck', 'outcome.hangover': 'Hangover', 'outcome.fresh': 'Fresh', 'outcome.fatigue': 'Fatigue', 'outcome.adaptation': 'Adaptation', 'outcome.isolation': 'Isolation', 'outcome.bonus': 'Bonus', 'outcome.clause': 'Clause unchanged', 'outcome.project': 'Project', 'outcome.pass': 'Move on', 'outcome.ready': 'Ready', 'outcome.cramps': 'Cramps',
 }
 
@@ -84,6 +91,7 @@ const zh: Record<string, string> = {
   'career.negotiation.offered': '对方报价', 'career.negotiation.asking': '你的要求', 'career.negotiation.starter': '首发', 'career.negotiation.oneMoreYear': '+1 年', 'career.negotiation.pressure': '用另一份报价施压', 'career.negotiation.switch': '切换去谈这份报价',
   'season.title': '第 {season} 赛季',
   'summary.grade': '生涯评级', 'summary.clubCareer': '俱乐部生涯', 'summary.nationalCareer': '国家队', 'summary.wealth': '生涯财富', 'summary.restart': '重新开档', 'summary.shareText': '我的 Copero 生涯：{grade} · 巅峰 OVR {ovr} · {matches} 场 · {goals} 球 · {trophies} 座奖杯。',
+  'rating.incomplete': '生涯未完成', 'rating.S': '足坛传奇', 'rating.A': '世界级球星', 'rating.B': '国际级核心', 'rating.C': '稳定职业球员', 'rating.D': '拼搏型生涯',
   'outcome.continue': '继续', 'outcome.noChange': '没有变化', 'outcome.seeOffers': '查看报价', 'outcome.stay': '留队', 'outcome.suspension': '停赛', 'outcome.starting': '首发位置', 'outcome.topClub': '豪门机会', 'outcome.undisputed': '绝对主力', 'outcome.injuryImmunity': '伤病免疫', 'outcome.career45': '可踢到 45 岁', 'outcome.ruin': '职业生涯受重创', 'outcome.benchSeason': '替补 1 个赛季', 'outcome.medicalRetirement': '因伤退役', 'outcome.wealth25': '财富 -25%', 'outcome.wealth50': '财富 -50%', 'outcome.risky': '高风险', 'outcome.clean': '保持清白', 'outcome.nextStarter': '下一阶段首发', 'outcome.temporary': '临时影响', 'outcome.lessMinutes': '出场减少', 'outcome.formDip': '状态下滑', 'outcome.recover': '恢复', 'outcome.injuryRisk': '伤病风险', 'outcome.performance': '表现提升', 'outcome.criticism': '遭到批评', 'outcome.promotion': '升级', 'outcome.glassBody': '玻璃体质', 'outcome.luck': '好运', 'outcome.hangover': '宿醉', 'outcome.fresh': '体能充足', 'outcome.fatigue': '疲劳', 'outcome.adaptation': '适应', 'outcome.isolation': '孤立', 'outcome.bonus': '奖金', 'outcome.clause': '解约金不变', 'outcome.project': '长期计划', 'outcome.pass': '跳过', 'outcome.ready': '准备就绪', 'outcome.cramps': '抽筋',
 }
 
