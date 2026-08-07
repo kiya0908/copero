@@ -1,6 +1,7 @@
 {
   "brand": "Copero",
   "nav": {
+    "primary": "Primary navigation",
     "home": "Home",
     "howToPlay": "How to play",
     "mechanics": "Mechanics",
@@ -19,6 +20,12 @@
     "loading": "Loading",
     "empty": "No data",
     "error": "Something went wrong"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This Copero page does not exist. Return home to start or continue a career.",
+    "back": "Back to Copero",
+    "support": "Contact support"
   },
   "footer": {
     "independent": "An independent football career simulator.",
