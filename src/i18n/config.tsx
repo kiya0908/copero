@@ -53,7 +53,7 @@ export function localizePath(pathname: string, locale: Locale): string {
   const segments = pathname.split('/').filter(Boolean)
   if (isSupportedLocale(segments[0])) segments.shift()
   const suffix = segments.length ? `/${segments.join('/')}` : '/'
-  return `/${locale}${suffix}`
+  return locale === DEFAULT_LOCALE ? suffix : `/${locale}${suffix}`
 }
 
 function readPath(dictionary: Dictionary, key: string): unknown {
