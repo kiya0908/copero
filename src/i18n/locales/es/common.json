@@ -1,6 +1,7 @@
 {
   "brand": "Copero",
   "nav": {
+    "primary": "Navegación principal",
     "home": "Inicio",
     "howToPlay": "Cómo jugar",
     "mechanics": "Mecánicas",
@@ -19,6 +20,12 @@
     "loading": "Cargando",
     "empty": "Sin datos",
     "error": "Ocurrió un error"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "body": "Esta página de Copero no existe. Volvé al inicio para empezar o continuar una carrera.",
+    "back": "Volver a Copero",
+    "support": "Contactar soporte"
   },
   "footer": {
     "independent": "Simulador independiente de carrera futbolística.",
