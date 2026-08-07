@@ -1,8 +1,14 @@
-import { Navigate, Outlet, Route, Routes, useParams } from 'react-router-dom'
+import { Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { NotFoundPage } from '../components/pages/NotFoundPage'
+import { PageSeo } from '../components/seo/PageSeo'
 import { HomePage } from '../pages/HomePage'
 import { GamePage } from '../pages/GamePage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
+
+function LocaleSeo() {
+  const { pathname } = useLocation()
+  return <PageSeo page={pathname.endsWith('/game') ? 'game' : 'home'} />
+}
 
 function LocaleLayout() {
   const { locale } = useParams()
@@ -11,6 +17,7 @@ function LocaleLayout() {
 
   return (
     <I18nProvider locale={locale}>
+      <LocaleSeo />
       <Outlet />
     </I18nProvider>
   )
