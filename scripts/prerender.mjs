@@ -142,9 +142,10 @@ function renderStarterShell(home, locale) {
 }
 
 function renderHomeShell(home, locale) {
+  const aboutParagraphs = ['one', 'two']
   const steps = ['identity', 'draft', 'origin', 'career']
   const mechanics = ['growth', 'clubs', 'events', 'national']
-  const faqs = ['free', 'save', 'classic', 'official']
+  const faqs = ['what', 'play', 'career', 'football', 'free', 'save', 'classic', 'official']
 
   return `<div class="marketing-page">
       <main>
@@ -165,6 +166,17 @@ function renderHomeShell(home, locale) {
             ${renderStarterShell(home, locale)}
           </div>
         </section>
+        <section class="site-section site-section--seo-intro" id="what-is-copero">
+          <div class="site-container seo-intro-grid">
+            <div class="section-heading section-heading--wide">
+              <p class="eyebrow">${escapeHtml(home.about.eyebrow)}</p>
+              <h2>${escapeHtml(home.about.title)}</h2>
+            </div>
+            <div class="seo-copy">
+              ${aboutParagraphs.map((key) => `<p>${escapeHtml(home.about.paragraphs[key])}</p>`).join('')}
+            </div>
+          </div>
+        </section>
         <section class="site-section" id="how-to-play">
           <div class="site-container">
             <div class="section-heading">
@@ -172,7 +184,7 @@ function renderHomeShell(home, locale) {
               <h2>${escapeHtml(home.howTo.title)}</h2>
               <p class="lead">${escapeHtml(home.howTo.body)}</p>
             </div>
-            <div class="card-grid card-grid--four">
+            <div class="card-grid card-grid--two seo-step-grid">
               ${steps
                 .map(
                   (key, index) => `<article class="content-card">
@@ -273,4 +285,4 @@ for (const locale of LOCALES) {
   await writeRoute(join(locale.id, 'game.html'), gameHtml)
 }
 
-console.log('Prerendered localized play-first home and noindex game entry pages.')
+console.log('Prerendered localized play-first SEO home and noindex game entry pages.')

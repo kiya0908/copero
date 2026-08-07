@@ -10,10 +10,27 @@ const LOCALES = [
   { id: 'en', htmlLang: 'en', hrefLang: 'en' },
   { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN' },
 ]
+const EXPECTED_SPANISH_TITLE = 'Copero Juego Online | Simulador de Carrera de Fútbol Gratis'
+const EXPECTED_SPANISH_DESCRIPTION =
+  'Juega Copero gratis en el navegador. Crea tu futbolista, completa el draft de 8 atributos y vive un modo carrera con clubes, fichajes, títulos y selección.'
 
 const failures = []
 const check = (label, condition) => {
   if (!condition) failures.push(label)
+}
+
+function collectStrings(value, excludedKeys = new Set()) {
+  if (typeof value === 'string') return [value]
+  if (Array.isArray(value)) return value.flatMap((item) => collectStrings(item, excludedKeys))
+  if (!value || typeof value !== 'object') return []
+  return Object.entries(value).flatMap(([key, item]) =>
+    excludedKeys.has(key) ? [] : collectStrings(item, excludedKeys),
+  )
+}
+
+function latinWordCount(value) {
+  const text = collectStrings(value, new Set(['seo'])).join(' ')
+  return text.match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+(?:['’-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+)*/g)?.length ?? 0
 }
 
 for (const locale of LOCALES) {
@@ -26,8 +43,13 @@ for (const locale of LOCALES) {
 
   check(`${locale.id} html lang`, home.includes(`<html lang="${locale.htmlLang}">`))
   check(`${locale.id} localized title`, home.includes(`<title>${homeResource.seo.title}</title>`))
+  check(`${locale.id} localized description`, home.includes(`content="${homeResource.seo.description}"`))
   check(`${locale.id} localized hero prerender`, home.includes(homeResource.hero.title))
   check(`${locale.id} localized starter prerender`, home.includes(homeResource.starter.title))
+  check(`${locale.id} localized about section prerender`, home.includes(homeResource.about.title))
+  check(`${locale.id} localized career simulator section prerender`, home.includes(homeResource.mechanics.title))
+  check(`${locale.id} localized FAQ prerender`, home.includes(homeResource.faq.title))
+  check(`${locale.id} eight FAQ answers`, Object.keys(homeResource.faq.items).length === 8)
   check(`${locale.id} play-first anchor prerender`, home.includes('id="play"'))
   check(`${locale.id} starter CTA prerender`, home.includes(homeResource.starter.start))
   check(`${locale.id} prerender marker`, home.includes('data-prerendered="home"'))
@@ -56,6 +78,14 @@ for (const locale of LOCALES) {
   )
   check(`${locale.id} game excludes hreflang`, !game.includes('hreflang='))
   check(`${locale.id} game excludes structured data`, !game.includes('copero-structured-data'))
+
+  if (locale.id === 'es') {
+    const spanishWords = latinWordCount(homeResource)
+    check('Spanish SEO title matches approved copy', homeResource.seo.title === EXPECTED_SPANISH_TITLE)
+    check('Spanish meta description matches approved copy', homeResource.seo.description === EXPECTED_SPANISH_DESCRIPTION)
+    check('Spanish H1 leads with Copero Juego', homeResource.hero.title.startsWith('Copero Juego:'))
+    check('Spanish homepage copy stays within 1200–1500 words', spanishWords >= 1200 && spanishWords <= 1500)
+  }
 }
 
 const fallback = await readFile(join(DIST, 'index.html'), 'utf8')
