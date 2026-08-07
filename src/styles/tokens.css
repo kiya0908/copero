@@ -18,9 +18,9 @@
   --pitch-line: color-mix(in oklch, var(--fg) 14%, transparent);
   --shadow-soft: 0 22px 60px color-mix(in oklch, var(--bg) 72%, black);
   --shadow-accent: 0 14px 30px color-mix(in oklch, var(--accent) 22%, transparent);
-  --font-display: "Arial Black", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+  --font-display-stack: "Arial Black", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+  --font-body-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono-stack: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
   --container: 1180px;
   --gutter: clamp(16px, 3vw, 24px);
   --radius: 14px;
@@ -28,9 +28,9 @@
 }
 
 @theme {
-  --font-sans: var(--font-body);
-  --font-display: var(--font-display);
-  --font-mono: var(--font-mono);
+  --font-sans: var(--font-body-stack);
+  --font-display: var(--font-display-stack);
+  --font-mono: var(--font-mono-stack);
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-border: var(--border);
