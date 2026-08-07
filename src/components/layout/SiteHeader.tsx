@@ -26,9 +26,9 @@ export function SiteHeader() {
 
         <div className="site-header__actions">
           <LanguageSwitcher compact />
-          <Link className="button button--primary button--small" to={`/${locale}/game`}>
+          <a className="button button--primary button--small" href="#play">
             {t('common', 'nav.play')}
-          </Link>
+          </a>
         </div>
       </div>
     </header>

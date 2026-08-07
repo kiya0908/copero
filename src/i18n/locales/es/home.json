@@ -8,7 +8,7 @@
   "hero": {
     "eyebrow": "Football Career Simulator",
     "title": "Construí un jugador. Jugá toda una carrera.",
-    "body": "Copero es un simulador de carrera futbolística para navegador. Elegís identidad y posición, armás ocho atributos con leyendas del fútbol y después decidís cómo progresa tu carrera entre clubes, contratos, eventos y selección.",
+    "body": "Copero es un simulador de carrera futbolística para navegador. Creá tu jugador acá y entrá directo al draft de ocho atributos; después decidí cómo progresa entre clubes, contratos, eventos y selección.",
     "primary": "Empezar una carrera",
     "secondary": "Ver cómo se juega",
     "tags": {
@@ -17,6 +17,29 @@
       "career": "Carrera completa",
       "save": "Guardado local"
     }
+  },
+  "starter": {
+    "eyebrow": "Jugá desde la primera pantalla",
+    "title": "Creá tu jugador",
+    "body": "Definí lo básico y entrá directo al draft de ocho rondas. Sin cuenta y sin una pantalla de introducción extra.",
+    "lastName": "Apellido",
+    "lastNamePlaceholder": "Tu apellido",
+    "number": "Dorsal",
+    "foot": "Pierna hábil",
+    "left": "Izquierda",
+    "right": "Derecha",
+    "nationality": "Nacionalidad",
+    "position": "Posición",
+    "draftMode": "Modo de draft",
+    "classicHint": "Atributos visibles + 5 cambios",
+    "puristHint": "Valores ocultos + sin cambios",
+    "start": "Empezar carrera",
+    "continue": "Continuar carrera guardada",
+    "activeSave": "Ya hay una carrera guardada en este navegador.",
+    "microcopy": "Gratis · Sin cuenta · Guardado local en este navegador",
+    "preview": "Tu jugador",
+    "previewFallback": "Rookie",
+    "previewHint": "El siguiente paso es el draft de ocho atributos con leyendas."
   },
   "resultCard": {
     "eyebrow": "Resultado de carrera",

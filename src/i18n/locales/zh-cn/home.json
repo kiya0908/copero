@@ -8,7 +8,7 @@
   "hero": {
     "eyebrow": "Football Career Simulator",
     "title": "打造一名球员，踢完整段职业生涯。",
-    "body": "Copero 是一款浏览器足球生涯模拟游戏。你先确定身份与位置，从足球传奇球员中完成八项属性 Draft，再通过俱乐部、合同、事件和国家队选择决定职业轨迹。",
+    "body": "Copero 是一款浏览器足球生涯模拟游戏。你可以直接在首页创建球员并进入 8 项属性 Draft，再通过俱乐部、合同、事件和国家队选择决定职业轨迹。",
     "primary": "开始一段生涯",
     "secondary": "了解怎么玩",
     "tags": {
@@ -17,6 +17,29 @@
       "career": "完整职业生涯",
       "save": "本地存档"
     }
+  },
+  "starter": {
+    "eyebrow": "首屏直接开玩",
+    "title": "创建你的球员",
+    "body": "设置基本身份后直接进入 8 轮 Draft，无需注册，也不用先经过额外介绍页。",
+    "lastName": "姓氏 / 球衣名",
+    "lastNamePlaceholder": "你的名字",
+    "number": "号码",
+    "foot": "惯用脚",
+    "left": "左脚",
+    "right": "右脚",
+    "nationality": "国籍",
+    "position": "位置",
+    "draftMode": "Draft 模式",
+    "classicHint": "显示属性 + 5 次重抽",
+    "puristHint": "隐藏数值 + 不可重抽",
+    "start": "开始职业生涯",
+    "continue": "继续已保存生涯",
+    "activeSave": "当前浏览器已有职业生涯存档。",
+    "microcopy": "免费 · 无需账号 · 进度保存在当前浏览器",
+    "preview": "你的球员",
+    "previewFallback": "新秀",
+    "previewHint": "下一步将直接进入 8 项属性传奇球员 Draft。"
   },
   "resultCard": {
     "eyebrow": "Career Result",

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { HomepageCareerStarter } from '../components/home/HomepageCareerStarter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { useI18n } from '../i18n/config'
 
@@ -40,33 +40,28 @@ function CareerResultPreview() {
 }
 
 export function HomePage() {
-  const { locale, t } = useI18n()
+  const { t } = useI18n()
 
   return (
     <div className="marketing-page">
       <SiteHeader />
       <main>
-        <section className="site-section site-section--hero">
-          <div className="site-container hero-grid">
+        <section className="site-section site-section--hero" id="play">
+          <div className="site-container play-first-hero">
             <div className="hero-copy">
               <p className="eyebrow">{t('home', 'hero.eyebrow')}</p>
               <h1>{t('home', 'hero.title')}</h1>
               <p className="lead">{t('home', 'hero.body')}</p>
-              <div className="hero-actions">
-                <Link className="button button--primary" to={`/${locale}/game`}>
-                  {t('home', 'hero.primary')}
-                </Link>
-                <a className="button button--secondary" href="#how-to-play">
-                  {t('home', 'hero.secondary')}
-                </a>
-              </div>
               <div className="tag-list">
                 {(['browser', 'draft', 'career', 'save'] as const).map((key) => (
                   <span className="tag" key={key}>{t('home', `hero.tags.${key}`)}</span>
                 ))}
               </div>
+              <a className="play-first-hero__how" href="#how-to-play">
+                {t('home', 'hero.secondary')} <span aria-hidden="true">↓</span>
+              </a>
             </div>
-            <CareerResultPreview />
+            <HomepageCareerStarter />
           </div>
         </section>
 
@@ -131,15 +126,11 @@ export function HomePage() {
               <p className="eyebrow eyebrow--gold">{t('home', 'career.eyebrow')}</p>
               <h2>{t('home', 'career.title')}</h2>
               <p className="lead">{t('home', 'career.body')}</p>
-              <Link className="button button--primary" to={`/${locale}/game`}>
+              <a className="button button--primary" href="#play">
                 {t('home', 'career.cta')}
-              </Link>
+              </a>
             </div>
-            <div className="result-story__facts" aria-hidden="true">
-              <div><strong>D–S</strong><span>Career grade</span></div>
-              <div><strong>8</strong><span>Draft attributes</span></div>
-              <div><strong>3</strong><span>Origin paths</span></div>
-            </div>
+            <CareerResultPreview />
           </div>
         </section>
 
@@ -166,9 +157,9 @@ export function HomePage() {
               <p className="eyebrow">{t('home', 'finalCta.eyebrow')}</p>
               <h2>{t('home', 'finalCta.title')}</h2>
               <p className="lead">{t('home', 'finalCta.body')}</p>
-              <Link className="button button--primary" to={`/${locale}/game`}>
+              <a className="button button--primary" href="#play">
                 {t('home', 'finalCta.button')}
-              </Link>
+              </a>
             </div>
           </div>
         </section>

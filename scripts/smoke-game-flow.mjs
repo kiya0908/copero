@@ -31,6 +31,21 @@ try {
   )
   assert(country, 'The catalog must contain a country with origin club options.')
 
+  let homepageState = stateModule.createInitialState('long', 'purist')
+  homepageState = game.confirmIdentity(homepageState, {
+    lastName: 'Homepage',
+    preferredNumber: 9,
+    preferredFoot: 'left',
+    position: 'ST',
+    nationalityFifa: country.fifa_code,
+    heritageNationalityFifa: null,
+  })
+  homepageState = draft.initializeDraft(homepageState)
+  assert(homepageState.phase === 'draft', 'Homepage identity submission must bypass intro and enter the draft.')
+  assert(homepageState.draftMode === 'purist', 'Homepage entry must preserve the selected draft mode.')
+  assert(homepageState.draft.currentLegendId, 'Homepage entry must initialize the first draft legend before navigation.')
+  assert(homepageState.player?.preferredNumber === 9, 'Homepage identity data must reach the shared game state.')
+
   state = game.confirmIdentity(state, {
     lastName: 'Smoke',
     preferredNumber: 10,
@@ -139,7 +154,7 @@ try {
   assert(state.seasons.length > 0, 'The completed career must contain season records.')
 
   console.log(
-    `Game flow smoke test passed: ${state.seasons.length} seasons, ${state.draft.picks.length} draft picks.`,
+    `Game flow smoke test passed: homepage entry + ${state.seasons.length} seasons, ${state.draft.picks.length} draft picks.`,
   )
 } finally {
   await server.close()
