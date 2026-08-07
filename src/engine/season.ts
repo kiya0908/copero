@@ -19,10 +19,11 @@ import {
   simulateSeasonStats,
 } from './development'
 import { competitionAtTier, effectiveCompetitionId } from './league'
-import { evaluateSeasonObjective } from './objectives'
+import { msg } from './messages'
 import { injuryChance, retirementAge } from './modifiers'
+import { evaluateSeasonObjective } from './objectives'
 import { nextRng, pickWeighted } from './rng'
-import type { GameState, SeasonRecord } from './types'
+import type { DisplayText, GameState, SeasonRecord } from './types'
 
 const INJURIES = [
   { type: 'hamstring', weight: 24, overallDelta: -3 },
@@ -63,7 +64,7 @@ export function simulateOneSeason(state: GameState): {
   if (!suspended && chance > 0 && injuryRoll.value < chance) {
     const pick = pickWeighted(
       s,
-      INJURIES.map((i) => ({ item: i, weight: i.weight })),
+      INJURIES.map((injury) => ({ item: injury, weight: injury.weight })),
     )
     s = pick.state
     if (pick.item) {
@@ -170,14 +171,14 @@ export function simulateOneSeason(state: GameState): {
       )
       s = projected.state
 
-      let countryFifa = player.nationalityFifa
+      let callupCountryFifa = player.nationalityFifa
       let viaHeritage = false
       const heritage = player.heritageNationalityFifa
       if (heritage && heritage !== player.nationalityFifa) {
         const heritRoll = nextRng(s)
         s = heritRoll.state
         if (heritRoll.value < 0.3) {
-          countryFifa = heritage
+          callupCountryFifa = heritage
           viaHeritage = true
         }
       }
@@ -185,7 +186,7 @@ export function simulateOneSeason(state: GameState): {
       pendingNationalCallup = {
         age: player.age,
         projected: projected.stats,
-        countryFifa,
+        countryFifa: callupCountryFifa,
         viaHeritage,
       }
     }
@@ -280,29 +281,30 @@ export function simulateOneSeason(state: GameState): {
   next = {
     ...next,
     careerStage: deriveCareerStage(next),
-    modifiers: next.modifiers.filter((m) => m !== 'form_boost' && m !== 'form_dip'),
+    modifiers: next.modifiers.filter((modifier) => modifier !== 'form_boost' && modifier !== 'form_dip'),
   }
 
-  const logLines = [
-    `Temporada ${season.index + 1}: OVR ${season.overall}, ${season.stats.appearances} PJ` +
-      (injured ? ` (lesión: ${injuryName})` : '') +
-      (trophies.length ? ` | Trofeos: ${trophies.map((x) => x.name).join(', ')}` : '') +
-      (struggle === 'relegated'
-        ? ' | Descenso'
-        : struggle === 'promoted'
-          ? ' | Ascenso de categoría'
-          : struggle === 'relegation_battle'
-            ? ' | Pelea de descenso'
-            : ''),
+  const logLines: DisplayText[] = [
+    msg('log.season', {
+      season: season.index + 1,
+      ovr: season.overall,
+      apps: season.stats.appearances,
+    }),
   ]
-  if (pendingNationalCallup && !state.pendingNationalCallup) {
-    logLines.push('Convocatoria a la selección pendiente de respuesta')
+  if (injured && injuryName) logLines.push(msg('log.seasonInjury', { injury: injuryName }))
+  if (trophies.length) {
+    logLines.push(msg('log.seasonTrophies', { trophies: trophies.map((trophy) => trophy.name).join(', ') }))
   }
+  if (struggle === 'relegated') logLines.push(msg('log.relegated'))
+  if (struggle === 'promoted') logLines.push(msg('log.promoted'))
+  if (struggle === 'relegation_battle') logLines.push(msg('log.relegationBattle'))
+  if (pendingNationalCallup && !state.pendingNationalCallup) logLines.push(msg('log.callupPending'))
   if (evaluated) {
+    const objectiveKey = typeof evaluated.label === 'string' ? evaluated.label : evaluated.label.key
     logLines.push(
-      evaluated.completed
-        ? `Objetivo cumplido: ${evaluated.label}`
-        : `Objetivo fallido: ${evaluated.label}`,
+      msg(evaluated.completed ? 'log.objectiveDone' : 'log.objectiveFailed', {
+        objective: objectiveKey,
+      }),
     )
   }
   next = { ...next, log: [...state.log, ...logLines] }
@@ -320,8 +322,13 @@ export function applyNationalCallup(state: GameState): GameState {
   const nationalTrophies = [...(state.nationalTrophies ?? [])]
   const newTrophies: TrophyWin[] = []
   const callCountryFifa = pending.countryFifa || player.nationalityFifa
-  const logLines: string[] = [
-    `Selección (${getCountry(callCountryFifa)?.name_es ?? callCountryFifa}): ${pending.projected.appearances} PJ, ${pending.projected.goals} GLS, ${pending.projected.assists} AST`,
+  const logLines: DisplayText[] = [
+    msg('log.nationalStats', {
+      country: callCountryFifa,
+      apps: pending.projected.appearances,
+      goals: pending.projected.goals,
+      assists: pending.projected.assists,
+    }),
   ]
 
   if (player.overall >= 78 && pending.age >= 20 && pending.age <= 35) {
@@ -334,7 +341,7 @@ export function applyNationalCallup(state: GameState): GameState {
       const cup = resolveNationalTeamTrophy(conf)
       nationalTrophies.push(cup)
       newTrophies.push(cup)
-      logLines.push(`Selección: ¡campeón de ${cup.name}!`)
+      logLines.push(msg('log.nationalChampion', { trophy: cup.name }))
     }
     if (player.overall >= 85) {
       const wcRoll = nextRng(s)
@@ -344,7 +351,7 @@ export function applyNationalCallup(state: GameState): GameState {
         const wc = resolveWorldCupTrophy()
         nationalTrophies.push(wc)
         newTrophies.push(wc)
-        logLines.push('Selección: ¡campeón del Mundo!')
+        logLines.push(msg('log.worldChampion'))
       }
     }
   }
@@ -368,7 +375,7 @@ export function applyNationalCallup(state: GameState): GameState {
     nationalTrophies,
     log: [...state.log, ...logLines],
     celebration: newTrophies.length
-      ? { kind: 'trophy', message: '¡Título con la selección!', trophies: newTrophies }
+      ? { kind: 'trophy', message: msg('celebration.nationalTrophy'), trophies: newTrophies }
       : state.celebration,
   }
 }
@@ -377,7 +384,7 @@ export function rejectNationalCallup(state: GameState): GameState {
   return {
     ...state,
     pendingNationalCallup: null,
-    log: [...state.log, 'Rechazaste la convocatoria a la selección'],
+    log: [...state.log, msg('log.callupRejected')],
   }
 }
 
@@ -389,12 +396,10 @@ export function shouldRetire(state: GameState): { retire: boolean; reason: 'age'
     const current = state.currentTeamId ? getTeam(state.currentTeamId) : undefined
     const atRecoveryClub = (current?.international_reputation ?? 99) <= 2
     const recoveryPending =
-      state.pendingOffers.some((o) => o.pathReason === 'recovery') ||
+      state.pendingOffers.some((offer) => offer.pathReason === 'recovery') ||
       (state.currentEvent?.type === 'offer' &&
-        state.currentEvent.offers.some((o) => o.pathReason === 'recovery'))
-    if (atRecoveryClub || recoveryPending) {
-      return { retire: false, reason: null }
-    }
+        state.currentEvent.offers.some((offer) => offer.pathReason === 'recovery'))
+    if (atRecoveryClub || recoveryPending) return { retire: false, reason: null }
 
     const ruinedAt = state.ruinedAtSeasonIndex
     const seasonsSinceRuin =
@@ -437,6 +442,6 @@ export function resolveLoanReturn(state: GameState): GameState {
       signingBonus: 0,
       role: 'rotation',
     },
-    log: [...state.log, `Fin del préstamo: vuelve a ${parent?.name ?? parentId}`],
+    log: [...state.log, msg('log.loanReturn', { team: parent?.name ?? parentId })],
   }
 }
