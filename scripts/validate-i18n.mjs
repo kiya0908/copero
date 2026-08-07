@@ -2,6 +2,16 @@ import { readFile } from 'node:fs/promises'
 
 const locales = ['es', 'en', 'zh-cn']
 const resourceFiles = ['game.json', 'game-ui.json']
+const requiredHomePreviewKeys = [
+  'resultCard.eyebrow',
+  'resultCard.number',
+  'resultCard.overallLabel',
+  'resultCard.name',
+  'resultCard.description',
+  'resultCard.stats.rating',
+  'resultCard.stats.clubs',
+  'resultCard.stats.trophies',
+]
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'))
@@ -50,6 +60,28 @@ for (const locale of locales.slice(1)) {
   }
 }
 
+const homePreviewKeys = new Map()
+for (const locale of locales) {
+  const preview = await readJson(`src/i18n/locales/${locale}/home-preview.json`)
+  const keys = new Set(collectLeafKeys(preview))
+  homePreviewKeys.set(locale, keys)
+  const missingRequired = requiredHomePreviewKeys.filter((key) => !keys.has(key))
+  if (missingRequired.length) {
+    throw new Error(`${locale} homepage result preview is missing: ${missingRequired.join(', ')}.`)
+  }
+}
+const homePreviewReference = homePreviewKeys.get('es')
+for (const locale of locales.slice(1)) {
+  const keys = homePreviewKeys.get(locale)
+  const missing = [...homePreviewReference].filter((key) => !keys.has(key))
+  const extra = [...keys].filter((key) => !homePreviewReference.has(key))
+  if (missing.length || extra.length) {
+    throw new Error(
+      `${locale} homepage preview resources are out of sync. Missing: ${missing.join(', ') || 'none'}. Extra: ${extra.join(', ') || 'none'}.`,
+    )
+  }
+}
+
 const engineFiles = [
   'src/engine/game.ts',
   'src/engine/season.ts',
@@ -83,5 +115,5 @@ if (/STORAGE_PREFIX.*locale|LAST_SAVE_KEY.*locale/i.test(stateSource + cooldownS
 }
 
 console.log(
-  `i18n validation passed: ${reference.size} game keys and ${pageReference.size} info-page keys aligned across ${locales.join(', ')}.`,
+  `i18n validation passed: ${reference.size} game keys, ${pageReference.size} info-page keys and ${homePreviewReference.size} homepage preview keys aligned across ${locales.join(', ')}.`,
 )

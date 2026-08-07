@@ -5,6 +5,8 @@ import { useI18n } from '../i18n/config'
 
 export type InfoPageKind = 'about' | 'contact' | 'privacy' | 'terms'
 
+const SUPPORT_EMAIL = 'support@copero.top'
+
 const SECTION_KEYS: Record<InfoPageKind, readonly string[]> = {
   about: ['project', 'gameplay', 'languages', 'independence'],
   contact: ['include', 'privacy', 'legal', 'response'],
@@ -34,17 +36,12 @@ export function InfoPage({ page }: { page: InfoPageKind }) {
             <div className="site-container info-page__container">
               <article className="info-contact-card">
                 <div>
-                  <p className="eyebrow">GitHub</p>
+                  <p className="eyebrow">{t('pages', 'contact.channelLabel')}</p>
                   <h2>{t('pages', 'contact.channelTitle')}</h2>
                   <p>{t('pages', 'contact.channelBody')}</p>
                 </div>
-                <a
-                  className="button button--primary"
-                  href="https://github.com/kiya0908/copero/issues"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {t('pages', 'contact.channelCta')}
+                <a className="button button--primary" href={`mailto:${SUPPORT_EMAIL}`}>
+                  {SUPPORT_EMAIL}
                 </a>
               </article>
             </div>
