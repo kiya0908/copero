@@ -1,6 +1,6 @@
 import { getTeam } from '../../data/catalog'
 import type { SeasonRecord } from '../../engine/types'
-import { formatMoney, objectiveText, roleText, useI18n } from '../../i18n/config'
+import { formatMoney, roleText, useI18n } from '../../i18n/config'
 import { Button } from './primitives'
 import { OvrBadge } from './OvrBadge'
 import { StatIcons } from './StatIcons'
