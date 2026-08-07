@@ -45,7 +45,7 @@ export function DraftResultPhase({
         <div className="rounded-[calc(var(--copero-radius-lg)-3px)] bg-[color:color-mix(in_oklch,var(--copero-bg)_88%,black)] p-6 sm:p-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <GameBadge tone="gold" mono>CAREER BUILD</GameBadge>
+              <GameBadge tone="gold" mono>{gameT('draftResult.eyebrow')}</GameBadge>
               <div className="mt-4 font-[family-name:var(--copero-font-display)] text-6xl font-black leading-none text-[color:var(--copero-gold)]">
                 {player.potential}
               </div>
