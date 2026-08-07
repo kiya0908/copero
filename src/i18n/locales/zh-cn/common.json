@@ -29,6 +29,11 @@
   },
   "footer": {
     "independent": "独立制作的足球生涯模拟游戏。",
-    "disclaimer": "并非 Copero 官方产品，也不隶属于任何俱乐部或球员。"
+    "disclaimer": "并非 Copero 官方产品，也不隶属于任何俱乐部或球员。",
+    "navigation": "网站链接",
+    "about": "关于",
+    "contact": "联系",
+    "privacy": "隐私",
+    "terms": "条款"
   }
 }
