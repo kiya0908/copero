@@ -3,6 +3,7 @@ import type { EventOutcomePill } from '../../data/eventAssets'
 import { eventChoiceVisual } from '../../data/eventAssets'
 import { useI18n } from '../../i18n/config'
 import type { GameTranslate } from '../../i18n/game'
+import { GameBadge, GameButton, SectionEyebrow, SectionTitle, Surface } from './Primitives'
 
 export type ChoiceSpinResult = {
   choiceId: string
@@ -143,31 +144,28 @@ export function EventChoiceCards({
   }
 
   return (
-    <div
-      className={`glass-card space-y-3 rounded-2xl p-4 transition-opacity duration-300 ${
-        exiting ? 'opacity-40' : 'opacity-100'
-      }`}
-    >
-      <h3 className="font-display text-lg font-extrabold">{title}</h3>
-      <p className="text-sm text-white/60">{body}</p>
+    <Surface tone={impact === 'ruin' ? 'danger' : 'strong'} className={`space-y-4 p-4 sm:p-5 transition-opacity duration-300 ${exiting ? 'opacity-40' : 'opacity-100'}`}>
+      <div>
+        <SectionEyebrow>{gameT('career.event')}</SectionEyebrow>
+        <SectionTitle as="h3" className="mt-2">{title}</SectionTitle>
+        <p className="mt-2 text-sm leading-relaxed text-[color:var(--copero-muted)]">{body}</p>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         {choices.map((choice) => {
           const visual = eventChoiceVisual(eventId, choice.id)
           if (!visual) {
             return (
-              <button
+              <GameButton
                 key={choice.id}
                 type="button"
+                size="lg"
+                variant={impact === 'ruin' && (choice.id === 'consume' || choice.id === 'retire_medical') ? 'danger' : 'primary'}
                 disabled={spinning || Boolean(result)}
                 onClick={() => startSpin(choice.id)}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] ${
-                  impact === 'ruin' && (choice.id === 'consume' || choice.id === 'retire_medical')
-                    ? 'bg-red-700 text-white'
-                    : 'bg-white text-black'
-                }`}
               >
                 {choice.label}
-              </button>
+              </GameButton>
             )
           }
 
@@ -180,23 +178,25 @@ export function EventChoiceCards({
               type="button"
               disabled={spinning || Boolean(result)}
               onClick={() => startSpin(choice.id)}
-              className={`group relative overflow-hidden rounded-2xl border bg-[#161616] text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-white/30 hover:shadow-[0_12px_28px_rgba(0,0,0,0.45)] active:scale-[0.98] ${
+              className={`game-card-action group relative overflow-hidden rounded-[var(--copero-radius-lg)] border bg-[color:color-mix(in_oklch,var(--copero-surface)_92%,black)] text-left shadow-[var(--copero-shadow)] ${
                 result?.choiceId === choice.id
-                  ? 'border-white/40 ring-1 ring-white/20'
+                  ? 'border-[color:var(--copero-accent)] ring-1 ring-[color:color-mix(in_oklch,var(--copero-accent)_32%,transparent)]'
                   : spinning && isActiveCard
-                    ? 'border-amber-300/50 ring-1 ring-amber-200/30'
-                    : 'border-white/10'
+                    ? 'border-[color:var(--copero-gold)] ring-1 ring-[color:color-mix(in_oklch,var(--copero-gold)_28%,transparent)]'
+                    : 'border-[color:var(--copero-border)]'
               }`}
             >
               <div className="aspect-[16/10] w-full overflow-hidden bg-black/40">
                 <img
                   src={visual.imageSrc}
                   alt=""
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                  className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"
                 />
               </div>
-              <div className="space-y-2 p-3">
-                <div className="text-sm font-semibold text-white">{choice.label}</div>
+              <div className="space-y-3 p-4">
+                <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-fg)]">
+                  {choice.label}
+                </div>
                 <div className="flex flex-wrap gap-1.5">
                   {showOutcomes.map((outcome, index) => {
                     const isWinner = result?.choiceId === choice.id && result.winningIndex === index
@@ -205,38 +205,25 @@ export function EventChoiceCards({
                       result.winningIndex !== index &&
                       showOutcomes.length > 1
                     const isSpinHighlight = spinning && isActiveCard && highlightPill === index
+                    const tone = outcome.tone === 'positive' ? 'success' : outcome.tone === 'negative' ? 'danger' : 'neutral'
                     return (
-                      <span
+                      <GameBadge
                         key={index}
-                        className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition-all duration-300 ${
+                        tone={tone}
+                        mono
+                        className={`${
                           isLoser
-                            ? 'scale-95 bg-white/5 text-white/25 line-through opacity-50'
+                            ? 'scale-95 opacity-35 line-through'
                             : isWinner
-                              ? `outcome-overlay scale-125 ${
-                                  outcome.tone === 'positive'
-                                    ? 'bg-emerald-400 text-black ring-2 ring-emerald-100 shadow-[0_0_18px_rgba(52,211,153,0.55)]'
-                                    : outcome.tone === 'negative'
-                                      ? 'bg-rose-400 text-black ring-2 ring-rose-100 shadow-[0_0_18px_rgba(251,113,133,0.55)]'
-                                      : 'bg-white text-black ring-2 ring-white/40'
-                                }`
+                              ? 'outcome-overlay scale-110 shadow-lg'
                               : isSpinHighlight
-                                ? `roulette-spin scale-125 ${
-                                    outcome.tone === 'positive'
-                                      ? 'bg-emerald-400 text-black ring-2 ring-emerald-200 shadow-[0_0_14px_rgba(52,211,153,0.45)]'
-                                      : outcome.tone === 'negative'
-                                        ? 'bg-rose-400 text-black ring-2 ring-rose-200 shadow-[0_0_14px_rgba(251,113,133,0.45)]'
-                                        : 'bg-white text-black'
-                                  }`
-                                : outcome.tone === 'positive'
-                                  ? 'bg-emerald-500/25 text-emerald-200'
-                                  : outcome.tone === 'negative'
-                                    ? 'bg-rose-500/25 text-rose-200'
-                                    : 'bg-white/10 text-white/70'
+                                ? 'roulette-spin scale-110'
+                                : ''
                         }`}
                       >
                         {translateOutcome(gameT, outcome.label)}
                         {outcome.chance != null ? ` · ${outcome.chance}%` : ''}
-                      </span>
+                      </GameBadge>
                     )
                   })}
                 </div>
@@ -247,27 +234,15 @@ export function EventChoiceCards({
       </div>
 
       {result && (
-        <div className="outcome-overlay flex flex-col items-center gap-2 pt-2">
-          <p
-            className={`font-display text-base font-extrabold tracking-wide ${
-              result.tone === 'positive'
-                ? 'text-emerald-300'
-                : result.tone === 'negative'
-                  ? 'text-rose-300'
-                  : 'text-white/70'
-            }`}
-          >
+        <div className="outcome-overlay flex flex-col items-center gap-3 border-t border-[color:var(--copero-border)] pt-4">
+          <GameBadge tone={result.tone === 'positive' ? 'success' : result.tone === 'negative' ? 'danger' : 'neutral'}>
             {translateOutcome(gameT, result.label)}
-          </p>
-          <button
-            type="button"
-            onClick={finish}
-            className="rounded-full bg-white px-6 py-2.5 text-sm font-extrabold text-black transition hover:bg-white/90 active:scale-[0.98]"
-          >
+          </GameBadge>
+          <GameButton type="button" onClick={finish}>
             {gameT('actions.continue')}
-          </button>
+          </GameButton>
         </div>
       )}
-    </div>
+    </Surface>
   )
 }
