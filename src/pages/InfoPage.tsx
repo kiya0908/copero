@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
-import { useI18n } from '../i18n/config'
+import { localizePath, useI18n } from '../i18n/config'
 
 export type InfoPageKind = 'about' | 'contact' | 'privacy' | 'terms'
 
@@ -61,7 +61,7 @@ export function InfoPage({ page }: { page: InfoPageKind }) {
 
         <section className="site-section info-page__back-section">
           <div className="site-container info-page__container">
-            <Link className="button button--secondary" to={`/${locale}/`}>
+            <Link className="button button--secondary" to={localizePath('/', locale)}>
               ← {t('common', 'actions.backHome')}
             </Link>
           </div>
