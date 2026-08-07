@@ -33,3 +33,5 @@ jobs:
         run: npm run build
       - name: Validate localized SEO output
         run: npm run validate:seo
+      - name: Validate release readiness
+        run: npm run validate:release
