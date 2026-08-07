@@ -280,8 +280,7 @@ export function RetireCard({ onRetire }: { onRetire: () => void }) {
         className="absolute inset-0 h-full w-full object-cover opacity-40"
       />
       <div className="relative z-10 flex w-full flex-col justify-center bg-gradient-to-r from-black/85 to-black/35 px-4 py-3">
-        <GameBadge tone="gold" className="mb-2">RETIREMENT</GameBadge>
-        <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-fg)]">{gameT('offer.retire')}</div>
+        <div className="font-[family-name:var(--copero-font-display)] text-sm font-black uppercase text-[color:var(--copero-gold)]">{gameT('offer.retire')}</div>
         <div className="mt-1 text-xs text-[color:var(--copero-muted)]">{gameT('offer.retireHint')}</div>
       </div>
     </button>
