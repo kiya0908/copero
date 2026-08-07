@@ -43,5 +43,16 @@
   "milestone.first_trophy": "第一座奖杯",
   "milestone.trophy_cabinet": "获得 5 座以上奖杯",
   "milestone.ovr_85": "达到 85 OVR",
+  "celebration.nationalTrophy": "你随国家队赢得了一座冠军奖杯！",
+  "log.loanReturn": "租借结束：返回 {{team}}",
+  "outcome.starterPlusOne": "+1 OVR · 首发",
+  "outcome.plusFourTopClub": "+4 OVR · 豪门机会",
+  "outcome.minusFifteenRuin": "-15 OVR · 生涯崩塌",
+  "outcome.minusTwentyFiveFortune": "-25% 财富",
+  "outcome.minusFiftyFortune": "-50% 财富",
+  "outcome.plusThreeRisky": "+3 OVR · 高风险",
+  "outcome.suspensionRuin": "停赛 · 生涯崩塌",
+  "outcome.plusOneClean": "+1 OVR · 保持清白",
+  "outcome.minusTwoTemporary": "-2 OVR · 临时影响",
   "common.playerFallback": "球员"
 }
