@@ -1,46 +1,41 @@
-import {
-  academyTeamsForCountry,
-  getCompetition,
-  teams,
-} from '../data/catalog'
-import type { GameState, PlayingRole, Team } from './types'
+import { academyTeamsForCountry, getCompetition, teams } from '../data/catalog'
+import { msg } from './messages'
+import type { DisplayText, GameState, PlayingRole, Team } from './types'
 
 /** Delta de OVR al firmar en un club de origen (+/- según tier y rol). */
 export function originOvrDelta(
   team: Team | undefined,
   role: PlayingRole,
-): { delta: number; reason: string } {
+): { delta: number; reason: DisplayText } {
   const rep = team?.international_reputation ?? 1
   const comp = team ? getCompetition(team.competition_id) : undefined
   const secondDiv = (comp?.tier ?? 1) >= 2
 
   let delta = 0
-  let reason = 'Arranque neutro'
+  let reasonKey = 'origin.delta.neutral'
 
   if (rep >= 5) {
     delta = -2
-    reason = 'Grande absoluto: menos minutos de entrada'
+    reasonKey = 'origin.delta.absoluteBig'
   } else if (rep >= 4) {
     delta = -1
-    reason = 'Grande: pelearás el puesto'
+    reasonKey = 'origin.delta.big'
   } else if (rep >= 3) {
     delta = 0
-    reason = 'Escaparate: proyección alta, minutos a ganar'
+    reasonKey = 'origin.delta.showcase'
   } else if (secondDiv || rep <= 1) {
     delta = 2
-    reason = 'Ascenso / club chico: titular y referente'
+    reasonKey = 'origin.delta.small'
   } else {
     delta = 1
-    reason = 'Club mediano: buenos minutos'
+    reasonKey = 'origin.delta.medium'
   }
 
   if (role === 'starter' || role === 'undisputed') delta += 1
   else if (role === 'bench') delta -= 1
 
   delta = Math.max(-3, Math.min(3, delta))
-  if (delta > 0) reason = `${reason} · +${delta} OVR`
-  else if (delta < 0) reason = `${reason} · ${delta} OVR`
-  return { delta, reason }
+  return { delta, reason: msg(reasonKey, { delta: delta > 0 ? `+${delta}` : delta }) }
 }
 
 /** Rol inicial de cantera según reputación del club. */
@@ -89,10 +84,7 @@ function chooseTeam(
       const repDistance = Math.abs(team.international_reputation - targetRep)
       const divisionBonus = preferLowerDivision && tier >= 2 ? 24 : 0
       const variety = seededNoise(seed, team.id, salt) * 18
-      return {
-        team,
-        score: 120 - repDistance * 35 + divisionBonus + variety,
-      }
+      return { team, score: 120 - repDistance * 35 + divisionBonus + variety }
     })
     .sort((a, b) => b.score - a.score)[0]?.team
 }
@@ -120,46 +112,17 @@ export function originClubChoices(state: GameState): Team[] {
     const tier = getCompetition(team.competition_id)?.tier ?? 1
     return team.international_reputation <= 1 || tier >= 2
   })
-  const balancedPool = pool.filter(
-    (team) => team.international_reputation >= 2 && team.international_reputation <= 3,
-  )
-  const ambitiousPool = pool.filter(
-    (team) => team.international_reputation >= Math.max(2, maxRep - 1),
-  )
+  const balancedPool = pool.filter((team) => team.international_reputation >= 2 && team.international_reputation <= 3)
+  const ambitiousPool = pool.filter((team) => team.international_reputation >= Math.max(2, maxRep - 1))
 
-  const slots: Array<{
-    pool: Team[]
-    salt: string
-    targetRep: number
-    lowerDivision?: boolean
-  }> = [
-    {
-      pool: developmentPool.length ? developmentPool : pool,
-      salt: 'development',
-      targetRep: 1,
-      lowerDivision: true,
-    },
-    {
-      pool: balancedPool.length ? balancedPool : pool,
-      salt: 'balanced',
-      targetRep: Math.min(2, maxRep),
-    },
-    {
-      pool: ambitiousPool.length ? ambitiousPool : pool,
-      salt: 'ambitious',
-      targetRep: maxRep,
-    },
+  const slots: Array<{ pool: Team[]; salt: string; targetRep: number; lowerDivision?: boolean }> = [
+    { pool: developmentPool.length ? developmentPool : pool, salt: 'development', targetRep: 1, lowerDivision: true },
+    { pool: balancedPool.length ? balancedPool : pool, salt: 'balanced', targetRep: Math.min(2, maxRep) },
+    { pool: ambitiousPool.length ? ambitiousPool : pool, salt: 'ambitious', targetRep: maxRep },
   ]
 
   for (const slot of slots) {
-    const team = chooseTeam(
-      slot.pool,
-      used,
-      state.seed,
-      slot.salt,
-      slot.targetRep,
-      slot.lowerDivision,
-    )
+    const team = chooseTeam(slot.pool, used, state.seed, slot.salt, slot.targetRep, slot.lowerDivision)
     if (team) {
       picks.push(team)
       used.add(team.id)
@@ -169,11 +132,7 @@ export function originClubChoices(state: GameState): Team[] {
   if (picks.length < 3) {
     const remaining = pool
       .filter((team) => !used.has(team.id))
-      .sort(
-        (a, b) =>
-          seededNoise(state.seed, b.id, 'fallback') -
-          seededNoise(state.seed, a.id, 'fallback'),
-      )
+      .sort((a, b) => seededNoise(state.seed, b.id, 'fallback') - seededNoise(state.seed, a.id, 'fallback'))
     for (const team of remaining) {
       picks.push(team)
       if (picks.length === 3) break
@@ -185,10 +144,10 @@ export function originClubChoices(state: GameState): Team[] {
 
 export type OriginChoicePreview = {
   role: PlayingRole
-  minutes: string
-  growth: string
-  trophies: string
-  risk: string
+  minutesKey: string
+  growthKey: string
+  trophiesKey: string
+  riskKey: string
 }
 
 export function originChoicePreview(team: Team): OriginChoicePreview {
@@ -199,35 +158,35 @@ export function originChoicePreview(team: Team): OriginChoicePreview {
   if (rep >= 4) {
     return {
       role,
-      minutes: 'Pocos minutos al inicio',
-      growth: 'Entrenamiento de élite',
-      trophies: 'Probabilidad alta',
-      risk: 'Podés quedar en el banco',
+      minutesKey: 'origin.preview.big.minutes',
+      growthKey: 'origin.preview.big.growth',
+      trophiesKey: 'origin.preview.big.trophies',
+      riskKey: 'origin.preview.big.risk',
     }
   }
   if (rep === 3) {
     return {
       role,
-      minutes: 'Rotación con opciones',
-      growth: 'Buen escaparate',
-      trophies: 'Probabilidad media',
-      risk: 'Competencia exigente',
+      minutesKey: 'origin.preview.medium.minutes',
+      growthKey: 'origin.preview.medium.growth',
+      trophiesKey: 'origin.preview.medium.trophies',
+      riskKey: 'origin.preview.medium.risk',
     }
   }
   if (tier >= 2 || rep <= 1) {
     return {
       role,
-      minutes: 'Titularidad probable',
-      growth: 'Muchos minutos',
-      trophies: 'Probabilidad baja',
-      risk: 'Menor exposición',
+      minutesKey: 'origin.preview.small.minutes',
+      growthKey: 'origin.preview.small.growth',
+      trophiesKey: 'origin.preview.small.trophies',
+      riskKey: 'origin.preview.small.risk',
     }
   }
   return {
     role,
-    minutes: 'Minutos regulares',
-    growth: 'Desarrollo equilibrado',
-    trophies: 'Probabilidad media-baja',
-    risk: 'Progreso gradual',
+    minutesKey: 'origin.preview.balanced.minutes',
+    growthKey: 'origin.preview.balanced.growth',
+    trophiesKey: 'origin.preview.balanced.trophies',
+    riskKey: 'origin.preview.balanced.risk',
   }
 }
