@@ -88,7 +88,7 @@ export function createPlayer(
       ? input.heritageNationalityFifa
       : null
   const player: Player = {
-    lastName: input.lastName.trim() || 'Jugador',
+    lastName: input.lastName.trim(),
     preferredNumber: input.preferredNumber,
     preferredFoot: input.preferredFoot,
     position: input.position,
