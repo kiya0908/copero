@@ -7,6 +7,7 @@ import './index.css'
 import './styles/tokens.css'
 import './styles/marketing.css'
 import './styles/game-shell.css'
+import './styles/game-ui.css'
 
 initAnalytics()
 
