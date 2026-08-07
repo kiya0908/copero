@@ -1,6 +1,6 @@
-import { nextRng, pickOne, randomInt } from './rng'
-import { estimateMarketValue } from './development'
 import { getTeam } from '../data/catalog'
+import { nextRng, pickOne } from './rng'
+import { estimateMarketValue } from './development'
 import type { ClubOffer, PlayingRole, Player } from './types'
 
 const ROLE_WAGE_MULT: Record<PlayingRole, number> = {
@@ -40,7 +40,7 @@ export function buildOffer(params: {
     else role = roleRoll.value > 0.55 ? 'starter' : 'rotation'
   }
 
-  const yearsRoll = randomInt(s, 1, params.kind === 'loan' ? 1 : 5)
+  const yearsRoll = randomIntCompat(s, 1, params.kind === 'loan' ? 1 : 5)
   s = yearsRoll.state
   const years = params.kind === 'academy' ? Math.max(2, yearsRoll.value) : yearsRoll.value
 
@@ -71,6 +71,12 @@ export function buildOffer(params: {
       kind: params.kind,
     },
   }
+}
+
+/** Kept local to avoid changing the RNG public API during the i18n refactor. */
+function randomIntCompat(state: number, min: number, max: number): { state: number; value: number } {
+  const roll = nextRng(state)
+  return { state: roll.state, value: Math.floor(roll.value * (max - min + 1)) + min }
 }
 
 export function negotiateOffer(
@@ -143,17 +149,9 @@ export function negotiateOffer(
   }
 }
 
+/** Translation key only; UI owns localization. */
 export function roleLabel(role: PlayingRole): string {
-  switch (role) {
-    case 'bench':
-      return 'Banco'
-    case 'rotation':
-      return 'Rotación'
-    case 'starter':
-      return 'Titular'
-    case 'undisputed':
-      return 'Titularidad absoluta'
-  }
+  return `role.${role}`
 }
 
 export function pickRoleForAsk(current: PlayingRole): PlayingRole {
