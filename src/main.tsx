@@ -6,6 +6,7 @@ import { initAnalytics } from './lib/analytics.ts'
 import './index.css'
 import './styles/tokens.css'
 import './styles/marketing.css'
+import './styles/game-shell.css'
 
 initAnalytics()
 
