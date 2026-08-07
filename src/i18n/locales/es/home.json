@@ -1,0 +1,126 @@
+{
+  "seo": {
+    "title": "Copero Game Online · Simulador de carrera de fútbol",
+    "description": "Creá un futbolista, completá un draft de ocho atributos, elegí club y recorré una carrera con contratos, transferencias, selección, títulos y decisiones.",
+    "ogTitle": "Copero · Football Career Simulator",
+    "ogDescription": "Construí un jugador con ocho atributos y viví toda su carrera en el navegador."
+  },
+  "hero": {
+    "eyebrow": "Football Career Simulator",
+    "title": "Construí un jugador. Jugá toda una carrera.",
+    "body": "Copero es un simulador de carrera futbolística para navegador. Elegís identidad y posición, armás ocho atributos con leyendas del fútbol y después decidís cómo progresa tu carrera entre clubes, contratos, eventos y selección.",
+    "primary": "Empezar una carrera",
+    "secondary": "Ver cómo se juega",
+    "tags": {
+      "browser": "En el navegador",
+      "draft": "Draft de 8 atributos",
+      "career": "Carrera completa",
+      "save": "Guardado local"
+    }
+  },
+  "resultCard": {
+    "eyebrow": "Resultado de carrera",
+    "number": "10",
+    "overallLabel": "OVR pico",
+    "name": "TU CARRERA",
+    "description": "El resumen final reúne puntuación, atributos, clubes, estadísticas, trofeos y trayectoria.",
+    "stats": {
+      "rating": "Nota final",
+      "clubs": "Clubes",
+      "trophies": "Trofeos"
+    }
+  },
+  "howTo": {
+    "eyebrow": "Cómo jugar",
+    "title": "Del primer atributo al retiro",
+    "body": "La partida avanza por etapas claras y conserva el mismo estado de carrera durante todo el recorrido.",
+    "steps": {
+      "identity": {
+        "title": "Creá tu jugador",
+        "body": "Elegí apellido, dorsal, pierna hábil, nacionalidad, posible herencia familiar y posición."
+      },
+      "draft": {
+        "title": "Completá 8 rondas",
+        "body": "Cada leyenda aporta su mejor atributo todavía disponible hasta completar PAC, SHO, PAS, DRI, DEF, PHY, SKL y WF."
+      },
+      "origin": {
+        "title": "Elegí un camino inicial",
+        "body": "Recibís tres clubes de origen equilibrados entre desarrollo, exposición, minutos y dificultad."
+      },
+      "career": {
+        "title": "Viví la carrera",
+        "body": "Simulá temporadas, negociá contratos, aceptá transferencias, respondé eventos, jugá para la selección y llegá al retiro."
+      }
+    }
+  },
+  "modes": {
+    "eyebrow": "Draft modes",
+    "title": "Classic o Purist",
+    "body": "Los dos modos usan la misma carrera; cambia cuánto sabés durante el draft.",
+    "classic": {
+      "title": "Classic",
+      "body": "Muestra los valores de cada leyenda y permite hasta cinco cambios antes de confirmar un atributo."
+    },
+    "purist": {
+      "title": "Purist",
+      "body": "Oculta los valores y no permite cambiar de leyenda: elegís por conocimiento futbolero."
+    }
+  },
+  "mechanics": {
+    "eyebrow": "Mecánicas reales",
+    "title": "Las decisiones cambian la trayectoria",
+    "body": "Copero no es solo una pantalla de resultado. La carrera usa atributos, potencial, rol, reputación del club, objetivos y eventos para producir caminos distintos.",
+    "items": {
+      "growth": {
+        "title": "Atributos y potencial",
+        "body": "La posición aplica pesos diferentes a los ocho atributos y fija un potencial que limita el crecimiento."
+      },
+      "clubs": {
+        "title": "Clubes, roles y contratos",
+        "body": "Banco, rotación, titular o indiscutido afectan minutos y salario; también podés negociar condiciones y cambiar de club."
+      },
+      "events": {
+        "title": "Eventos y rasgos",
+        "body": "Los rasgos elegidos cambian la frecuencia de ciertos eventos y las decisiones pueden mejorar o arruinar una carrera."
+      },
+      "national": {
+        "title": "Selección y títulos",
+        "body": "Una convocatoria puede llegar por tu nacionalidad principal o familiar, con estadísticas y trofeos internacionales separados."
+      }
+    }
+  },
+  "career": {
+    "eyebrow": "Career result",
+    "title": "El resultado final cuenta toda la carrera",
+    "body": "Al retirarte recibís una nota de D a S y un resumen con OVR pico, potencial, estadísticas, patrimonio, trofeos, objetivos y clubes. La tarjeta se puede copiar, compartir o descargar como imagen.",
+    "cta": "Crear mi carrera"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Preguntas frecuentes",
+    "items": {
+      "free": {
+        "question": "¿Copero se juega en el navegador?",
+        "answer": "Sí. La experiencia actual funciona como una aplicación web y no requiere instalar un cliente."
+      },
+      "save": {
+        "question": "¿Se guarda la carrera?",
+        "answer": "Sí. El estado se guarda localmente en el navegador. Cambiar de /es/game a /en/game o /zh-cn/game seguirá usando la misma carrera."
+      },
+      "classic": {
+        "question": "¿Qué cambia entre Classic y Purist?",
+        "answer": "Classic muestra los atributos y ofrece cinco cambios de leyenda. Purist oculta los valores y no permite cambios."
+      },
+      "official": {
+        "question": "¿Este sitio es un producto oficial?",
+        "answer": "No. copero.top es un proyecto independiente y no afirma afiliación oficial con Copero, clubes o jugadores."
+      }
+    }
+  },
+  "finalCta": {
+    "eyebrow": "Tu próxima carrera",
+    "title": "Elegí ocho atributos y descubrí hasta dónde llegás.",
+    "body": "Podés empezar una carrera nueva o seguir el guardado existente desde el mismo navegador.",
+    "button": "Jugar Copero"
+  }
+}
