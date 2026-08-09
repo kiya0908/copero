@@ -10,6 +10,9 @@ const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', ogLocale: 'es_ES' },
   { id: 'en', htmlLang: 'en', hrefLang: 'en', ogLocale: 'en_US' },
   { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN', ogLocale: 'zh_CN' },
+  { id: 'de', htmlLang: 'de', hrefLang: 'de', ogLocale: 'de_DE' },
+  { id: 'it', htmlLang: 'it', hrefLang: 'it', ogLocale: 'it_IT' },
+  { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', ogLocale: 'pt_BR' },
 ]
 
 function escapeHtml(value) {
