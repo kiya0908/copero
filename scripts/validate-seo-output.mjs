@@ -10,6 +10,9 @@ const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', prefix: '' },
   { id: 'en', htmlLang: 'en', hrefLang: 'en', prefix: '/en' },
   { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN', prefix: '/zh-cn' },
+  { id: 'de', htmlLang: 'de', hrefLang: 'de', prefix: '/de' },
+  { id: 'it', htmlLang: 'it', hrefLang: 'it', prefix: '/it' },
+  { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', prefix: '/pt-br' },
 ]
 const EXPECTED_SPANISH_TITLE = 'Copero Juego Online | Simulador de Carrera de Fútbol Gratis'
 const EXPECTED_SPANISH_DESCRIPTION =
@@ -44,6 +47,15 @@ function latinWordCount(value) {
   return text.match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+(?:['’-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+)*/g)?.length ?? 0
 }
 
+const referenceGame = JSON.parse(
+  await readFile(join(ROOT, 'src', 'i18n', 'locales', 'en', 'game.json'), 'utf8'),
+)
+const referenceGameUi = JSON.parse(
+  await readFile(join(ROOT, 'src', 'i18n', 'locales', 'en', 'game-ui.json'), 'utf8'),
+)
+const referenceGameKeys = Object.keys(referenceGame).sort().join('|')
+const referenceGameUiKeys = Object.keys(referenceGameUi).sort().join('|')
+
 for (const locale of LOCALES) {
   const homeResource = JSON.parse(
     await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'home.json'), 'utf8'),
@@ -51,10 +63,18 @@ for (const locale of LOCALES) {
   const pagesResource = JSON.parse(
     await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'pages.json'), 'utf8'),
   )
+  const gameResource = JSON.parse(
+    await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'game.json'), 'utf8'),
+  )
+  const gameUiResource = JSON.parse(
+    await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'game-ui.json'), 'utf8'),
+  )
   const home = await readFile(routeFile(locale, 'home'), 'utf8')
   const game = await readFile(routeFile(locale, 'game'), 'utf8')
   const canonical = `${SITE}${routePath(locale, 'home')}`
 
+  check(`${locale.id} game translation key parity`, Object.keys(gameResource).sort().join('|') === referenceGameKeys)
+  check(`${locale.id} game UI translation key parity`, Object.keys(gameUiResource).sort().join('|') === referenceGameUiKeys)
   check(`${locale.id} html lang`, home.includes(`<html lang="${locale.htmlLang}">`))
   check(`${locale.id} localized title`, home.includes(`<title>${homeResource.seo.title}</title>`))
   check(`${locale.id} localized description`, home.includes(`content="${homeResource.seo.description}"`))
@@ -149,11 +169,13 @@ for (const locale of LOCALES) {
   for (const page of INFO_PAGES) {
     check(`${locale.id} sitemap ${page}`, sitemap.includes(`<loc>${SITE}${routePath(locale, page)}</loc>`))
   }
+  check(
+    `${locale.id} X-Robots game`,
+    headers.includes(`${routePath(locale, 'game')}\n  X-Robots-Tag: noindex, nofollow`),
+  )
 }
 
-check('Spanish X-Robots game', headers.includes('/game\n  X-Robots-Tag: noindex, nofollow'))
-check('English X-Robots game', headers.includes('/en/game\n  X-Robots-Tag: noindex, nofollow'))
-check('Chinese X-Robots game', headers.includes('/zh-cn/game\n  X-Robots-Tag: noindex, nofollow'))
+check('legacy Spanish X-Robots game', headers.includes('/es/game\n  X-Robots-Tag: noindex, nofollow'))
 check('Pages preview deployments noindex', headers.includes('https://:project.pages.dev/*'))
 check('branch preview deployments noindex', headers.includes('https://:version.:project.pages.dev/*'))
 
@@ -161,5 +183,5 @@ if (failures.length > 0) {
   console.error(`SEO output validation failed: ${failures.join(', ')}`)
   process.exitCode = 1
 } else {
-  console.log('SEO output validation passed: root Spanish plus prefixed English/Chinese pages are fully prerendered.')
+  console.log('SEO output validation passed: all six localized page sets are prerendered with canonical and hreflang coverage.')
 }
