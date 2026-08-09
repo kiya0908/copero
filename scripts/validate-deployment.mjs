@@ -7,9 +7,12 @@ if (!rawBase) {
 const base = rawBase.replace(/\/$/, '')
 const infoPages = ['about', 'contact', 'privacy', 'terms']
 const locales = [
-  { id: 'es', htmlLang: 'es', prefix: '' },
-  { id: 'en', htmlLang: 'en', prefix: '/en' },
-  { id: 'zh-cn', htmlLang: 'zh-CN', prefix: '/zh-cn' },
+  { id: 'es', htmlLang: 'es', hrefLang: 'es', prefix: '' },
+  { id: 'en', htmlLang: 'en', hrefLang: 'en', prefix: '/en' },
+  { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN', prefix: '/zh-cn' },
+  { id: 'de', htmlLang: 'de', hrefLang: 'de', prefix: '/de' },
+  { id: 'it', htmlLang: 'it', hrefLang: 'it', prefix: '/it' },
+  { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', prefix: '/pt-br' },
 ]
 
 function assert(condition, message) {
@@ -59,9 +62,13 @@ for (const locale of locales) {
   assert(home.response.status === 200, `${homePath} must return 200`)
   assert(home.body.includes(`<html lang="${locale.htmlLang}"`), `${homePath} must expose html lang ${locale.htmlLang}`)
   assert(home.body.includes(`<link rel="canonical" href="${canonical}"`), `${homePath} canonical is incorrect`)
-  assert(home.body.includes('hreflang="es" href="https://copero.top/"'), `${homePath} is missing root Spanish hreflang`)
-  assert(home.body.includes('hreflang="en" href="https://copero.top/en/"'), `${homePath} is missing en hreflang`)
-  assert(home.body.includes('hreflang="zh-CN" href="https://copero.top/zh-cn/"'), `${homePath} is missing zh-CN hreflang`)
+  for (const alternate of locales) {
+    const alternateUrl = `https://copero.top${routePath(alternate, 'home')}`
+    assert(
+      home.body.includes(`hreflang="${alternate.hrefLang}" href="${alternateUrl}"`),
+      `${homePath} is missing ${alternate.hrefLang} hreflang`,
+    )
+  }
   assert(home.body.includes('hreflang="x-default" href="https://copero.top/"'), `${homePath} is missing root x-default`)
   assert(home.body.includes('data-prerendered="page"'), `${homePath} must contain prerendered content`)
   assert(home.body.includes('<h1>'), `${homePath} raw HTML must contain H1 content`)
@@ -74,6 +81,13 @@ for (const locale of locales) {
     assert(info.response.status === 200, `${pagePath} must return 200`)
     assert(info.body.includes(`<html lang="${locale.htmlLang}"`), `${pagePath} must expose html lang ${locale.htmlLang}`)
     assert(info.body.includes(`<link rel="canonical" href="${pageCanonical}"`), `${pagePath} canonical is incorrect`)
+    for (const alternate of locales) {
+      const alternateUrl = `https://copero.top${routePath(alternate, page)}`
+      assert(
+        info.body.includes(`hreflang="${alternate.hrefLang}" href="${alternateUrl}"`),
+        `${pagePath} is missing ${alternate.hrefLang} hreflang`,
+      )
+    }
     assert(info.body.includes(`hreflang="x-default" href="https://copero.top/${page}"`), `${pagePath} x-default is incorrect`)
     assert(info.body.includes('data-prerendered="page"'), `${pagePath} must contain prerendered content`)
     assert(info.body.includes('<h1>'), `${pagePath} raw HTML must contain H1 content`)
