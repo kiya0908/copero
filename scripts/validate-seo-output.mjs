@@ -23,6 +23,15 @@ const check = (label, condition) => {
   if (!condition) failures.push(label)
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
 function routePath(locale, page) {
   const suffix = page === 'home' ? '/' : `/${page}`
   return locale.prefix ? `${locale.prefix}${suffix}` : suffix
@@ -76,16 +85,16 @@ for (const locale of LOCALES) {
   check(`${locale.id} game translation key parity`, Object.keys(gameResource).sort().join('|') === referenceGameKeys)
   check(`${locale.id} game UI translation key parity`, Object.keys(gameUiResource).sort().join('|') === referenceGameUiKeys)
   check(`${locale.id} html lang`, home.includes(`<html lang="${locale.htmlLang}">`))
-  check(`${locale.id} localized title`, home.includes(`<title>${homeResource.seo.title}</title>`))
-  check(`${locale.id} localized description`, home.includes(`content="${homeResource.seo.description}"`))
-  check(`${locale.id} localized hero is present in raw HTML`, home.includes(`<h1>${homeResource.hero.title}</h1>`))
-  check(`${locale.id} localized starter is present in raw HTML`, home.includes(homeResource.starter.title))
-  check(`${locale.id} localized about section is present in raw HTML`, home.includes(homeResource.about.title))
-  check(`${locale.id} localized career simulator section is present in raw HTML`, home.includes(homeResource.mechanics.title))
-  check(`${locale.id} localized FAQ is present in raw HTML`, home.includes(homeResource.faq.title))
+  check(`${locale.id} localized title`, home.includes(`<title>${escapeHtml(homeResource.seo.title)}</title>`))
+  check(`${locale.id} localized description`, home.includes(`content="${escapeHtml(homeResource.seo.description)}"`))
+  check(`${locale.id} localized hero is present in raw HTML`, home.includes(`<h1>${escapeHtml(homeResource.hero.title)}</h1>`))
+  check(`${locale.id} localized starter is present in raw HTML`, home.includes(escapeHtml(homeResource.starter.title)))
+  check(`${locale.id} localized about section is present in raw HTML`, home.includes(escapeHtml(homeResource.about.title)))
+  check(`${locale.id} localized career simulator section is present in raw HTML`, home.includes(escapeHtml(homeResource.mechanics.title)))
+  check(`${locale.id} localized FAQ is present in raw HTML`, home.includes(escapeHtml(homeResource.faq.title)))
   check(`${locale.id} eight FAQ answers`, Object.keys(homeResource.faq.items).length === 8)
   check(`${locale.id} play-first anchor prerender`, home.includes('id="play"'))
-  check(`${locale.id} starter CTA prerender`, home.includes(homeResource.starter.start))
+  check(`${locale.id} starter CTA prerender`, home.includes(escapeHtml(homeResource.starter.start)))
   check(`${locale.id} prerender marker`, home.includes('data-prerendered="page"'))
   check(`${locale.id} root is not an empty SPA shell`, !home.includes('<div id="root"></div>'))
   check(`${locale.id} self canonical`, home.includes(`<link rel="canonical" href="${canonical}"`))
@@ -117,10 +126,10 @@ for (const locale of LOCALES) {
     const pageCanonical = `${SITE}${routePath(locale, page)}`
 
     check(`${locale.id}/${page} html lang`, pageHtml.includes(`<html lang="${locale.htmlLang}">`))
-    check(`${locale.id}/${page} title`, pageHtml.includes(`<title>${pageResource.seo.title}</title>`))
-    check(`${locale.id}/${page} description`, pageHtml.includes(`content="${pageResource.seo.description}"`))
-    check(`${locale.id}/${page} H1 is present in raw HTML`, pageHtml.includes(`<h1>${pageResource.title}</h1>`))
-    check(`${locale.id}/${page} intro is present in raw HTML`, pageHtml.includes(pageResource.intro))
+    check(`${locale.id}/${page} title`, pageHtml.includes(`<title>${escapeHtml(pageResource.seo.title)}</title>`))
+    check(`${locale.id}/${page} description`, pageHtml.includes(`content="${escapeHtml(pageResource.seo.description)}"`))
+    check(`${locale.id}/${page} H1 is present in raw HTML`, pageHtml.includes(`<h1>${escapeHtml(pageResource.title)}</h1>`))
+    check(`${locale.id}/${page} intro is present in raw HTML`, pageHtml.includes(escapeHtml(pageResource.intro)))
     check(`${locale.id}/${page} canonical`, pageHtml.includes(`<link rel="canonical" href="${pageCanonical}"`))
     check(`${locale.id}/${page} indexable`, pageHtml.includes('<meta name="robots" content="index, follow"'))
     check(`${locale.id}/${page} structured WebPage`, pageHtml.includes('"@type":"WebPage"'))
