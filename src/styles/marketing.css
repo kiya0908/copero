@@ -114,6 +114,11 @@
   background: color-mix(in oklch, var(--copero-surface) 82%, transparent);
 }
 
+.language-switcher option {
+  background-color: var(--copero-bg);
+  color: var(--copero-fg);
+}
+
 .language-switcher__item {
   min-width: 44px;
   border: 0;

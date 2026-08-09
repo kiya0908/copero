@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
 const SITE = 'https://copero.top'
+const OG_IMAGE = `${SITE}/og.png`
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms']
 const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', prefix: '' },
@@ -40,6 +41,20 @@ function routePath(locale, page) {
 function routeFile(locale, page) {
   const file = page === 'home' ? 'index.html' : `${page}.html`
   return locale.prefix ? join(DIST, locale.id, file) : join(DIST, file)
+}
+
+function hasShareImageMetadata(html) {
+  return [
+    `<meta property="og:image" content="${OG_IMAGE}"`,
+    `<meta property="og:image:secure_url" content="${OG_IMAGE}"`,
+    '<meta property="og:image:type" content="image/png"',
+    '<meta property="og:image:width" content="1200"',
+    '<meta property="og:image:height" content="630"',
+    '<meta property="og:image:alt" content="Copero football career simulator"',
+    '<meta name="twitter:card" content="summary_large_image"',
+    `<meta name="twitter:image" content="${OG_IMAGE}"`,
+    '<meta name="twitter:image:alt" content="Copero football career simulator"',
+  ].every((tag) => html.includes(tag))
 }
 
 function collectStrings(value, excludedKeys = new Set()) {
@@ -101,6 +116,7 @@ for (const locale of LOCALES) {
   check(`${locale.id} indexable`, home.includes('<meta name="robots" content="index, follow"'))
   check(`${locale.id} structured WebPage`, home.includes('"@type":"WebPage"'))
   check(`${locale.id} structured WebApplication`, home.includes('"@type":"WebApplication"'))
+  check(`${locale.id} share image metadata`, hasShareImageMetadata(home))
 
   for (const alternate of LOCALES) {
     const alternateUrl = `${SITE}${routePath(alternate, 'home')}`
@@ -119,6 +135,7 @@ for (const locale of LOCALES) {
   check(`${locale.id} game canonical`, game.includes(`<link rel="canonical" href="${gameCanonical}"`))
   check(`${locale.id} game excludes hreflang`, !game.includes('hreflang='))
   check(`${locale.id} game excludes structured data`, !game.includes('copero-structured-data'))
+  check(`${locale.id} game share image metadata`, hasShareImageMetadata(game))
 
   for (const page of INFO_PAGES) {
     const pageResource = pagesResource[page]
@@ -136,6 +153,7 @@ for (const locale of LOCALES) {
     check(`${locale.id}/${page} excludes WebApplication`, !pageHtml.includes('"@type":"WebApplication"'))
     check(`${locale.id}/${page} prerender marker`, pageHtml.includes('data-prerendered="page"'))
     check(`${locale.id}/${page} is not an empty SPA shell`, !pageHtml.includes('<div id="root"></div>'))
+    check(`${locale.id}/${page} share image metadata`, hasShareImageMetadata(pageHtml))
 
     for (const alternate of LOCALES) {
       const alternateUrl = `${SITE}${routePath(alternate, page)}`
@@ -159,6 +177,9 @@ for (const locale of LOCALES) {
     check('root HTML contains no Spanish /es/ canonical references', !home.includes('https://copero.top/es/'))
   }
 }
+
+const notFound = await readFile(join(DIST, '404.html'), 'utf8')
+check('static 404 share image metadata', hasShareImageMetadata(notFound))
 
 const redirects = await readFile(join(DIST, '_redirects'), 'utf8')
 const headers = await readFile(join(DIST, '_headers'), 'utf8')

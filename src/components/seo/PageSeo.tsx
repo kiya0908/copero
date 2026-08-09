@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { DEFAULT_LOCALE, LOCALE_META, SUPPORTED_LOCALES, useI18n, type Locale } from '../../i18n/config'
 
 const SITE_ORIGIN = 'https://copero.top'
+const OG_IMAGE_URL = `${SITE_ORIGIN}/og.png`
+const OG_IMAGE_ALT = 'Copero football career simulator'
 const OG_LOCALE: Record<Locale, string> = {
   es: 'es_ES',
   en: 'en_US',
@@ -172,11 +174,22 @@ export function PageSeo({ page }: { page: SeoPage }) {
       property: 'og:description',
       content: home ? t('home', 'seo.ogDescription') : description,
     })
+    upsertMeta('meta[property="og:image"]', { property: 'og:image', content: OG_IMAGE_URL })
+    upsertMeta('meta[property="og:image:secure_url"]', {
+      property: 'og:image:secure_url',
+      content: OG_IMAGE_URL,
+    })
+    upsertMeta('meta[property="og:image:type"]', { property: 'og:image:type', content: 'image/png' })
+    upsertMeta('meta[property="og:image:width"]', { property: 'og:image:width', content: '1200' })
+    upsertMeta('meta[property="og:image:height"]', { property: 'og:image:height', content: '630' })
+    upsertMeta('meta[property="og:image:alt"]', { property: 'og:image:alt', content: OG_IMAGE_ALT })
 
-    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary' })
+    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' })
     upsertMeta('meta[name="twitter:domain"]', { name: 'twitter:domain', content: 'copero.top' })
     upsertMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: title })
     upsertMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: description })
+    upsertMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: OG_IMAGE_URL })
+    upsertMeta('meta[name="twitter:image:alt"]', { name: 'twitter:image:alt', content: OG_IMAGE_ALT })
 
     clearLocalizedAlternates()
     if (!game) {

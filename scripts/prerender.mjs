@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url'
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
 const SITE_ORIGIN = 'https://copero.top'
+const OG_IMAGE_URL = `${SITE_ORIGIN}/og.png`
+const OG_IMAGE_ALT = 'Copero football career simulator'
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms']
 const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', ogLocale: 'es_ES' },
@@ -115,10 +117,18 @@ function renderSeoBlock(locale, home, pages, page) {
     <meta property="og:url" content="${canonical}" />
     <meta property="og:title" content="${escapeHtml(ogTitle)}" />
     <meta property="og:description" content="${escapeHtml(ogDescription)}" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="${OG_IMAGE_URL}" />
+    <meta property="og:image:secure_url" content="${OG_IMAGE_URL}" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${OG_IMAGE_ALT}" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:domain" content="copero.top" />
     <meta name="twitter:title" content="${escapeHtml(title)}" />
     <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${OG_IMAGE_URL}" />
+    <meta name="twitter:image:alt" content="${OG_IMAGE_ALT}" />
     ${structured}
     <!-- copero:seo:end -->`
 }
