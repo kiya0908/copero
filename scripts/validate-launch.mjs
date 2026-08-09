@@ -16,7 +16,7 @@ const files = {
 
 const wranglerConfig = JSON.parse(files.wrangler)
 const infoPages = ['about', 'contact', 'privacy', 'terms']
-const prefixedLocales = ['en', 'zh-cn']
+const prefixedLocales = ['en', 'zh-cn', 'de', 'it', 'pt-br']
 
 const assertions = [
   ['fallback template remains noindex until prerender completes', files.index.includes('<meta name="robots" content="noindex, follow"')],
@@ -44,8 +44,10 @@ const assertions = [
   ]),
   ['sitemap excludes noindex game pages', !files.sitemap.includes('/game</loc>')],
   ['Spanish game X-Robots noindex', files.headers.includes('/game\n  X-Robots-Tag: noindex, nofollow')],
-  ['English game X-Robots noindex', files.headers.includes('/en/game\n  X-Robots-Tag: noindex, nofollow')],
-  ['Chinese game X-Robots noindex', files.headers.includes('/zh-cn/game\n  X-Robots-Tag: noindex, nofollow')],
+  ...prefixedLocales.map((locale) => [
+    `${locale} game X-Robots noindex`,
+    files.headers.includes(`/${locale}/game\n  X-Robots-Tag: noindex, nofollow`),
+  ]),
   ['Pages previews noindex', files.headers.includes('https://:project.pages.dev/*')],
   ['header uses public favicon logo', files.siteHeader.includes('src="/favicon.svg"')],
   [

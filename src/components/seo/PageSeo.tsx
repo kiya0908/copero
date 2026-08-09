@@ -6,6 +6,9 @@ const OG_LOCALE: Record<Locale, string> = {
   es: 'es_ES',
   en: 'en_US',
   'zh-cn': 'zh_CN',
+  de: 'de_DE',
+  it: 'it_IT',
+  'pt-br': 'pt_BR',
 }
 
 export type SeoPage = 'home' | 'game' | 'about' | 'contact' | 'privacy' | 'terms'

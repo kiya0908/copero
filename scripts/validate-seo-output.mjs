@@ -10,6 +10,9 @@ const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', prefix: '' },
   { id: 'en', htmlLang: 'en', hrefLang: 'en', prefix: '/en' },
   { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN', prefix: '/zh-cn' },
+  { id: 'de', htmlLang: 'de', hrefLang: 'de', prefix: '/de' },
+  { id: 'it', htmlLang: 'it', hrefLang: 'it', prefix: '/it' },
+  { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', prefix: '/pt-br' },
 ]
 const EXPECTED_SPANISH_TITLE = 'Copero Juego Online | Simulador de Carrera de Fútbol Gratis'
 const EXPECTED_SPANISH_DESCRIPTION =
@@ -18,6 +21,15 @@ const EXPECTED_SPANISH_DESCRIPTION =
 const failures = []
 const check = (label, condition) => {
   if (!condition) failures.push(label)
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
 }
 
 function routePath(locale, page) {
@@ -44,6 +56,15 @@ function latinWordCount(value) {
   return text.match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+(?:['’-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+)*/g)?.length ?? 0
 }
 
+const referenceGame = JSON.parse(
+  await readFile(join(ROOT, 'src', 'i18n', 'locales', 'en', 'game.json'), 'utf8'),
+)
+const referenceGameUi = JSON.parse(
+  await readFile(join(ROOT, 'src', 'i18n', 'locales', 'en', 'game-ui.json'), 'utf8'),
+)
+const referenceGameKeys = Object.keys(referenceGame).sort().join('|')
+const referenceGameUiKeys = Object.keys(referenceGameUi).sort().join('|')
+
 for (const locale of LOCALES) {
   const homeResource = JSON.parse(
     await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'home.json'), 'utf8'),
@@ -51,21 +72,29 @@ for (const locale of LOCALES) {
   const pagesResource = JSON.parse(
     await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'pages.json'), 'utf8'),
   )
+  const gameResource = JSON.parse(
+    await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'game.json'), 'utf8'),
+  )
+  const gameUiResource = JSON.parse(
+    await readFile(join(ROOT, 'src', 'i18n', 'locales', locale.id, 'game-ui.json'), 'utf8'),
+  )
   const home = await readFile(routeFile(locale, 'home'), 'utf8')
   const game = await readFile(routeFile(locale, 'game'), 'utf8')
   const canonical = `${SITE}${routePath(locale, 'home')}`
 
+  check(`${locale.id} game translation key parity`, Object.keys(gameResource).sort().join('|') === referenceGameKeys)
+  check(`${locale.id} game UI translation key parity`, Object.keys(gameUiResource).sort().join('|') === referenceGameUiKeys)
   check(`${locale.id} html lang`, home.includes(`<html lang="${locale.htmlLang}">`))
-  check(`${locale.id} localized title`, home.includes(`<title>${homeResource.seo.title}</title>`))
-  check(`${locale.id} localized description`, home.includes(`content="${homeResource.seo.description}"`))
-  check(`${locale.id} localized hero is present in raw HTML`, home.includes(`<h1>${homeResource.hero.title}</h1>`))
-  check(`${locale.id} localized starter is present in raw HTML`, home.includes(homeResource.starter.title))
-  check(`${locale.id} localized about section is present in raw HTML`, home.includes(homeResource.about.title))
-  check(`${locale.id} localized career simulator section is present in raw HTML`, home.includes(homeResource.mechanics.title))
-  check(`${locale.id} localized FAQ is present in raw HTML`, home.includes(homeResource.faq.title))
+  check(`${locale.id} localized title`, home.includes(`<title>${escapeHtml(homeResource.seo.title)}</title>`))
+  check(`${locale.id} localized description`, home.includes(`content="${escapeHtml(homeResource.seo.description)}"`))
+  check(`${locale.id} localized hero is present in raw HTML`, home.includes(`<h1>${escapeHtml(homeResource.hero.title)}</h1>`))
+  check(`${locale.id} localized starter is present in raw HTML`, home.includes(escapeHtml(homeResource.starter.title)))
+  check(`${locale.id} localized about section is present in raw HTML`, home.includes(escapeHtml(homeResource.about.title)))
+  check(`${locale.id} localized career simulator section is present in raw HTML`, home.includes(escapeHtml(homeResource.mechanics.title)))
+  check(`${locale.id} localized FAQ is present in raw HTML`, home.includes(escapeHtml(homeResource.faq.title)))
   check(`${locale.id} eight FAQ answers`, Object.keys(homeResource.faq.items).length === 8)
   check(`${locale.id} play-first anchor prerender`, home.includes('id="play"'))
-  check(`${locale.id} starter CTA prerender`, home.includes(homeResource.starter.start))
+  check(`${locale.id} starter CTA prerender`, home.includes(escapeHtml(homeResource.starter.start)))
   check(`${locale.id} prerender marker`, home.includes('data-prerendered="page"'))
   check(`${locale.id} root is not an empty SPA shell`, !home.includes('<div id="root"></div>'))
   check(`${locale.id} self canonical`, home.includes(`<link rel="canonical" href="${canonical}"`))
@@ -97,10 +126,10 @@ for (const locale of LOCALES) {
     const pageCanonical = `${SITE}${routePath(locale, page)}`
 
     check(`${locale.id}/${page} html lang`, pageHtml.includes(`<html lang="${locale.htmlLang}">`))
-    check(`${locale.id}/${page} title`, pageHtml.includes(`<title>${pageResource.seo.title}</title>`))
-    check(`${locale.id}/${page} description`, pageHtml.includes(`content="${pageResource.seo.description}"`))
-    check(`${locale.id}/${page} H1 is present in raw HTML`, pageHtml.includes(`<h1>${pageResource.title}</h1>`))
-    check(`${locale.id}/${page} intro is present in raw HTML`, pageHtml.includes(pageResource.intro))
+    check(`${locale.id}/${page} title`, pageHtml.includes(`<title>${escapeHtml(pageResource.seo.title)}</title>`))
+    check(`${locale.id}/${page} description`, pageHtml.includes(`content="${escapeHtml(pageResource.seo.description)}"`))
+    check(`${locale.id}/${page} H1 is present in raw HTML`, pageHtml.includes(`<h1>${escapeHtml(pageResource.title)}</h1>`))
+    check(`${locale.id}/${page} intro is present in raw HTML`, pageHtml.includes(escapeHtml(pageResource.intro)))
     check(`${locale.id}/${page} canonical`, pageHtml.includes(`<link rel="canonical" href="${pageCanonical}"`))
     check(`${locale.id}/${page} indexable`, pageHtml.includes('<meta name="robots" content="index, follow"'))
     check(`${locale.id}/${page} structured WebPage`, pageHtml.includes('"@type":"WebPage"'))
@@ -149,11 +178,13 @@ for (const locale of LOCALES) {
   for (const page of INFO_PAGES) {
     check(`${locale.id} sitemap ${page}`, sitemap.includes(`<loc>${SITE}${routePath(locale, page)}</loc>`))
   }
+  check(
+    `${locale.id} X-Robots game`,
+    headers.includes(`${routePath(locale, 'game')}\n  X-Robots-Tag: noindex, nofollow`),
+  )
 }
 
-check('Spanish X-Robots game', headers.includes('/game\n  X-Robots-Tag: noindex, nofollow'))
-check('English X-Robots game', headers.includes('/en/game\n  X-Robots-Tag: noindex, nofollow'))
-check('Chinese X-Robots game', headers.includes('/zh-cn/game\n  X-Robots-Tag: noindex, nofollow'))
+check('legacy Spanish X-Robots game', headers.includes('/es/game\n  X-Robots-Tag: noindex, nofollow'))
 check('Pages preview deployments noindex', headers.includes('https://:project.pages.dev/*'))
 check('branch preview deployments noindex', headers.includes('https://:version.:project.pages.dev/*'))
 
@@ -161,5 +192,5 @@ if (failures.length > 0) {
   console.error(`SEO output validation failed: ${failures.join(', ')}`)
   process.exitCode = 1
 } else {
-  console.log('SEO output validation passed: root Spanish plus prefixed English/Chinese pages are fully prerendered.')
+  console.log('SEO output validation passed: all six localized page sets are prerendered with canonical and hreflang coverage.')
 }

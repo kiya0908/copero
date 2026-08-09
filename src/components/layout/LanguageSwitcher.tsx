@@ -18,26 +18,20 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <div
-      className="language-switcher"
-      role="group"
-      aria-label={t('common', 'language.label')}
-    >
-      {SUPPORTED_LOCALES.map((option) => {
-        const active = option === locale
-        return (
-          <button
-            key={option}
-            type="button"
-            className="language-switcher__item"
-            aria-current={active ? 'page' : undefined}
-            aria-pressed={active}
-            onClick={() => changeLocale(option)}
-          >
+    <div className="language-switcher">
+      <select
+        className="min-w-[70px] cursor-pointer border-0 bg-transparent px-2 py-2 font-[var(--copero-font-mono)] text-[11px] font-bold text-[color:var(--copero-fg)] outline-none"
+        aria-label={t('common', 'language.label')}
+        value={locale}
+        style={{ colorScheme: 'dark' }}
+        onChange={(event) => changeLocale(event.target.value as Locale)}
+      >
+        {SUPPORTED_LOCALES.map((option) => (
+          <option key={option} value={option}>
             {compact ? LOCALE_META[option].short : LOCALE_META[option].label}
-          </button>
-        )
-      })}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

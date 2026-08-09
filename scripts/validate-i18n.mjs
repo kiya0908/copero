@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-const locales = ['es', 'en', 'zh-cn']
+const locales = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br']
 const resourceFiles = ['game.json', 'game-ui.json']
 const requiredHomePreviewKeys = [
   'resultCard.eyebrow',
