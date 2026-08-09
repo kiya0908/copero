@@ -7,6 +7,15 @@
 /zh-cn/game
   X-Robots-Tag: noindex, nofollow
 
+/de/game
+  X-Robots-Tag: noindex, nofollow
+
+/it/game
+  X-Robots-Tag: noindex, nofollow
+
+/pt-br/game
+  X-Robots-Tag: noindex, nofollow
+
 /es/game
   X-Robots-Tag: noindex, nofollow
 
