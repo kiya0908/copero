@@ -56,6 +56,7 @@ export function IdentityPhase({
     const filtered = q
       ? allCountries.filter(
           (country) =>
+            countryDisplayName(locale, country).toLowerCase().includes(q) ||
             country.name_es.toLowerCase().includes(q) ||
             country.name_en.toLowerCase().includes(q) ||
             country.fifa_code.toLowerCase().includes(q),
@@ -71,7 +72,7 @@ export function IdentityPhase({
     const ordered = [...priority, ...rest]
     if (showAll) return ordered.slice(0, 80)
     return ordered.slice(0, Math.max(INITIAL_COUNTRIES, priority.length))
-  }, [search, showAll])
+  }, [locale, search, showAll])
 
   const heritageList = useMemo(() => {
     const q = heritageSearch.trim().toLowerCase()
@@ -80,12 +81,13 @@ export function IdentityPhase({
     return filtered
       .filter(
         (country) =>
+          countryDisplayName(locale, country).toLowerCase().includes(q) ||
           country.name_es.toLowerCase().includes(q) ||
           country.name_en.toLowerCase().includes(q) ||
           country.fifa_code.toLowerCase().includes(q),
       )
       .slice(0, 40)
-  }, [heritageSearch, nationalityFifa])
+  }, [heritageSearch, locale, nationalityFifa])
 
   const heritageCountry = useMemo(
     () => allCountries.find((country) => country.fifa_code === heritageNationalityFifa) ?? null,
