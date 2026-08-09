@@ -9,6 +9,7 @@ const execFileAsync = promisify(execFile)
 const STATIC_SEO_SCRIPTS = [
   'scripts/prerender.mjs',
   'scripts/patch-contact-prerender.mjs',
+  'scripts/patch-language-availability.mjs',
   'scripts/promote-default-locale.mjs',
 ]
 
