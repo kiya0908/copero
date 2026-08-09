@@ -43,7 +43,12 @@ function initGoogleAnalytics(): void {
   if (!GA_MEASUREMENT_ID) return
 
   window.dataLayer = window.dataLayer ?? []
-  window.gtag = window.gtag ?? ((...args: unknown[]) => window.dataLayer?.push(args))
+  window.gtag =
+    window.gtag ??
+    function gtag(..._args: unknown[]): void {
+      window.dataLayer?.push(arguments)
+    }
+
   window.gtag('js', new Date())
   window.gtag('config', GA_MEASUREMENT_ID, {
     anonymize_ip: true,
