@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react'
+import languageAvailability from './language-availability.json'
 import deCommon from './locales/de/common.json'
 import deGame from './locales/de/game.json'
 import deGameUi from './locales/de/game-ui.json'
@@ -55,13 +56,28 @@ export const LOCALE_META: Record<Locale, { label: string; short: string; htmlLan
 type Dictionary = Record<string, unknown>
 type Resources = Record<Locale, Record<TranslationNamespace, Dictionary>>
 
+function homeResource(locale: Locale, home: Dictionary, preview: Dictionary): Dictionary {
+  return {
+    ...home,
+    ...preview,
+    'faq.items.save.answer': languageAvailability[locale].save,
+  }
+}
+
+function pagesResource(locale: Locale, pages: Dictionary): Dictionary {
+  return {
+    ...pages,
+    'about.sections.languages.body': languageAvailability[locale].about,
+  }
+}
+
 const resources: Resources = {
-  es: { common: esCommon, home: { ...esHome, ...esHomePreview }, game: { ...esGame, ...esGameUi }, pages: esPages },
-  en: { common: enCommon, home: { ...enHome, ...enHomePreview }, game: { ...enGame, ...enGameUi }, pages: enPages },
-  'zh-cn': { common: zhCommon, home: { ...zhHome, ...zhHomePreview }, game: { ...zhGame, ...zhGameUi }, pages: zhPages },
-  de: { common: deCommon, home: { ...deHome, ...deHomePreview }, game: { ...deGame, ...deGameUi }, pages: dePages },
-  it: { common: itCommon, home: { ...itHome, ...itHomePreview }, game: { ...itGame, ...itGameUi }, pages: itPages },
-  'pt-br': { common: ptBrCommon, home: { ...ptBrHome, ...ptBrHomePreview }, game: { ...ptBrGame, ...ptBrGameUi }, pages: ptBrPages },
+  es: { common: esCommon, home: homeResource('es', esHome, esHomePreview), game: { ...esGame, ...esGameUi }, pages: pagesResource('es', esPages) },
+  en: { common: enCommon, home: homeResource('en', enHome, enHomePreview), game: { ...enGame, ...enGameUi }, pages: pagesResource('en', enPages) },
+  'zh-cn': { common: zhCommon, home: homeResource('zh-cn', zhHome, zhHomePreview), game: { ...zhGame, ...zhGameUi }, pages: pagesResource('zh-cn', zhPages) },
+  de: { common: deCommon, home: homeResource('de', deHome, deHomePreview), game: { ...deGame, ...deGameUi }, pages: pagesResource('de', dePages) },
+  it: { common: itCommon, home: homeResource('it', itHome, itHomePreview), game: { ...itGame, ...itGameUi }, pages: pagesResource('it', itPages) },
+  'pt-br': { common: ptBrCommon, home: homeResource('pt-br', ptBrHome, ptBrHomePreview), game: { ...ptBrGame, ...ptBrGameUi }, pages: pagesResource('pt-br', ptBrPages) },
 }
 
 export function isSupportedLocale(value: string | undefined | null): value is Locale {
