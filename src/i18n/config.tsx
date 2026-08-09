@@ -1,4 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react'
+import deCommon from './locales/de/common.json'
+import deGame from './locales/de/game.json'
+import deGameUi from './locales/de/game-ui.json'
+import deHome from './locales/de/home.json'
+import deHomePreview from './locales/de/home-preview.json'
+import dePages from './locales/de/pages.json'
 import enCommon from './locales/en/common.json'
 import enGame from './locales/en/game.json'
 import enGameUi from './locales/en/game-ui.json'
@@ -11,6 +17,18 @@ import esGameUi from './locales/es/game-ui.json'
 import esHome from './locales/es/home.json'
 import esHomePreview from './locales/es/home-preview.json'
 import esPages from './locales/es/pages.json'
+import itCommon from './locales/it/common.json'
+import itGame from './locales/it/game.json'
+import itGameUi from './locales/it/game-ui.json'
+import itHome from './locales/it/home.json'
+import itHomePreview from './locales/it/home-preview.json'
+import itPages from './locales/it/pages.json'
+import ptBrCommon from './locales/pt-br/common.json'
+import ptBrGame from './locales/pt-br/game.json'
+import ptBrGameUi from './locales/pt-br/game-ui.json'
+import ptBrHome from './locales/pt-br/home.json'
+import ptBrHomePreview from './locales/pt-br/home-preview.json'
+import ptBrPages from './locales/pt-br/pages.json'
 import zhCommon from './locales/zh-cn/common.json'
 import zhGame from './locales/zh-cn/game.json'
 import zhGameUi from './locales/zh-cn/game-ui.json'
@@ -18,7 +36,7 @@ import zhHome from './locales/zh-cn/home.json'
 import zhHomePreview from './locales/zh-cn/home-preview.json'
 import zhPages from './locales/zh-cn/pages.json'
 
-export const SUPPORTED_LOCALES = ['es', 'en', 'zh-cn'] as const
+export const SUPPORTED_LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 export type TranslationNamespace = 'common' | 'home' | 'game' | 'pages'
 
@@ -29,6 +47,9 @@ export const LOCALE_META: Record<Locale, { label: string; short: string; htmlLan
   es: { label: 'Español', short: 'ES', htmlLang: 'es', hrefLang: 'es' },
   en: { label: 'English', short: 'EN', htmlLang: 'en', hrefLang: 'en' },
   'zh-cn': { label: '中文', short: '中文', htmlLang: 'zh-CN', hrefLang: 'zh-CN' },
+  de: { label: 'Deutsch', short: 'DE', htmlLang: 'de', hrefLang: 'de' },
+  it: { label: 'Italiano', short: 'IT', htmlLang: 'it', hrefLang: 'it' },
+  'pt-br': { label: 'Português (Brasil)', short: 'PT-BR', htmlLang: 'pt-BR', hrefLang: 'pt-BR' },
 }
 
 type Dictionary = Record<string, unknown>
@@ -38,6 +59,9 @@ const resources: Resources = {
   es: { common: esCommon, home: { ...esHome, ...esHomePreview }, game: { ...esGame, ...esGameUi }, pages: esPages },
   en: { common: enCommon, home: { ...enHome, ...enHomePreview }, game: { ...enGame, ...enGameUi }, pages: enPages },
   'zh-cn': { common: zhCommon, home: { ...zhHome, ...zhHomePreview }, game: { ...zhGame, ...zhGameUi }, pages: zhPages },
+  de: { common: deCommon, home: { ...deHome, ...deHomePreview }, game: { ...deGame, ...deGameUi }, pages: dePages },
+  it: { common: itCommon, home: { ...itHome, ...itHomePreview }, game: { ...itGame, ...itGameUi }, pages: itPages },
+  'pt-br': { common: ptBrCommon, home: { ...ptBrHome, ...ptBrHomePreview }, game: { ...ptBrGame, ...ptBrGameUi }, pages: ptBrPages },
 }
 
 export function isSupportedLocale(value: string | undefined | null): value is Locale {
