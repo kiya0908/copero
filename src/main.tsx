@@ -13,6 +13,7 @@ import './styles/seo-content.css'
 import './styles/info-pages.css'
 import './styles/game-shell.css'
 import './styles/game-ui.css'
+import './styles/advertising.css'
 import './styles/release.css'
 
 initAnalytics()

@@ -38,6 +38,10 @@ const [
   packageJson,
   viteConfig,
   seoPreview,
+  adsterraAd,
+  advertisingCss,
+  siteFooter,
+  gamePage,
 ] = await Promise.all([
   read('.env.example'),
   read('src/lib/analytics.ts'),
@@ -55,6 +59,10 @@ const [
   read('package.json'),
   read('vite.config.ts'),
   read('scripts/serve-built-site.mjs'),
+  read('src/components/ads/AdsterraAd.tsx'),
+  read('src/styles/advertising.css'),
+  read('src/components/layout/SiteFooter.tsx'),
+  read('src/pages/GamePage.tsx'),
 ])
 
 const sourceFiles = await collectSourceFiles('src/')
@@ -116,6 +124,14 @@ const checks = [
   ['homepage starter CSS is loaded', main.includes("import './styles/homepage-starter.css'")],
   ['homepage starter has mobile layout fallback', homepageStarterCss.includes('@media (max-width: 720px)')],
   ['homepage starter has touch hover fallback', homepageStarterCss.includes('@media (hover: none)')],
+  ['Adsterra iframe styles are loaded', main.includes("import './styles/advertising.css'")],
+  ['Adsterra script is isolated in a reusable iframe', adsterraAd.includes('srcDoc={ADSTERRA_IFRAME_DOCUMENT}')],
+  ['Adsterra iframe is lazy loaded', adsterraAd.includes('loading="lazy"')],
+  ['Adsterra iframe permits scripts without same-origin access', adsterraAd.includes('allow-scripts') && !adsterraAd.includes('allow-same-origin')],
+  ['shared footer renders the Adsterra slot', siteFooter.includes('<AdsterraAd />')],
+  ['game page renders the Adsterra slot', gamePage.includes('<AdsterraAd />')],
+  ['runtime 404 renders the Adsterra slot', notFound.includes('<AdsterraAd />')],
+  ['Adsterra slot has a mobile layout fallback', advertisingCss.includes('@media (max-width: 720px)')],
   ['release CSS is loaded last', main.includes("import './styles/release.css'")],
   ['narrow-screen release breakpoint exists', releaseCss.includes('@media (max-width: 420px)')],
   ['very narrow header fallback exists', releaseCss.includes('@media (max-width: 350px)')],

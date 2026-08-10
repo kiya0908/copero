@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import App from '../App'
+import { AdsterraAd } from '../components/ads/AdsterraAd'
 import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
 import { localizePath, useI18n } from '../i18n/config'
 
@@ -24,6 +25,7 @@ export function GamePage() {
         </div>
       </header>
       <App />
+      <AdsterraAd />
     </div>
   )
 }

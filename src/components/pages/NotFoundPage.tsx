@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { AdsterraAd } from '../ads/AdsterraAd'
 import {
   DEFAULT_LOCALE,
   LOCALE_META,
@@ -58,6 +59,7 @@ export function NotFoundPage() {
           </div>
         </section>
       </main>
+      <AdsterraAd />
     </div>
   )
 }

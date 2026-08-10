@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { localizePath, useI18n } from '../../i18n/config'
+import { AdsterraAd } from '../ads/AdsterraAd'
 
 const FOOTER_LINKS = ['about', 'contact', 'privacy', 'terms'] as const
 
@@ -8,6 +9,7 @@ export function SiteFooter() {
 
   return (
     <footer className="site-footer">
+      <AdsterraAd />
       <div className="site-container site-footer__inner site-footer__inner--links">
         <div className="site-footer__copy">
           <p>© 2026 copero.top · {t('common', 'footer.independent')}</p>
