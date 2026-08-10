@@ -60,12 +60,12 @@
   "privacy": {
     "seo": {
       "title": "Política de Privacidad | Copero",
-      "description": "Consulta cómo copero.top trata el guardado local del juego, datos técnicos, analítica opcional, servicios de terceros y tus opciones de privacidad."
+      "description": "Consulta cómo copero.top trata el guardado local, los datos técnicos, la analítica, la publicidad de terceros y tus opciones de privacidad."
     },
     "eyebrow": "Privacidad",
     "title": "Política de Privacidad",
     "intro": "Esta Política de Privacidad explica de forma general cómo copero.top maneja la información cuando utilizas el sitio y el juego. El diseño del proyecto es principalmente local: la carrera se guarda en el navegador y no necesitas una cuenta para jugar.",
-    "updated": "Última actualización: 7 de agosto de 2026",
+    "updated": "Última actualización: 10 de agosto de 2026",
     "sections": {
       "local": {
         "title": "1. Guardado local del juego",
@@ -84,8 +84,8 @@
         "body": "Como ocurre con cualquier sitio web, el proveedor de alojamiento y la infraestructura de red pueden procesar datos técnicos necesarios para entregar el servicio, por ejemplo dirección IP, solicitudes HTTP, fecha y hora, agente de usuario y registros de seguridad. Ese tratamiento depende también de los proveedores de infraestructura utilizados para publicar copero.top."
       },
       "thirdParty": {
-        "title": "5. Servicios, recursos y enlaces de terceros",
-        "body": "El sitio puede cargar recursos técnicos o incluir enlaces hacia servicios de terceros. Al acceder a esos recursos o abandonar copero.top mediante un enlace externo, se aplican también las políticas y prácticas del proveedor correspondiente. Esta Política de Privacidad no controla el tratamiento realizado por sitios externos."
+        "title": "5. Publicidad y servicios de terceros",
+        "body": "copero.top utiliza Adsterra para mostrar publicidad en sus páginas. Cuando se carga un anuncio o interactúas con él, Adsterra y sus socios pueden recibir datos técnicos y de uso, como tu dirección IP, la URL de la página, impresiones y clics en anuncios, información del navegador y del dispositivo, zona horaria y ubicación aproximada. Pueden utilizar cookies, píxeles o tecnologías similares para servir anuncios, limitar su frecuencia, medir su rendimiento, prevenir el fraude y, cuando corresponda, personalizar la publicidad. Este tratamiento se rige por la Política de Privacidad de Adsterra (https://adsterra.com/privacy-policy-managed/) y su Política de Cookies (https://adsterra.com/cookies/). Puedes limitar o eliminar las cookies desde la configuración del navegador, aunque los anuncios podrían no mostrarse correctamente."
       },
       "retention": {
         "title": "6. Conservación y control",

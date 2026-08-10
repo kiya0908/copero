@@ -60,12 +60,12 @@
   "privacy": {
     "seo": {
       "title": "隐私政策 | Copero",
-      "description": "了解 copero.top 如何处理本地游戏存档、技术数据、可选分析服务、第三方服务以及你的隐私选择。"
+      "description": "了解 copero.top 如何处理本地游戏存档、技术数据、分析服务、第三方广告以及你的隐私选择。"
     },
     "eyebrow": "隐私",
     "title": "隐私政策",
     "intro": "本隐私政策概括说明你使用 copero.top 网站和游戏时可能涉及的信息处理方式。项目采用以本地为主的设计：职业生涯主要保存在浏览器中，游玩不需要创建账号。",
-    "updated": "最后更新：2026 年 8 月 7 日",
+    "updated": "最后更新：2026 年 8 月 10 日",
     "sections": {
       "local": {
         "title": "1. 本地游戏存储",
@@ -84,8 +84,8 @@
         "body": "与一般网站一样，托管和网络基础设施为了提供服务可能处理必要的技术信息，例如 IP 地址、HTTP 请求、访问时间、User-Agent 和安全日志。具体处理方式也取决于 copero.top 使用的基础设施服务商。"
       },
       "thirdParty": {
-        "title": "5. 第三方服务、资源与链接",
-        "body": "网站可能加载第三方技术资源或提供外部服务链接。当你访问这些资源或通过链接离开 copero.top 时，相应服务商的隐私政策和处理方式也可能适用。本政策无法控制外部网站如何处理数据。"
+        "title": "5. 第三方广告与服务",
+        "body": "copero.top 使用 Adsterra 在页面中展示广告。广告加载或你与广告互动时，Adsterra 及其合作伙伴可能接收 IP 地址、页面 URL、广告展示与点击、浏览器和设备信息、时区及大致位置等技术与使用数据。他们可能使用 Cookie、像素或类似技术进行广告投放、频次控制、效果测量、防欺诈，以及在适用情况下提供个性化广告。相关处理受 Adsterra 隐私政策（https://adsterra.com/privacy-policy-managed/）和 Cookie 政策（https://adsterra.com/cookies/）约束。你可以通过浏览器设置限制或删除 Cookie，但广告可能因此无法正常展示。"
       },
       "retention": {
         "title": "6. 保存期限与控制",

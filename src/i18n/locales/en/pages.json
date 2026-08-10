@@ -60,12 +60,12 @@
   "privacy": {
     "seo": {
       "title": "Privacy Policy | Copero",
-      "description": "Learn how copero.top handles local game saves, technical data, optional analytics, third-party services and your privacy choices."
+      "description": "Learn how copero.top handles local game saves, technical data, analytics, third-party advertising and your privacy choices."
     },
     "eyebrow": "Privacy",
     "title": "Privacy Policy",
     "intro": "This Privacy Policy explains in general terms how copero.top handles information when you use the website and game. The project is designed to be primarily local: your career is stored in the browser and you do not need an account to play.",
-    "updated": "Last updated: August 7, 2026",
+    "updated": "Last updated: August 10, 2026",
     "sections": {
       "local": {
         "title": "1. Local game storage",
@@ -84,8 +84,8 @@
         "body": "As with any website, hosting and network infrastructure may process technical information needed to deliver the service, such as IP address, HTTP requests, date and time, user agent and security logs. That processing also depends on the infrastructure providers used to publish copero.top."
       },
       "thirdParty": {
-        "title": "5. Third-party services, resources and links",
-        "body": "The site may load technical resources or link to third-party services. When you access those resources or leave copero.top through an external link, the relevant provider's own policies and practices may also apply. This Privacy Policy does not control processing performed by external websites."
+        "title": "5. Third-party advertising and services",
+        "body": "copero.top uses Adsterra to display advertising on its pages. When an ad loads or you interact with it, Adsterra and its partners may receive technical and usage information such as your IP address, page URL, ad impressions and clicks, browser and device details, time zone and approximate location. They may use cookies, pixels or similar technologies to deliver ads, limit frequency, measure performance, prevent fraud and, where applicable, personalize advertising. This processing is governed by the Adsterra Privacy Policy (https://adsterra.com/privacy-policy-managed/) and Cookies Policy (https://adsterra.com/cookies/). You can restrict or delete cookies through your browser settings, but ads may then fail to display correctly."
       },
       "retention": {
         "title": "6. Retention and control",

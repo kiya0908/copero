@@ -182,7 +182,8 @@ const notFound = await readFile(join(DIST, '404.html'), 'utf8')
 check('static 404 share image metadata', hasShareImageMetadata(notFound))
 
 const redirects = await readFile(join(DIST, '_redirects'), 'utf8')
-const headers = await readFile(join(DIST, '_headers'), 'utf8')
+// Normalize Windows line endings before matching multi-line Cloudflare rules.
+const headers = (await readFile(join(DIST, '_headers'), 'utf8')).replace(/\r\n/g, '\n')
 const sitemap = await readFile(join(DIST, 'sitemap.xml'), 'utf8')
 const robots = await readFile(join(DIST, 'robots.txt'), 'utf8')
 
