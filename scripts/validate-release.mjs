@@ -124,10 +124,26 @@ const checks = [
   ['homepage starter CSS is loaded', main.includes("import './styles/homepage-starter.css'")],
   ['homepage starter has mobile layout fallback', homepageStarterCss.includes('@media (max-width: 720px)')],
   ['homepage starter has touch hover fallback', homepageStarterCss.includes('@media (hover: none)')],
-  ['Adsterra iframe styles are loaded', main.includes("import './styles/advertising.css'")],
-  ['Adsterra script is isolated in a reusable iframe', adsterraAd.includes('srcDoc={ADSTERRA_IFRAME_DOCUMENT}')],
-  ['Adsterra iframe is lazy loaded', adsterraAd.includes('loading="lazy"')],
-  ['Adsterra iframe permits scripts without same-origin access', adsterraAd.includes('allow-scripts') && !adsterraAd.includes('allow-same-origin')],
+  ['Adsterra slot styles are loaded', main.includes("import './styles/advertising.css'")],
+  [
+    'Adsterra script is injected after the container mounts',
+    adsterraAd.includes("document.createElement('script')") &&
+      adsterraAd.includes('slot.appendChild(script)') &&
+      adsterraAd.includes('script.remove()'),
+  ],
+  [
+    'Adsterra script runs outside a sandboxed iframe',
+    !adsterraAd.includes('<iframe') &&
+      !adsterraAd.includes('srcDoc=') &&
+      !adsterraAd.includes('sandbox='),
+  ],
+  [
+    'Adsterra container and script configuration are preserved',
+    adsterraAd.includes('container-3c38ac0440cda8d6dc5e05eb5625645d') &&
+      adsterraAd.includes('pl30782583.effectivecpmnetwork.com/3c38ac0440cda8d6dc5e05eb5625645d/invoke.js') &&
+      adsterraAd.includes("script.dataset.cfasync = 'false'") &&
+      adsterraAd.includes('script.async = true'),
+  ],
   ['shared footer renders the Adsterra slot', siteFooter.includes('<AdsterraAd />')],
   ['game page renders the Adsterra slot', gamePage.includes('<AdsterraAd />')],
   ['runtime 404 renders the Adsterra slot', notFound.includes('<AdsterraAd />')],
