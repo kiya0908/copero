@@ -2,7 +2,13 @@ import { Link } from 'react-router-dom'
 import { localizePath, useI18n } from '../../i18n/config'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
-export function SiteHeader() {
+export function SiteHeader({
+  playHref,
+  showLanguageSwitcher = true,
+}: {
+  playHref?: string
+  showLanguageSwitcher?: boolean
+} = {}) {
   const { locale, t } = useI18n()
   const home = localizePath('/', locale)
 
@@ -21,8 +27,8 @@ export function SiteHeader() {
         </nav>
 
         <div className="site-header__actions">
-          <LanguageSwitcher compact />
-          <a className="button button--primary button--small" href={`${home}#play`}>
+          {showLanguageSwitcher && <LanguageSwitcher compact />}
+          <a className="button button--primary button--small" href={playHref ?? `${home}#play`}>
             {t('common', 'nav.play')}
           </a>
         </div>

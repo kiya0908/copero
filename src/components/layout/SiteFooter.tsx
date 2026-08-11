@@ -3,6 +3,7 @@ import { localizePath, useI18n } from '../../i18n/config'
 import { AdsterraAd } from '../ads/AdsterraAd'
 
 const FOOTER_LINKS = ['about', 'contact', 'privacy', 'terms'] as const
+const BUILD_CAREER_PATH = '/copero-build-your-own-football-career'
 
 export function SiteFooter() {
   const { locale, t } = useI18n()
@@ -21,6 +22,7 @@ export function SiteFooter() {
               {t('common', `footer.${page}`)}
             </Link>
           ))}
+          {locale === 'en' && <Link to={BUILD_CAREER_PATH}>Build your career</Link>}
         </nav>
       </div>
     </footer>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import buildCareerContent from '../../data/build-career-page.json'
 import { DEFAULT_LOCALE, LOCALE_META, SUPPORTED_LOCALES, useI18n, type Locale } from '../../i18n/config'
 
 const SITE_ORIGIN = 'https://copero.top'
@@ -14,15 +15,17 @@ const OG_LOCALE: Record<Locale, string> = {
   ko: 'ko_KR',
 }
 
-export type SeoPage = 'home' | 'game' | 'about' | 'contact' | 'privacy' | 'terms'
+export type SeoPage = 'home' | 'game' | 'about' | 'contact' | 'privacy' | 'terms' | 'buildCareer'
 
 function pagePath(page: SeoPage): string {
   if (page === 'home') return '/'
+  if (page === 'buildCareer') return '/copero-build-your-own-football-career'
   return `/${page}`
 }
 
 function pageUrl(locale: Locale, page: SeoPage): string {
   const suffix = pagePath(page)
+  if (page === 'buildCareer') return `${SITE_ORIGIN}${suffix}`
   return locale === DEFAULT_LOCALE ? `${SITE_ORIGIN}${suffix}` : `${SITE_ORIGIN}/${locale}${suffix}`
 }
 
@@ -115,7 +118,7 @@ function setStructuredData(locale: Locale, page: SeoPage, title: string, descrip
     },
   ]
 
-  if (page === 'home') {
+  if (page === 'home' || page === 'buildCareer') {
     graph.push({
       '@type': 'WebApplication',
       '@id': `${SITE_ORIGIN}/#game`,
@@ -142,16 +145,21 @@ export function PageSeo({ page }: { page: SeoPage }) {
   useEffect(() => {
     const home = page === 'home'
     const game = page === 'game'
+    const buildCareer = page === 'buildCareer'
     const title = home
       ? t('home', 'seo.title')
       : game
         ? t('home', 'seo.ogTitle')
-        : t('pages', `${page}.seo.title`)
+        : buildCareer
+          ? buildCareerContent.seo.title
+          : t('pages', `${page}.seo.title`)
     const description = home
       ? t('home', 'seo.description')
       : game
         ? t('home', 'seo.ogDescription')
-        : t('pages', `${page}.seo.description`)
+        : buildCareer
+          ? buildCareerContent.seo.description
+          : t('pages', `${page}.seo.description`)
     const canonical = pageUrl(locale, page)
     const robots = game ? 'noindex, nofollow' : 'index, follow'
 
@@ -194,8 +202,10 @@ export function PageSeo({ page }: { page: SeoPage }) {
 
     clearLocalizedAlternates()
     if (!game) {
-      addLocalizedAlternates(page)
-      addOgLocaleAlternates(locale)
+      if (!buildCareer) {
+        addLocalizedAlternates(page)
+        addOgLocaleAlternates(locale)
+      }
       setStructuredData(locale, page, title, description)
     } else {
       document.head.querySelector('#copero-structured-data')?.remove()

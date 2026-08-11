@@ -5,6 +5,7 @@ import { PageSeo, type SeoPage } from '../components/seo/PageSeo'
 import { HomePage } from '../pages/HomePage'
 import { GamePage } from '../pages/GamePage'
 import { InfoPage, type InfoPageKind } from '../pages/InfoPage'
+import { BuildCareerPage } from '../pages/BuildCareerPage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms'] as const satisfies readonly InfoPageKind[]
@@ -51,12 +52,22 @@ function DefaultLocaleRedirect() {
   return <Navigate to={`${suffix}${location.search}${location.hash}`} replace />
 }
 
+function EnglishBuildCareerPage() {
+  return (
+    <I18nProvider locale="en">
+      <PageSeo page="buildCareer" />
+      <BuildCareerPage />
+    </I18nProvider>
+  )
+}
+
 export function AppRouter() {
   return (
     <>
       <AnalyticsRouteTracker />
       <Routes>
         <Route path="/es/*" element={<DefaultLocaleRedirect />} />
+        <Route path="/copero-build-your-own-football-career" element={<EnglishBuildCareerPage />} />
 
         <Route element={<DefaultLocaleLayout />}>
           <Route index element={<HomePage />} />

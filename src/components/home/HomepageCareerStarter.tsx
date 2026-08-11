@@ -18,7 +18,11 @@ const DEFAULT_NATIONALITY =
   ''
 const POSITIONS = Object.keys(POSITION_LABELS) as Position[]
 
-export function HomepageCareerStarter() {
+export function HomepageCareerStarter({
+  entry = 'homepage',
+}: {
+  entry?: 'homepage' | 'build_career_page'
+} = {}) {
   const { locale, t } = useI18n()
   const navigate = useNavigate()
   const gamePath = localizePath('/game', locale)
@@ -52,13 +56,13 @@ export function HomepageCareerStarter() {
     event.preventDefault()
     if (!nationalityFifa) return
 
-    trackGameEvent('game_started', { draft_mode: draftMode, entry: 'homepage' })
+    trackGameEvent('game_started', { draft_mode: draftMode, entry })
     trackGameEvent('identity_completed', {
       position,
       nationality: nationalityFifa,
       preferred_foot: preferredFoot,
       has_heritage_nationality: Boolean(heritageNationalityFifa),
-      entry: 'homepage',
+      entry,
     })
 
     const created = confirmIdentity(createInitialState('long', draftMode), {

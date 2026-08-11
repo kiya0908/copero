@@ -8,6 +8,7 @@ const SITE_ORIGIN = 'https://copero.top'
 const OG_IMAGE_URL = `${SITE_ORIGIN}/og.png`
 const OG_IMAGE_ALT = 'Copero football career simulator'
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms']
+const BUILD_CAREER_SLUG = 'copero-build-your-own-football-career'
 const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', ogLocale: 'es_ES' },
   { id: 'en', htmlLang: 'en', hrefLang: 'en', ogLocale: 'en_US' },
@@ -34,10 +35,12 @@ async function loadJson(locale, file) {
 
 function pagePath(page) {
   if (page === 'home') return '/'
+  if (page === 'buildCareer') return `/${BUILD_CAREER_SLUG}`
   return `/${page}`
 }
 
 function pageUrl(locale, page) {
+  if (page === 'buildCareer') return `${SITE_ORIGIN}${pagePath(page)}`
   return `${SITE_ORIGIN}/${locale}${pagePath(page)}`
 }
 
@@ -60,11 +63,11 @@ function renderStructuredData(locale, page, title, description) {
     },
   ]
 
-  if (page === 'home') {
+  if (page === 'home' || page === 'buildCareer') {
     graph.push({
       '@type': 'WebApplication',
       '@id': `${SITE_ORIGIN}/#game`,
-      url: pageUrl(locale.id, 'game'),
+      url: pageUrl(page === 'buildCareer' ? 'en' : locale.id, 'game'),
       name: 'Copero',
       applicationCategory: 'GameApplication',
       operatingSystem: 'Any',
@@ -78,14 +81,27 @@ function renderStructuredData(locale, page, title, description) {
   return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replaceAll('<', '\\u003c')
 }
 
-function renderSeoBlock(locale, home, pages, page) {
+function renderSeoBlock(locale, home, pages, page, buildCareer = null) {
   const isHome = page === 'home'
   const isGame = page === 'game'
-  const title = isHome ? home.seo.title : isGame ? home.seo.ogTitle : pages[page].seo.title
-  const description = isHome ? home.seo.description : isGame ? home.seo.ogDescription : pages[page].seo.description
+  const isBuildCareer = page === 'buildCareer'
+  const title = isHome
+    ? home.seo.title
+    : isGame
+      ? home.seo.ogTitle
+      : isBuildCareer
+        ? buildCareer.seo.title
+        : pages[page].seo.title
+  const description = isHome
+    ? home.seo.description
+    : isGame
+      ? home.seo.ogDescription
+      : isBuildCareer
+        ? buildCareer.seo.description
+        : pages[page].seo.description
   const canonical = pageUrl(locale.id, page)
   const robots = isGame ? 'noindex, nofollow' : 'index, follow'
-  const alternateLinks = !isGame
+  const alternateLinks = !isGame && !isBuildCareer
     ? [
         ...LOCALES.map(
           (candidate) =>
@@ -94,7 +110,7 @@ function renderSeoBlock(locale, home, pages, page) {
         `<link rel="alternate" hreflang="x-default" href="${pageUrl('es', page)}" />`,
       ].join('\n    ')
     : ''
-  const ogAlternates = !isGame
+  const ogAlternates = !isGame && !isBuildCareer
     ? LOCALES.filter((candidate) => candidate.id !== locale.id)
         .map((candidate) => `<meta property="og:locale:alternate" content="${candidate.ogLocale}" />`)
         .join('\n    ')
@@ -143,6 +159,7 @@ function renderFooter(common, locale) {
       </div>
       <nav class="site-footer__nav" aria-label="${escapeHtml(common.footer.navigation)}">
         ${INFO_PAGES.map((page) => `<a href="/${locale}/${page}">${escapeHtml(common.footer[page])}</a>`).join('')}
+        ${locale === 'en' ? `<a href="/${BUILD_CAREER_SLUG}">Build your career</a>` : ''}
       </nav>
     </div>
   </footer>`
@@ -259,6 +276,42 @@ function renderInfoShell(page, pages, common, locale) {
   </div>`
 }
 
+function renderBuildCareerShell(content, home, common) {
+  return `<div class="marketing-page build-career-page">
+    <main>
+      <section class="site-section build-career-hero">
+        <div class="site-container build-career-hero__grid">
+          <div class="build-career-hero__copy">
+            <p class="eyebrow">${escapeHtml(content.hero.eyebrow)}</p>
+            <h1>${escapeHtml(content.hero.title)}</h1>
+            <p class="lead">${escapeHtml(content.hero.lead)}</p>
+            <div class="build-career-hero__actions">
+              <a class="button button--primary" href="#build-player">${escapeHtml(content.hero.primary)}</a>
+              <a class="button button--secondary" href="#career-steps">${escapeHtml(content.hero.secondary)}</a>
+            </div>
+            <ul class="build-career-facts">${content.hero.facts.map((fact) => `<li>${escapeHtml(fact)}</li>`).join('')}</ul>
+          </div>
+          <aside class="career-route-board" aria-label="${escapeHtml(content.routePreview.label)}">
+            <div class="career-route-board__top"><span>${escapeHtml(content.routePreview.label)}</span><strong>LIVE</strong></div>
+            <div class="career-route-board__player"><span class="career-route-board__shirt">10</span><div><strong>${escapeHtml(content.routePreview.player)}</strong><small>AGE 16 → RETIREMENT</small></div></div>
+            <ol class="career-route-board__stages">${content.routePreview.stages.map((stage) => `<li><span>${escapeHtml(stage.number)}</span><div><strong>${escapeHtml(stage.title)}</strong><small>${escapeHtml(stage.detail)}</small></div></li>`).join('')}</ol>
+            <p>${escapeHtml(content.routePreview.footer)}</p>
+          </aside>
+        </div>
+      </section>
+      <section class="site-section build-career-player" id="build-player"><div class="site-container">${renderStarterShell(home, 'en')}</div></section>
+      <section class="site-section site-section--seo-intro"><div class="site-container seo-intro-grid"><div class="section-heading section-heading--wide"><p class="eyebrow">${escapeHtml(content.intro.eyebrow)}</p><h2>${escapeHtml(content.intro.title)}</h2></div><div class="seo-copy">${content.intro.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</div></div></section>
+      <section class="site-section" id="career-steps"><div class="site-container"><div class="section-heading section-heading--wide"><p class="eyebrow">${escapeHtml(content.stages.eyebrow)}</p><h2>${escapeHtml(content.stages.title)}</h2><p class="lead">${escapeHtml(content.stages.body)}</p></div><div class="build-career-stage-grid">${content.stages.items.map((stage) => `<article class="build-career-stage"><span>${escapeHtml(stage.number)}</span><h3>${escapeHtml(stage.title)}</h3><p>${escapeHtml(stage.body)}</p></article>`).join('')}</div></div></section>
+      <section class="site-section build-career-draft-section"><div class="site-container build-career-draft-grid"><div><p class="eyebrow eyebrow--gold">${escapeHtml(content.draft.eyebrow)}</p><h2>${escapeHtml(content.draft.title)}</h2><p class="lead">${escapeHtml(content.draft.body)}</p><div class="build-career-modes">${content.draft.modes.map((mode) => `<article><div><strong>${escapeHtml(mode.name)}</strong><span>${escapeHtml(mode.tag)}</span></div><p>${escapeHtml(mode.body)}</p></article>`).join('')}</div></div><div class="attribute-board"><div class="attribute-board__rating"><strong>?</strong><span>YOUR OVR</span></div><div class="attribute-board__grid">${content.draft.attributes.map((attribute, index) => `<div><span>${String(index + 1).padStart(2, '0')}</span><strong>${escapeHtml(attribute)}</strong></div>`).join('')}</div><p>LOCK ONE ATTRIBUTE PER ROUND</p></div></div></section>
+      <section class="site-section"><div class="site-container"><div class="section-heading section-heading--wide"><p class="eyebrow">${escapeHtml(content.decisions.eyebrow)}</p><h2>${escapeHtml(content.decisions.title)}</h2></div><div class="build-career-decision-grid">${content.decisions.items.map((item) => `<article><span>${escapeHtml(item.marker)}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`).join('')}</div></div></section>
+      <section class="site-section build-career-result-section"><div class="site-container build-career-result-grid"><div><p class="eyebrow eyebrow--gold">${escapeHtml(content.result.eyebrow)}</p><h2>${escapeHtml(content.result.title)}</h2><p class="lead">${escapeHtml(content.result.body)}</p><a class="button button--primary" href="#build-player">Build another story</a></div><article class="build-career-result-card"><div class="build-career-result-card__top"><span>${escapeHtml(content.result.cardLabel)}</span><div><strong>${escapeHtml(content.result.rating)}</strong><small>${escapeHtml(content.result.ratingLabel)}</small></div></div><div class="build-career-result-card__identity"><span>10</span><div><h3>${escapeHtml(content.result.name)}</h3><p>${escapeHtml(content.result.role)}</p></div></div><div class="build-career-result-card__stats">${content.result.stats.map((stat) => `<div><strong>${escapeHtml(stat.value)}</strong><span>${escapeHtml(stat.label)}</span></div>`).join('')}</div><p>${escapeHtml(content.result.note)}</p></article></div></section>
+      <section class="site-section" id="build-career-faq"><div class="site-container"><div class="section-heading"><p class="eyebrow">${escapeHtml(content.faq.eyebrow)}</p><h2>${escapeHtml(content.faq.title)}</h2></div><div class="build-career-faq-list">${content.faq.items.map((item) => `<details><summary>${escapeHtml(item.question)}</summary><p>${escapeHtml(item.answer)}</p></details>`).join('')}</div></div></section>
+      <section class="site-section"><div class="site-container"><div class="final-cta build-career-final-cta"><p class="eyebrow">${escapeHtml(content.finalCta.eyebrow)}</p><h2>${escapeHtml(content.finalCta.title)}</h2><p class="lead">${escapeHtml(content.finalCta.body)}</p><a class="button button--primary" href="#build-player">${escapeHtml(content.finalCta.button)}</a></div></div></section>
+    </main>
+    ${renderFooter(common, 'en')}
+  </div>`
+}
+
 function replaceSeo(template, seoBlock) {
   const marker = /<!-- copero:seo:start -->[\s\S]*?<!-- copero:seo:end -->/
   if (!marker.test(template)) throw new Error('SEO marker block missing from built index.html')
@@ -304,4 +357,26 @@ for (const locale of LOCALES) {
   }
 }
 
-console.log('Prerendered localized home, info/legal pages and noindex game entry pages.')
+const englishLocale = LOCALES.find((locale) => locale.id === 'en')
+if (!englishLocale) throw new Error('English locale metadata is required for the build-career page.')
+
+const [englishHome, englishPages, englishCommon, buildCareerContent] = await Promise.all([
+  loadJson('en', 'home.json'),
+  loadJson('en', 'pages.json'),
+  loadJson('en', 'common.json'),
+  readFile(join(ROOT, 'src', 'data', 'build-career-page.json'), 'utf8').then(JSON.parse),
+])
+
+let buildCareerHtml = template.replace(/<html lang="[^"]*">/, '<html lang="en">')
+buildCareerHtml = replaceSeo(
+  buildCareerHtml,
+  renderSeoBlock(englishLocale, englishHome, englishPages, 'buildCareer', buildCareerContent),
+)
+buildCareerHtml = replaceRoot(
+  buildCareerHtml,
+  renderBuildCareerShell(buildCareerContent, englishHome, englishCommon),
+  true,
+)
+await writeRoute(`${BUILD_CAREER_SLUG}.html`, buildCareerHtml)
+
+console.log('Prerendered localized pages, the internally linked English build-career page and noindex game entries.')

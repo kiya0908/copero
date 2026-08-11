@@ -7,6 +7,8 @@ const DIST = join(ROOT, 'dist')
 const SITE = 'https://copero.top'
 const OG_IMAGE = `${SITE}/og.png`
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms']
+const BUILD_CAREER_SLUG = 'copero-build-your-own-football-career'
+const BUILD_CAREER_URL = `${SITE}/${BUILD_CAREER_SLUG}`
 const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', prefix: '' },
   { id: 'en', htmlLang: 'en', hrefLang: 'en', prefix: '/en' },
@@ -19,6 +21,9 @@ const LOCALES = [
 const EXPECTED_SPANISH_TITLE = 'Copero Juego Online | Simulador de Carrera de Fútbol Gratis'
 const EXPECTED_SPANISH_DESCRIPTION =
   'Juega Copero gratis en el navegador. Crea tu futbolista, completa el draft de 8 atributos y vive un modo carrera con clubes, fichajes, títulos y selección.'
+const EXPECTED_BUILD_CAREER_TITLE = 'Copero: Build Your Own Football Career Online'
+const EXPECTED_BUILD_CAREER_DESCRIPTION =
+  'Build your own football career in Copero. Create a player, draft eight legend attributes, choose a club, make transfer decisions and play free online.'
 
 const failures = []
 const check = (label, condition) => {
@@ -177,7 +182,35 @@ for (const locale of LOCALES) {
     check('Spanish homepage copy stays within 1200–1500 words', spanishWords >= 1200 && spanishWords <= 1500)
     check('root HTML contains no Spanish /es/ canonical references', !home.includes('https://copero.top/es/'))
   }
+  if (locale.id === 'en') {
+    check(
+      'English homepage links to build career landing page',
+      home.includes(`href="/${BUILD_CAREER_SLUG}"`),
+    )
+  }
 }
+
+const buildCareer = await readFile(join(DIST, `${BUILD_CAREER_SLUG}.html`), 'utf8')
+check('build career html lang', buildCareer.includes('<html lang="en">'))
+check('build career title', buildCareer.includes(`<title>${EXPECTED_BUILD_CAREER_TITLE}</title>`))
+check(
+  'build career description',
+  buildCareer.includes(`content="${EXPECTED_BUILD_CAREER_DESCRIPTION}"`),
+)
+check(
+  'build career exact keyword H1 is present in raw HTML',
+  buildCareer.includes('<h1>Copero: Build Your Own Football Career</h1>'),
+)
+check('build career has a playable starter in raw HTML', buildCareer.includes('id="build-player"'))
+check('build career explains the eight-attribute draft', buildCareer.includes('Eight legends. Eight attributes.'))
+check('build career prerender marker', buildCareer.includes('data-prerendered="page"'))
+check('build career root is not an empty SPA shell', !buildCareer.includes('<div id="root"></div>'))
+check('build career canonical', buildCareer.includes(`<link rel="canonical" href="${BUILD_CAREER_URL}"`))
+check('build career indexable', buildCareer.includes('<meta name="robots" content="index, follow"'))
+check('build career structured WebPage', buildCareer.includes('"@type":"WebPage"'))
+check('build career structured WebApplication', buildCareer.includes('"@type":"WebApplication"'))
+check('build career share image metadata', hasShareImageMetadata(buildCareer))
+check('build career has no false localized alternates', !buildCareer.includes('hreflang='))
 
 const notFound = await readFile(join(DIST, '404.html'), 'utf8')
 check('static 404 share image metadata', hasShareImageMetadata(notFound))
@@ -195,6 +228,7 @@ check('robots sitemap declaration', robots.includes(`Sitemap: ${SITE}/sitemap.xm
 check('sitemap includes canonical root', sitemap.includes(`<loc>${SITE}/</loc>`))
 check('sitemap excludes legacy /es homepage', !sitemap.includes(`<loc>${SITE}/es/</loc>`))
 check('sitemap excludes game routes', !sitemap.includes('/game</loc>'))
+check('sitemap includes build career route', sitemap.includes(`<loc>${BUILD_CAREER_URL}</loc>`))
 
 for (const locale of LOCALES) {
   check(`${locale.id} sitemap home`, sitemap.includes(`<loc>${SITE}${routePath(locale, 'home')}</loc>`))
@@ -215,5 +249,5 @@ if (failures.length > 0) {
   console.error(`SEO output validation failed: ${failures.join(', ')}`)
   process.exitCode = 1
 } else {
-  console.log('SEO output validation passed: all seven localized page sets are prerendered with canonical and hreflang coverage.')
+  console.log('SEO output validation passed: seven localized page sets plus the English build-career route are prerendered and linked.')
 }
