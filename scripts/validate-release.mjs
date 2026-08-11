@@ -156,6 +156,28 @@ const checks = [
   ['textarea focus-visible is covered', releaseCss.includes('textarea:focus-visible')],
   ['navigation aria label is localized', siteHeader.includes("t('common', 'nav.primary')")],
   [
+    'mobile navigation exposes an accessible toggle and controlled menu',
+    siteHeader.includes('className="site-nav-toggle"') &&
+      siteHeader.includes('aria-expanded={menuOpen}') &&
+      siteHeader.includes('aria-controls="site-navigation"') &&
+      siteHeader.includes('data-open={menuOpen}'),
+  ],
+  ['mobile navigation keeps the primary play action', siteHeader.includes('site-nav__mobile-play')],
+  [
+    'mobile navigation has an explicit open state below the desktop breakpoint',
+    releaseCss.includes('@media (max-width: 980px)') &&
+      releaseCss.includes(".site-nav[data-open='true']") &&
+      releaseCss.includes('.site-nav-toggle'),
+  ],
+  [
+    'homepage hero has a final single-column mobile override',
+    releaseCss.includes('.play-first-hero {') && releaseCss.includes('grid-template-columns: minmax(0, 1fr);'),
+  ],
+  [
+    'homepage provides purpose-written mobile hero copy',
+    homePage.includes("t('home', 'hero.mobileTitle')") && homePage.includes("t('home', 'hero.mobileBody')"),
+  ],
+  [
     'English header links to build-career page before the how-to link',
     siteHeader.includes("locale === 'en'") &&
       siteHeader.includes("to={BUILD_CAREER_PATH}") &&

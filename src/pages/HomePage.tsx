@@ -52,8 +52,12 @@ export function HomePage() {
           <div className="site-container play-first-hero">
             <div className="hero-copy">
               <p className="eyebrow">{t('home', 'hero.eyebrow')}</p>
-              <h1>{t('home', 'hero.title')}</h1>
-              <p className="lead">{t('home', 'hero.body')}</p>
+              <h1>
+                <span className="hero-title--desktop">{t('home', 'hero.title')}</span>
+                <span className="hero-title--mobile">{t('home', 'hero.mobileTitle')}</span>
+              </h1>
+              <p className="lead hero-body hero-body--desktop">{t('home', 'hero.body')}</p>
+              <p className="lead hero-body hero-body--mobile">{t('home', 'hero.mobileBody')}</p>
               <div className="tag-list">
                 {(['browser', 'draft', 'career', 'save'] as const).map((key) => (
                   <span className="tag" key={key}>{t('home', `hero.tags.${key}`)}</span>

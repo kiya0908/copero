@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { localizePath, useI18n } from '../../i18n/config'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -13,6 +14,8 @@ export function SiteHeader({
 } = {}) {
   const { locale, t } = useI18n()
   const home = localizePath('/', locale)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = () => setMenuOpen(false)
 
   return (
     <header className="site-header">
@@ -22,15 +25,45 @@ export function SiteHeader({
           <span>Copero</span>
         </Link>
 
-        <nav className="site-nav" aria-label={t('common', 'nav.primary')}>
-          {locale === 'en' && <Link to={BUILD_CAREER_PATH}>Build your career</Link>}
-          <a href={`${home}#how-to-play`}>{t('common', 'nav.howToPlay')}</a>
-          <a href={`${home}#mechanics`}>{t('common', 'nav.mechanics')}</a>
-          <a href={`${home}#faq`}>{t('common', 'nav.faq')}</a>
+        <nav
+          className="site-nav"
+          id="site-navigation"
+          aria-label={t('common', 'nav.primary')}
+          data-open={menuOpen}
+        >
+          {locale === 'en' && (
+            <Link to={BUILD_CAREER_PATH} onClick={closeMenu}>Build your career</Link>
+          )}
+          <a href={`${home}#how-to-play`} onClick={closeMenu}>
+            {t('common', 'nav.howToPlay')}
+          </a>
+          <a href={`${home}#mechanics`} onClick={closeMenu}>
+            {t('common', 'nav.mechanics')}
+          </a>
+          <a href={`${home}#faq`} onClick={closeMenu}>
+            {t('common', 'nav.faq')}
+          </a>
+          <a
+            className="site-nav__mobile-play"
+            href={playHref ?? `${home}#play`}
+            onClick={closeMenu}
+          >
+            {t('common', 'nav.play')}
+          </a>
         </nav>
 
         <div className="site-header__actions">
           {showLanguageSwitcher && <LanguageSwitcher compact />}
+          <button
+            className="site-nav-toggle"
+            type="button"
+            aria-expanded={menuOpen}
+            aria-controls="site-navigation"
+            aria-label={t('common', 'nav.primary')}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span aria-hidden="true" />
+          </button>
           <a className="button button--primary button--small" href={playHref ?? `${home}#play`}>
             {t('common', 'nav.play')}
           </a>
