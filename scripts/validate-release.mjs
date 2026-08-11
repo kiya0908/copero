@@ -155,6 +155,12 @@ const checks = [
   ['horizontal overflow is guarded', releaseCss.includes('overflow-x: clip')],
   ['textarea focus-visible is covered', releaseCss.includes('textarea:focus-visible')],
   ['navigation aria label is localized', siteHeader.includes("t('common', 'nav.primary')")],
+  [
+    'English header links to build-career page before the how-to link',
+    siteHeader.includes("locale === 'en'") &&
+      siteHeader.includes("to={BUILD_CAREER_PATH}") &&
+      siteHeader.indexOf('Build your career') < siteHeader.indexOf("t('common', 'nav.howToPlay')"),
+  ],
   ['runtime 404 derives locale from URL', notFound.includes('localeFromPathname(location.pathname)')],
   ['runtime 404 clears stale hreflang', notFound.includes('link[rel="alternate"][hreflang]')],
   ['runtime 404 is noindex', notFound.includes("ensureMeta('robots', 'noindex, nofollow')")],

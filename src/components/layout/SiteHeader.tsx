@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { localizePath, useI18n } from '../../i18n/config'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
+const BUILD_CAREER_PATH = '/copero-build-your-own-football-career'
+
 export function SiteHeader({
   playHref,
   showLanguageSwitcher = true,
@@ -21,6 +23,7 @@ export function SiteHeader({
         </Link>
 
         <nav className="site-nav" aria-label={t('common', 'nav.primary')}>
+          {locale === 'en' && <Link to={BUILD_CAREER_PATH}>Build your career</Link>}
           <a href={`${home}#how-to-play`}>{t('common', 'nav.howToPlay')}</a>
           <a href={`${home}#mechanics`}>{t('common', 'nav.mechanics')}</a>
           <a href={`${home}#faq`}>{t('common', 'nav.faq')}</a>
