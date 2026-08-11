@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
-const LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br']
+const LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br', 'ko']
 const SUPPORT_EMAIL = 'support@copero.top'
 const OLD_CONTACT_HREF = 'href="https://github.com/kiya0908/copero/issues"'
 

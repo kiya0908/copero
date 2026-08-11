@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
-const LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br']
+const LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br', 'ko']
 const availability = JSON.parse(
   await readFile(join(ROOT, 'src', 'i18n', 'language-availability.json'), 'utf8'),
 )
@@ -41,4 +41,4 @@ for (const locale of LOCALES) {
   await patch(locale, 'about.html', pages.about.sections.languages.body, availability[locale].about)
 }
 
-console.log('Patched six-language availability copy into localized prerendered pages.')
+console.log('Patched seven-language availability copy into localized prerendered pages.')

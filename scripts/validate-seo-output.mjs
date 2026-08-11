@@ -14,6 +14,7 @@ const LOCALES = [
   { id: 'de', htmlLang: 'de', hrefLang: 'de', prefix: '/de' },
   { id: 'it', htmlLang: 'it', hrefLang: 'it', prefix: '/it' },
   { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', prefix: '/pt-br' },
+  { id: 'ko', htmlLang: 'ko', hrefLang: 'ko', prefix: '/ko' },
 ]
 const EXPECTED_SPANISH_TITLE = 'Copero Juego Online | Simulador de Carrera de Fútbol Gratis'
 const EXPECTED_SPANISH_DESCRIPTION =
@@ -214,5 +215,5 @@ if (failures.length > 0) {
   console.error(`SEO output validation failed: ${failures.join(', ')}`)
   process.exitCode = 1
 } else {
-  console.log('SEO output validation passed: all six localized page sets are prerendered with canonical and hreflang coverage.')
+  console.log('SEO output validation passed: all seven localized page sets are prerendered with canonical and hreflang coverage.')
 }

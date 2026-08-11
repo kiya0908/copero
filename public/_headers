@@ -16,6 +16,9 @@
 /pt-br/game
   X-Robots-Tag: noindex, nofollow
 
+/ko/game
+  X-Robots-Tag: noindex, nofollow
+
 /es/game
   X-Robots-Tag: noindex, nofollow
 

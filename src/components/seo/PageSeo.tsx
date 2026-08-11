@@ -11,6 +11,7 @@ const OG_LOCALE: Record<Locale, string> = {
   de: 'de_DE',
   it: 'it_IT',
   'pt-br': 'pt_BR',
+  ko: 'ko_KR',
 }
 
 export type SeoPage = 'home' | 'game' | 'about' | 'contact' | 'privacy' | 'terms'

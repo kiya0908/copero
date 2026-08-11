@@ -13,6 +13,7 @@ const locales = [
   { id: 'de', htmlLang: 'de', hrefLang: 'de', prefix: '/de' },
   { id: 'it', htmlLang: 'it', hrefLang: 'it', prefix: '/it' },
   { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', prefix: '/pt-br' },
+  { id: 'ko', htmlLang: 'ko', hrefLang: 'ko', prefix: '/ko' },
 ]
 
 function assert(condition, message) {

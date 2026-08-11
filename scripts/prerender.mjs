@@ -15,6 +15,7 @@ const LOCALES = [
   { id: 'de', htmlLang: 'de', hrefLang: 'de', ogLocale: 'de_DE' },
   { id: 'it', htmlLang: 'it', hrefLang: 'it', ogLocale: 'it_IT' },
   { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', ogLocale: 'pt_BR' },
+  { id: 'ko', htmlLang: 'ko', hrefLang: 'ko', ogLocale: 'ko_KR' },
 ]
 
 function escapeHtml(value) {

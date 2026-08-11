@@ -24,6 +24,12 @@ import itGameUi from './locales/it/game-ui.json'
 import itHome from './locales/it/home.json'
 import itHomePreview from './locales/it/home-preview.json'
 import itPages from './locales/it/pages.json'
+import koCommon from './locales/ko/common.json'
+import koGame from './locales/ko/game.json'
+import koGameUi from './locales/ko/game-ui.json'
+import koHome from './locales/ko/home.json'
+import koHomePreview from './locales/ko/home-preview.json'
+import koPages from './locales/ko/pages.json'
 import ptBrCommon from './locales/pt-br/common.json'
 import ptBrGame from './locales/pt-br/game.json'
 import ptBrGameUi from './locales/pt-br/game-ui.json'
@@ -37,7 +43,7 @@ import zhHome from './locales/zh-cn/home.json'
 import zhHomePreview from './locales/zh-cn/home-preview.json'
 import zhPages from './locales/zh-cn/pages.json'
 
-export const SUPPORTED_LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br'] as const
+export const SUPPORTED_LOCALES = ['es', 'en', 'zh-cn', 'de', 'it', 'pt-br', 'ko'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 export type TranslationNamespace = 'common' | 'home' | 'game' | 'pages'
 
@@ -51,6 +57,7 @@ export const LOCALE_META: Record<Locale, { label: string; short: string; htmlLan
   de: { label: 'Deutsch', short: 'DE', htmlLang: 'de', hrefLang: 'de' },
   it: { label: 'Italiano', short: 'IT', htmlLang: 'it', hrefLang: 'it' },
   'pt-br': { label: 'Português (Brasil)', short: 'PT-BR', htmlLang: 'pt-BR', hrefLang: 'pt-BR' },
+  ko: { label: '한국어', short: 'KO', htmlLang: 'ko', hrefLang: 'ko' },
 }
 
 type Dictionary = Record<string, unknown>
@@ -78,6 +85,7 @@ const resources: Resources = {
   de: { common: deCommon, home: homeResource('de', deHome, deHomePreview), game: { ...deGame, ...deGameUi }, pages: pagesResource('de', dePages) },
   it: { common: itCommon, home: homeResource('it', itHome, itHomePreview), game: { ...itGame, ...itGameUi }, pages: pagesResource('it', itPages) },
   'pt-br': { common: ptBrCommon, home: homeResource('pt-br', ptBrHome, ptBrHomePreview), game: { ...ptBrGame, ...ptBrGameUi }, pages: pagesResource('pt-br', ptBrPages) },
+  ko: { common: koCommon, home: homeResource('ko', koHome, koHomePreview), game: { ...koGame, ...koGameUi }, pages: pagesResource('ko', koPages) },
 }
 
 export function isSupportedLocale(value: string | undefined | null): value is Locale {

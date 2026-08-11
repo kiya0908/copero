@@ -5,7 +5,7 @@ const files = {
   robots: await readFile(new URL('../public/robots.txt', import.meta.url), 'utf8'),
   sitemap: await readFile(new URL('../public/sitemap.xml', import.meta.url), 'utf8'),
   redirects: await readFile(new URL('../public/_redirects', import.meta.url), 'utf8'),
-  headers: await readFile(new URL('../public/_headers', import.meta.url), 'utf8'),
+  headers: (await readFile(new URL('../public/_headers', import.meta.url), 'utf8')).replaceAll('\r\n', '\n'),
   env: await readFile(new URL('../.env.example', import.meta.url), 'utf8'),
   analytics: await readFile(new URL('../src/lib/analytics.ts', import.meta.url), 'utf8'),
   siteHeader: await readFile(new URL('../src/components/layout/SiteHeader.tsx', import.meta.url), 'utf8'),
@@ -16,7 +16,7 @@ const files = {
 
 const wranglerConfig = JSON.parse(files.wrangler)
 const infoPages = ['about', 'contact', 'privacy', 'terms']
-const prefixedLocales = ['en', 'zh-cn', 'de', 'it', 'pt-br']
+const prefixedLocales = ['en', 'zh-cn', 'de', 'it', 'pt-br', 'ko']
 
 const assertions = [
   ['fallback template remains noindex until prerender completes', files.index.includes('<meta name="robots" content="noindex, follow"')],
