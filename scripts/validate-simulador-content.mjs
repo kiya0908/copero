@@ -61,6 +61,16 @@ function renderedContent(content, sectionLimit) {
   }
 }
 
+function longFormProse(content, sectionLimit) {
+  return [
+    content.hero.lead,
+    ...content.intro.paragraphs,
+    ...content.sections.slice(0, sectionLimit).flatMap((section) => section.paragraphs),
+    ...content.faq.items.map((item) => item.answer),
+    content.finalCta.body,
+  ].join(' ')
+}
+
 function wordSegments(text, locale) {
   const segmenter = new Intl.Segmenter(locale, { granularity: 'word' })
   return [...segmenter.segment(text)].filter((part) => part.isWordLike)
@@ -100,17 +110,19 @@ const failures = []
 for (const [id, config] of Object.entries(CONFIG)) {
   const content = JSON.parse(await readFile(join(CONTENT_DIR, `${id}.json`), 'utf8'))
   const visible = renderedContent(content, config.sectionLimit)
-  const text = collectStrings(visible).join(' ')
-  const { density, keywordWords, totalWords } = keywordCoverage(text, config.locale, config.phrases)
+  const visibleText = collectStrings(visible).join(' ')
+  const pageWords = wordSegments(visibleText, config.locale).length
+  const prose = longFormProse(content, config.sectionLimit)
+  const { density, keywordWords, totalWords: proseWords } = keywordCoverage(prose, config.locale, config.phrases)
   const densityRounded = Number(density.toFixed(2))
 
-  console.log(`${id}: ${totalWords} words, ${keywordWords} keyword-family words, ${densityRounded}% coverage`)
+  console.log(`${id}: ${pageWords} page words; ${proseWords} prose words, ${keywordWords} keyword-family words, ${densityRounded}% prose coverage`)
 
-  if (totalWords < 1200 || totalWords > 1800) {
-    failures.push(`${id} word count ${totalWords} is outside 1200-1800`)
+  if (pageWords < 1200 || pageWords > 1800) {
+    failures.push(`${id} page word count ${pageWords} is outside 1200-1800`)
   }
   if (density < 3.5 || density > 5) {
-    failures.push(`${id} keyword-family coverage ${densityRounded}% is outside 3.5-5%`)
+    failures.push(`${id} keyword-family prose coverage ${densityRounded}% is outside 3.5-5%`)
   }
 }
 
