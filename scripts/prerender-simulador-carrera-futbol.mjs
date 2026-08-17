@@ -9,13 +9,13 @@ const SLUG = 'simulador-carrera-futbol'
 const OG_IMAGE_URL = `${SITE_ORIGIN}/og.png`
 const OG_IMAGE_ALT = 'Copero football career simulator'
 const LOCALES = [
-  { id: 'es', htmlLang: 'es', hrefLang: 'es', ogLocale: 'es_ES' },
-  { id: 'en', htmlLang: 'en', hrefLang: 'en', ogLocale: 'en_US' },
-  { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN', ogLocale: 'zh_CN' },
-  { id: 'de', htmlLang: 'de', hrefLang: 'de', ogLocale: 'de_DE' },
-  { id: 'it', htmlLang: 'it', hrefLang: 'it', ogLocale: 'it_IT' },
-  { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', ogLocale: 'pt_BR' },
-  { id: 'ko', htmlLang: 'ko', hrefLang: 'ko', ogLocale: 'ko_KR' },
+  { id: 'es', htmlLang: 'es', hrefLang: 'es', ogLocale: 'es_ES', sectionLimit: 5 },
+  { id: 'en', htmlLang: 'en', hrefLang: 'en', ogLocale: 'en_US', sectionLimit: 5 },
+  { id: 'zh-cn', htmlLang: 'zh-CN', hrefLang: 'zh-CN', ogLocale: 'zh_CN', sectionLimit: 5 },
+  { id: 'de', htmlLang: 'de', hrefLang: 'de', ogLocale: 'de_DE', sectionLimit: 6 },
+  { id: 'it', htmlLang: 'it', hrefLang: 'it', ogLocale: 'it_IT', sectionLimit: 6 },
+  { id: 'pt-br', htmlLang: 'pt-BR', hrefLang: 'pt-BR', ogLocale: 'pt_BR', sectionLimit: 6 },
+  { id: 'ko', htmlLang: 'ko', hrefLang: 'ko', ogLocale: 'ko_KR', sectionLimit: 8 },
 ]
 
 function escapeHtml(value) {
@@ -112,6 +112,7 @@ function renderSeoBlock(locale, content) {
 }
 
 function renderShell(content, locale) {
+  const sections = content.sections.slice(0, locale.sectionLimit)
   return `<div class="marketing-page build-career-page">
     <main>
       <section class="site-section build-career-hero">
@@ -136,7 +137,7 @@ function renderShell(content, locale) {
       </section>
       <section class="site-section build-career-player"><div class="site-container"><div class="final-cta build-career-final-cta"><p class="eyebrow">${escapeHtml(content.hero.eyebrow)}</p><h2>${escapeHtml(content.finalCta.title)}</h2><p class="lead">${escapeHtml(content.finalCta.body)}</p><a class="button button--primary" href="/${locale.id}/game">${escapeHtml(content.hero.primary)}</a></div></div></section>
       <section class="site-section site-section--seo-intro" id="guia-simulador"><div class="site-container seo-intro-grid"><div class="section-heading section-heading--wide"><p class="eyebrow">${escapeHtml(content.intro.eyebrow)}</p><h2>${escapeHtml(content.intro.title)}</h2></div><div class="seo-copy">${content.intro.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</div></div></section>
-      ${content.sections.map((section, index) => `<section class="${index % 2 === 1 ? 'site-section build-career-result-section' : 'site-section'}"><div class="site-container"><div class="section-heading section-heading--wide"><p class="eyebrow">${escapeHtml(section.eyebrow)}</p><h2>${escapeHtml(section.title)}</h2></div><div class="seo-copy">${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</div></div></section>`).join('')}
+      ${sections.map((section, index) => `<section class="${index % 2 === 1 ? 'site-section build-career-result-section' : 'site-section'}"><div class="site-container"><div class="section-heading section-heading--wide"><p class="eyebrow">${escapeHtml(section.eyebrow)}</p><h2>${escapeHtml(section.title)}</h2></div><div class="seo-copy">${section.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}</div></div></section>`).join('')}
       <section class="site-section" id="simulador-faq"><div class="site-container"><div class="section-heading"><p class="eyebrow">${escapeHtml(content.faq.eyebrow)}</p><h2>${escapeHtml(content.faq.title)}</h2></div><div class="build-career-faq-list">${content.faq.items.map((item) => `<details><summary>${escapeHtml(item.question)}</summary><p>${escapeHtml(item.answer)}</p></details>`).join('')}</div></div></section>
       <section class="site-section"><div class="site-container"><div class="final-cta build-career-final-cta"><p class="eyebrow">${escapeHtml(content.finalCta.eyebrow)}</p><h2>${escapeHtml(content.finalCta.title)}</h2><p class="lead">${escapeHtml(content.finalCta.body)}</p><a class="button button--primary" href="/${locale.id}/game">${escapeHtml(content.finalCta.button)}</a></div></div></section>
     </main>
