@@ -2,11 +2,12 @@ import { HomepageCareerStarter } from '../components/home/HomepageCareerStarter'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
 import { useI18n } from '../i18n/config'
-import { simuladorCarreraFutbolContent } from '../data/simulador-carrera-futbol'
+import { simuladorCarreraFutbolContent, simulatorSections } from '../data/simulador-carrera-futbol'
 
 export function SimuladorCarreraFutbolPage() {
   const { locale } = useI18n()
   const content = simuladorCarreraFutbolContent[locale]
+  const sections = simulatorSections(locale)
 
   return (
     <div className="marketing-page build-career-page">
@@ -70,7 +71,7 @@ export function SimuladorCarreraFutbolPage() {
           </div>
         </section>
 
-        {content.sections.map((section, index) => (
+        {sections.map((section, index) => (
           <section className={index % 2 === 1 ? 'site-section build-career-result-section' : 'site-section'} key={section.title}>
             <div className="site-container">
               <div className="section-heading section-heading--wide">
