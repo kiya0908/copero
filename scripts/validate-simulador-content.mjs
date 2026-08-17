@@ -14,7 +14,7 @@ const CONFIG = {
   en: {
     locale: 'en',
     sectionLimit: 5,
-    phrases: ['football player career simulator', 'online football career simulator', 'football career simulator', 'football career game'],
+    phrases: ['football player career simulator', 'online football career simulator', 'football career simulator', 'online football career game', 'football career game'],
   },
   'zh-cn': {
     locale: 'zh-CN',
@@ -24,17 +24,17 @@ const CONFIG = {
   de: {
     locale: 'de',
     sectionLimit: 6,
-    phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation'],
+    phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation', 'fußballkarriere'],
   },
   it: {
     locale: 'it',
     sectionLimit: 6,
-    phrases: ['simulatore di carriera calcistica', 'simulatore carriera calciatore', 'gioco carriera calciatore'],
+    phrases: ['simulatore di carriera calcistica', 'simulatore carriera calciatore', 'gioco carriera calciatore', 'carriera calcistica'],
   },
   'pt-br': {
     locale: 'pt-BR',
     sectionLimit: 6,
-    phrases: ['simulador carreira jogador de futebol', 'simulador de carreira de futebol', 'jogo de carreira de futebol'],
+    phrases: ['simulador carreira jogador de futebol', 'simulador de carreira de futebol'],
   },
   ko: {
     locale: 'ko',
