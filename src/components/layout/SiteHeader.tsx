@@ -1,9 +1,20 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { localizePath, useI18n } from '../../i18n/config'
+import { localizePath, type Locale, useI18n } from '../../i18n/config'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 const BUILD_CAREER_PATH = '/copero-build-your-own-football-career'
+const SIMULATOR_PATH = '/simulador-carrera-futbol'
+
+const SIMULATOR_NAV_LABEL: Record<Locale, string> = {
+  es: 'Simulador de carrera',
+  en: 'Career Simulator',
+  'zh-cn': '足球生涯模拟器',
+  de: 'Karrieresimulator',
+  it: 'Simulatore di carriera',
+  'pt-br': 'Simulador de carreira',
+  ko: '축구 커리어 시뮬레이터',
+}
 
 export function SiteHeader({
   playHref,
@@ -14,6 +25,7 @@ export function SiteHeader({
 } = {}) {
   const { locale, t } = useI18n()
   const home = localizePath('/', locale)
+  const simulatorHref = localizePath(SIMULATOR_PATH, locale)
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
 
@@ -31,6 +43,9 @@ export function SiteHeader({
           aria-label={t('common', 'nav.primary')}
           data-open={menuOpen}
         >
+          <Link to={simulatorHref} onClick={closeMenu}>
+            {SIMULATOR_NAV_LABEL[locale]}
+          </Link>
           {locale === 'en' && (
             <Link to={BUILD_CAREER_PATH} onClick={closeMenu}>Build your career</Link>
           )}
