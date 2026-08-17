@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import buildCareerContent from '../../data/build-career-page.json'
+import { simuladorCarreraFutbolContent } from '../../data/simulador-carrera-futbol'
 import { DEFAULT_LOCALE, LOCALE_META, SUPPORTED_LOCALES, useI18n, type Locale } from '../../i18n/config'
 
 const SITE_ORIGIN = 'https://copero.top'
@@ -15,11 +16,20 @@ const OG_LOCALE: Record<Locale, string> = {
   ko: 'ko_KR',
 }
 
-export type SeoPage = 'home' | 'game' | 'about' | 'contact' | 'privacy' | 'terms' | 'buildCareer'
+export type SeoPage =
+  | 'home'
+  | 'game'
+  | 'about'
+  | 'contact'
+  | 'privacy'
+  | 'terms'
+  | 'buildCareer'
+  | 'simuladorCarreraFutbol'
 
 function pagePath(page: SeoPage): string {
   if (page === 'home') return '/'
   if (page === 'buildCareer') return '/copero-build-your-own-football-career'
+  if (page === 'simuladorCarreraFutbol') return '/simulador-carrera-futbol'
   return `/${page}`
 }
 
@@ -118,7 +128,7 @@ function setStructuredData(locale: Locale, page: SeoPage, title: string, descrip
     },
   ]
 
-  if (page === 'home' || page === 'buildCareer') {
+  if (page === 'home' || page === 'buildCareer' || page === 'simuladorCarreraFutbol') {
     graph.push({
       '@type': 'WebApplication',
       '@id': `${SITE_ORIGIN}/#game`,
@@ -146,20 +156,26 @@ export function PageSeo({ page }: { page: SeoPage }) {
     const home = page === 'home'
     const game = page === 'game'
     const buildCareer = page === 'buildCareer'
+    const simulator = page === 'simuladorCarreraFutbol'
+    const simulatorContent = simulator ? simuladorCarreraFutbolContent[locale] : null
     const title = home
       ? t('home', 'seo.title')
       : game
         ? t('home', 'seo.ogTitle')
         : buildCareer
           ? buildCareerContent.seo.title
-          : t('pages', `${page}.seo.title`)
+          : simulatorContent
+            ? simulatorContent.seo.title
+            : t('pages', `${page}.seo.title`)
     const description = home
       ? t('home', 'seo.description')
       : game
         ? t('home', 'seo.ogDescription')
         : buildCareer
           ? buildCareerContent.seo.description
-          : t('pages', `${page}.seo.description`)
+          : simulatorContent
+            ? simulatorContent.seo.description
+            : t('pages', `${page}.seo.description`)
     const canonical = pageUrl(locale, page)
     const robots = game ? 'noindex, nofollow' : 'index, follow'
 
