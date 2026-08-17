@@ -24,7 +24,7 @@ const CONFIG = {
   de: {
     locale: 'de',
     sectionLimit: 6,
-    phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation', 'fußballkarriere', 'fußballspieler'],
+    phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation', 'fußballkarriere', 'fußballspieler', 'laufbahn'],
   },
   it: {
     locale: 'it',
