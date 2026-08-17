@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import buildCareerContent from '../../data/build-career-page.json'
+import { getBuildCareerContent } from '../../data/buildCareerContent'
 import { DEFAULT_LOCALE, LOCALE_META, SUPPORTED_LOCALES, useI18n, type Locale } from '../../i18n/config'
 
 const SITE_ORIGIN = 'https://copero.top'
@@ -25,7 +25,6 @@ function pagePath(page: SeoPage): string {
 
 function pageUrl(locale: Locale, page: SeoPage): string {
   const suffix = pagePath(page)
-  if (page === 'buildCareer') return `${SITE_ORIGIN}${suffix}`
   return locale === DEFAULT_LOCALE ? `${SITE_ORIGIN}${suffix}` : `${SITE_ORIGIN}/${locale}${suffix}`
 }
 
@@ -146,18 +145,19 @@ export function PageSeo({ page }: { page: SeoPage }) {
     const home = page === 'home'
     const game = page === 'game'
     const buildCareer = page === 'buildCareer'
+    const buildCareerContent = buildCareer ? getBuildCareerContent(locale) : null
     const title = home
       ? t('home', 'seo.title')
       : game
         ? t('home', 'seo.ogTitle')
-        : buildCareer
+        : buildCareerContent
           ? buildCareerContent.seo.title
           : t('pages', `${page}.seo.title`)
     const description = home
       ? t('home', 'seo.description')
       : game
         ? t('home', 'seo.ogDescription')
-        : buildCareer
+        : buildCareerContent
           ? buildCareerContent.seo.description
           : t('pages', `${page}.seo.description`)
     const canonical = pageUrl(locale, page)
@@ -202,10 +202,8 @@ export function PageSeo({ page }: { page: SeoPage }) {
 
     clearLocalizedAlternates()
     if (!game) {
-      if (!buildCareer) {
-        addLocalizedAlternates(page)
-        addOgLocaleAlternates(locale)
-      }
+      addLocalizedAlternates(page)
+      addOgLocaleAlternates(locale)
       setStructuredData(locale, page, title, description)
     } else {
       document.head.querySelector('#copero-structured-data')?.remove()
