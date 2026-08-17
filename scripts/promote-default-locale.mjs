@@ -6,7 +6,15 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
 const DEFAULT_LOCALE = 'es'
 const OTHER_LOCALES = ['en', 'zh-cn', 'de', 'it', 'pt-br', 'ko']
-const ROUTE_FILES = ['index.html', 'game.html', 'about.html', 'contact.html', 'privacy.html', 'terms.html']
+const ROUTE_FILES = [
+  'index.html',
+  'game.html',
+  'simulador-carrera-futbol.html',
+  'about.html',
+  'contact.html',
+  'privacy.html',
+  'terms.html',
+]
 const SPANISH_ABSOLUTE_PREFIX = 'https://copero.top/es/'
 
 function rewriteSpanishCanonicalReferences(html) {
