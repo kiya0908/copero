@@ -8,41 +8,57 @@ const CONTENT_DIR = join(ROOT, 'src', 'data', 'simulador-carrera-futbol')
 const CONFIG = {
   es: {
     locale: 'es',
+    sectionLimit: 5,
     phrases: ['simulador de carrera de fútbol', 'simulador carrera fútbol', 'juego de carrera de fútbol'],
   },
   en: {
     locale: 'en',
+    sectionLimit: 5,
     phrases: ['football player career simulator', 'online football career simulator', 'football career simulator', 'football career game'],
   },
   'zh-cn': {
     locale: 'zh-CN',
+    sectionLimit: 5,
     phrases: ['足球球员生涯模拟器', '在线足球职业生涯游戏', '足球职业生涯模拟', '足球生涯模拟器'],
   },
   de: {
     locale: 'de',
+    sectionLimit: 6,
     phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation'],
   },
   it: {
     locale: 'it',
+    sectionLimit: 6,
     phrases: ['simulatore di carriera calcistica', 'simulatore carriera calciatore', 'gioco carriera calciatore'],
   },
   'pt-br': {
     locale: 'pt-BR',
+    sectionLimit: 6,
     phrases: ['simulador carreira jogador de futebol', 'simulador de carreira de futebol', 'jogo de carreira de futebol'],
   },
   ko: {
     locale: 'ko',
+    sectionLimit: 8,
     phrases: ['온라인 축구 커리어 시뮬레이터', '축구 선수 커리어 시뮬레이터', '축구 커리어 시뮬레이터'],
   },
 }
 
-function collectStrings(value, excludedKeys = new Set(['seo'])) {
+function collectStrings(value) {
   if (typeof value === 'string') return [value]
-  if (Array.isArray(value)) return value.flatMap((item) => collectStrings(item, excludedKeys))
+  if (Array.isArray(value)) return value.flatMap(collectStrings)
   if (!value || typeof value !== 'object') return []
-  return Object.entries(value).flatMap(([key, item]) =>
-    excludedKeys.has(key) ? [] : collectStrings(item, excludedKeys),
-  )
+  return Object.values(value).flatMap(collectStrings)
+}
+
+function renderedContent(content, sectionLimit) {
+  return {
+    hero: content.hero,
+    route: content.route,
+    intro: content.intro,
+    sections: content.sections.slice(0, sectionLimit),
+    faq: content.faq,
+    finalCta: content.finalCta,
+  }
 }
 
 function wordSegments(text, locale) {
@@ -83,7 +99,8 @@ const failures = []
 
 for (const [id, config] of Object.entries(CONFIG)) {
   const content = JSON.parse(await readFile(join(CONTENT_DIR, `${id}.json`), 'utf8'))
-  const text = collectStrings(content).join(' ')
+  const visible = renderedContent(content, config.sectionLimit)
+  const text = collectStrings(visible).join(' ')
   const { density, keywordWords, totalWords } = keywordCoverage(text, config.locale, config.phrases)
   const densityRounded = Number(density.toFixed(2))
 
@@ -101,5 +118,5 @@ if (failures.length) {
   console.error(`Simulator content validation failed:\n- ${failures.join('\n- ')}`)
   process.exitCode = 1
 } else {
-  console.log('Simulator content validation passed for all seven locales.')
+  console.log('Simulator content validation passed for all seven rendered locale pages.')
 }
