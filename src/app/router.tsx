@@ -6,15 +6,18 @@ import { HomePage } from '../pages/HomePage'
 import { GamePage } from '../pages/GamePage'
 import { InfoPage, type InfoPageKind } from '../pages/InfoPage'
 import { BuildCareerPage } from '../pages/BuildCareerPage'
+import { SimuladorCarreraFutbolPage } from '../pages/SimuladorCarreraFutbolPage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms'] as const satisfies readonly InfoPageKind[]
+const SIMULATOR_PATH = 'simulador-carrera-futbol'
 
 function seoPageFromPath(pathname: string): SeoPage {
   const segments = pathname.split('/').filter(Boolean)
   if (isSupportedLocale(segments[0])) segments.shift()
   const segment = segments[0]
   if (segment === 'game') return 'game'
+  if (segment === SIMULATOR_PATH) return 'simuladorCarreraFutbol'
   if (INFO_PAGES.includes(segment as InfoPageKind)) return segment as InfoPageKind
   return 'home'
 }
@@ -72,6 +75,7 @@ export function AppRouter() {
         <Route element={<DefaultLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
+          <Route path={SIMULATOR_PATH} element={<SimuladorCarreraFutbolPage />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />
@@ -81,6 +85,7 @@ export function AppRouter() {
         <Route path="/:locale" element={<PrefixedLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
+          <Route path={SIMULATOR_PATH} element={<SimuladorCarreraFutbolPage />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />
