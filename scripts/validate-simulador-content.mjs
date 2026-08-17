@@ -14,7 +14,7 @@ const CONFIG = {
   en: {
     locale: 'en',
     sectionLimit: 5,
-    phrases: ['football player career simulator', 'online football career simulator', 'football career simulator', 'online football career game', 'football career game'],
+    phrases: ['football player career simulator', 'online football career simulator', 'football career simulator', 'online football career game', 'football career game', 'career generator'],
   },
   'zh-cn': {
     locale: 'zh-CN',
@@ -24,7 +24,7 @@ const CONFIG = {
   de: {
     locale: 'de',
     sectionLimit: 6,
-    phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation', 'fußballkarriere'],
+    phrases: ['fußballspieler karriere simulator', 'fußball karriere simulator', 'fußball karriere simulation', 'fußballkarriere', 'fußballspieler'],
   },
   it: {
     locale: 'it',
