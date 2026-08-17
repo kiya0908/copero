@@ -6,10 +6,12 @@ import { HomePage } from '../pages/HomePage'
 import { GamePage } from '../pages/GamePage'
 import { InfoPage, type InfoPageKind } from '../pages/InfoPage'
 import { BuildCareerPage } from '../pages/BuildCareerPage'
+import { SimuladorCarreraFutbolPage } from '../pages/SimuladorCarreraFutbolPage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms'] as const satisfies readonly InfoPageKind[]
 const BUILD_CAREER_PATH = 'copero-build-your-own-football-career'
+const SIMULATOR_PATH = 'simulador-carrera-futbol'
 
 function seoPageFromPath(pathname: string): SeoPage {
   const segments = pathname.split('/').filter(Boolean)
@@ -17,6 +19,7 @@ function seoPageFromPath(pathname: string): SeoPage {
   const segment = segments[0]
   if (segment === 'game') return 'game'
   if (segment === BUILD_CAREER_PATH) return 'buildCareer'
+  if (segment === SIMULATOR_PATH) return 'simuladorCarreraFutbol'
   if (INFO_PAGES.includes(segment as InfoPageKind)) return segment as InfoPageKind
   return 'home'
 }
@@ -37,9 +40,7 @@ function DefaultLocaleLayout() {
 
 function PrefixedLocaleLayout() {
   const { locale } = useParams()
-
   if (!isSupportedLocale(locale) || locale === DEFAULT_LOCALE) return <NotFoundPage />
-
   return (
     <I18nProvider locale={locale}>
       <LocaleSeo />
@@ -60,27 +61,26 @@ export function AppRouter() {
       <AnalyticsRouteTracker />
       <Routes>
         <Route path="/es/*" element={<DefaultLocaleRedirect />} />
-
         <Route element={<DefaultLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
           <Route path={BUILD_CAREER_PATH} element={<BuildCareerPage />} />
+          <Route path={SIMULATOR_PATH} element={<SimuladorCarreraFutbolPage />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />
           <Route path="terms" element={<InfoPage page="terms" />} />
         </Route>
-
         <Route path="/:locale" element={<PrefixedLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
           <Route path={BUILD_CAREER_PATH} element={<BuildCareerPage />} />
+          <Route path={SIMULATOR_PATH} element={<SimuladorCarreraFutbolPage />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />
           <Route path="terms" element={<InfoPage page="terms" />} />
         </Route>
-
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>

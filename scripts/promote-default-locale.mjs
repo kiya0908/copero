@@ -6,7 +6,15 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const DIST = join(ROOT, 'dist')
 const DEFAULT_LOCALE = 'es'
 const OTHER_LOCALES = ['en', 'zh-cn', 'de', 'it', 'pt-br', 'ko']
-const ROUTE_FILES = ['index.html', 'game.html', 'about.html', 'contact.html', 'privacy.html', 'terms.html']
+const ROUTE_FILES = [
+  'index.html',
+  'game.html',
+  'simulador-carrera-futbol.html',
+  'about.html',
+  'contact.html',
+  'privacy.html',
+  'terms.html',
+]
 const SPANISH_ABSOLUTE_PREFIX = 'https://copero.top/es/'
 
 function rewriteSpanishCanonicalReferences(html) {
@@ -28,11 +36,7 @@ for (const locale of OTHER_LOCALES) {
 for (const file of ROUTE_FILES) {
   const source = join(DIST, DEFAULT_LOCALE, file)
   const html = rewriteSpanishRouteLinks(await readFile(source, 'utf8'))
-
-  // Keep the legacy /es static artifact safe even though Cloudflare redirects it.
   await writeFile(source, html)
-
-  // The default Spanish locale is served directly from the site root.
   await writeFile(join(DIST, file), html)
 }
 

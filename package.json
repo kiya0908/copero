@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "smoke:flow": "node scripts/smoke-game-flow.mjs",
     "validate:launch": "node scripts/validate-launch.mjs",
+    "validate:simulator-content": "node scripts/validate-simulador-content.mjs",
     "validate:seo": "node scripts/validate-seo-output.mjs",
     "validate:release": "node scripts/validate-release.mjs",
     "validate:deployment": "node scripts/validate-deployment.mjs",

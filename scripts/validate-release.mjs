@@ -178,10 +178,11 @@ const checks = [
     homePage.includes("t('home', 'hero.mobileTitle')") && homePage.includes("t('home', 'hero.mobileBody')"),
   ],
   [
-    'English header links to build-career page before the how-to link',
-    siteHeader.includes("locale === 'en'") &&
-      siteHeader.includes("to={BUILD_CAREER_PATH}") &&
-      siteHeader.indexOf('Build your career') < siteHeader.indexOf("t('common', 'nav.howToPlay')"),
+    'localized simulator link is the leftmost header navigation item',
+    siteHeader.includes('SIMULATOR_NAV_LABEL') &&
+      siteHeader.includes('to={simulatorHref}') &&
+      siteHeader.indexOf('to={simulatorHref}') < siteHeader.indexOf('to={buildCareer}') &&
+      siteHeader.indexOf('to={buildCareer}') < siteHeader.indexOf("t('common', 'nav.howToPlay')"),
   ],
   ['runtime 404 derives locale from URL', notFound.includes('localeFromPathname(location.pathname)')],
   ['runtime 404 clears stale hreflang', notFound.includes('link[rel="alternate"][hreflang]')],
@@ -194,12 +195,8 @@ const checks = [
 const failures = checks.filter(([, passed]) => !passed).map(([label]) => label)
 if (failures.length) {
   console.error(`Release validation failed:\n- ${failures.join('\n- ')}`)
-  if (runtimeDesignReferenceImports.length) {
-    console.error(`Runtime design-reference imports: ${runtimeDesignReferenceImports.map(([file]) => file).join(', ')}`)
-  }
-  if (hardcodedGaIds.length) {
-    console.error(`Hard-coded GA4 IDs: ${hardcodedGaIds.map(([file]) => file).join(', ')}`)
-  }
+  if (runtimeDesignReferenceImports.length) console.error(`Runtime design-reference imports: ${runtimeDesignReferenceImports.map(([file]) => file).join(', ')}`)
+  if (hardcodedGaIds.length) console.error(`Hard-coded GA4 IDs: ${hardcodedGaIds.map(([file]) => file).join(', ')}`)
   process.exitCode = 1
 } else {
   console.log(`Release validation passed (${checks.length} checks across ${sourceFiles.length} source files).`)

@@ -21,7 +21,7 @@ const POSITIONS = Object.keys(POSITION_LABELS) as Position[]
 export function HomepageCareerStarter({
   entry = 'homepage',
 }: {
-  entry?: 'homepage' | 'build_career_page'
+  entry?: 'homepage' | 'build_career_page' | 'simulador_carrera_futbol'
 } = {}) {
   const { locale, t } = useI18n()
   const navigate = useNavigate()
