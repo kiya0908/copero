@@ -1,9 +1,18 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { localizePath, useI18n } from '../../i18n/config'
+import { localizePath, useI18n, type Locale } from '../../i18n/config'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
 const BUILD_CAREER_PATH = '/copero-build-your-own-football-career'
+const BUILD_CAREER_LABEL: Record<Locale, string> = {
+  es: 'Crea tu carrera',
+  en: 'Build your career',
+  'zh-cn': '创建你的足球生涯',
+  de: 'Erstelle deine Karriere',
+  it: 'Crea la tua carriera',
+  'pt-br': 'Crie sua carreira',
+  ko: '나만의 커리어 만들기',
+}
 
 export function SiteHeader({
   playHref,
@@ -14,6 +23,7 @@ export function SiteHeader({
 } = {}) {
   const { locale, t } = useI18n()
   const home = localizePath('/', locale)
+  const buildCareer = localizePath(BUILD_CAREER_PATH, locale)
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
 
@@ -31,9 +41,7 @@ export function SiteHeader({
           aria-label={t('common', 'nav.primary')}
           data-open={menuOpen}
         >
-          {locale === 'en' && (
-            <Link to={BUILD_CAREER_PATH} onClick={closeMenu}>Build your career</Link>
-          )}
+          <Link to={buildCareer} onClick={closeMenu}>{BUILD_CAREER_LABEL[locale]}</Link>
           <a href={`${home}#how-to-play`} onClick={closeMenu}>
             {t('common', 'nav.howToPlay')}
           </a>

@@ -9,12 +9,14 @@ import { BuildCareerPage } from '../pages/BuildCareerPage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms'] as const satisfies readonly InfoPageKind[]
+const BUILD_CAREER_PATH = 'copero-build-your-own-football-career'
 
 function seoPageFromPath(pathname: string): SeoPage {
   const segments = pathname.split('/').filter(Boolean)
   if (isSupportedLocale(segments[0])) segments.shift()
   const segment = segments[0]
   if (segment === 'game') return 'game'
+  if (segment === BUILD_CAREER_PATH) return 'buildCareer'
   if (INFO_PAGES.includes(segment as InfoPageKind)) return segment as InfoPageKind
   return 'home'
 }
@@ -52,26 +54,17 @@ function DefaultLocaleRedirect() {
   return <Navigate to={`${suffix}${location.search}${location.hash}`} replace />
 }
 
-function EnglishBuildCareerPage() {
-  return (
-    <I18nProvider locale="en">
-      <PageSeo page="buildCareer" />
-      <BuildCareerPage />
-    </I18nProvider>
-  )
-}
-
 export function AppRouter() {
   return (
     <>
       <AnalyticsRouteTracker />
       <Routes>
         <Route path="/es/*" element={<DefaultLocaleRedirect />} />
-        <Route path="/copero-build-your-own-football-career" element={<EnglishBuildCareerPage />} />
 
         <Route element={<DefaultLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
+          <Route path={BUILD_CAREER_PATH} element={<BuildCareerPage />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />
@@ -81,6 +74,7 @@ export function AppRouter() {
         <Route path="/:locale" element={<PrefixedLocaleLayout />}>
           <Route index element={<HomePage />} />
           <Route path="game" element={<GamePage />} />
+          <Route path={BUILD_CAREER_PATH} element={<BuildCareerPage />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />

@@ -1,12 +1,33 @@
 import { HomepageCareerStarter } from '../components/home/HomepageCareerStarter'
 import { SiteFooter } from '../components/layout/SiteFooter'
 import { SiteHeader } from '../components/layout/SiteHeader'
-import content from '../data/build-career-page.json'
+import { getBuildCareerContent } from '../data/buildCareerContent'
+import { useI18n, type Locale } from '../i18n/config'
+
+const UI_LABELS: Record<Locale, {
+  live: string
+  ageToRetirement: string
+  lockAttribute: string
+  buildAnother: string
+  facts: string
+}> = {
+  es: { live: 'EN VIVO', ageToRetirement: '16 AÑOS → RETIRO', lockAttribute: 'BLOQUEA UN ATRIBUTO POR RONDA', buildAnother: 'Crear otra historia', facts: 'Datos del juego' },
+  en: { live: 'LIVE', ageToRetirement: 'AGE 16 → RETIREMENT', lockAttribute: 'LOCK ONE ATTRIBUTE PER ROUND', buildAnother: 'Build another story', facts: 'Game facts' },
+  'zh-cn': { live: '进行中', ageToRetirement: '16 岁 → 退役', lockAttribute: '每回合锁定一项属性', buildAnother: '创建另一段生涯', facts: '游戏特点' },
+  de: { live: 'LIVE', ageToRetirement: 'ALTER 16 → KARRIEREENDE', lockAttribute: 'PRO RUNDE EIN ATTRIBUT SPERREN', buildAnother: 'Neue Geschichte erstellen', facts: 'Spieldetails' },
+  it: { live: 'LIVE', ageToRetirement: '16 ANNI → RITIRO', lockAttribute: 'BLOCCA UN ATTRIBUTO PER TURNO', buildAnother: 'Crea un’altra storia', facts: 'Dettagli del gioco' },
+  'pt-br': { live: 'AO VIVO', ageToRetirement: '16 ANOS → APOSENTADORIA', lockAttribute: 'BLOQUEIE UM ATRIBUTO POR RODADA', buildAnother: 'Criar outra história', facts: 'Detalhes do jogo' },
+  ko: { live: '진행 중', ageToRetirement: '16세 → 은퇴', lockAttribute: '라운드마다 능력치 하나 확정', buildAnother: '다른 이야기 만들기', facts: '게임 정보' },
+}
 
 export function BuildCareerPage() {
+  const { locale } = useI18n()
+  const content = getBuildCareerContent(locale)
+  const labels = UI_LABELS[locale]
+
   return (
     <div className="marketing-page build-career-page">
-      <SiteHeader playHref="#build-player" showLanguageSwitcher={false} />
+      <SiteHeader playHref="#build-player" />
       <main>
         <section className="site-section build-career-hero">
           <div className="site-container build-career-hero__grid">
@@ -18,7 +39,7 @@ export function BuildCareerPage() {
                 <a className="button button--primary" href="#build-player">{content.hero.primary}</a>
                 <a className="button button--secondary" href="#career-steps">{content.hero.secondary}</a>
               </div>
-              <ul className="build-career-facts" aria-label="Game facts">
+              <ul className="build-career-facts" aria-label={labels.facts}>
                 {content.hero.facts.map((fact) => <li key={fact}>{fact}</li>)}
               </ul>
             </div>
@@ -26,13 +47,13 @@ export function BuildCareerPage() {
             <aside className="career-route-board" aria-label={content.routePreview.label}>
               <div className="career-route-board__top">
                 <span>{content.routePreview.label}</span>
-                <strong>LIVE</strong>
+                <strong>{labels.live}</strong>
               </div>
               <div className="career-route-board__player">
                 <span className="career-route-board__shirt">10</span>
                 <div>
                   <strong>{content.routePreview.player}</strong>
-                  <small>AGE 16 → RETIREMENT</small>
+                  <small>{labels.ageToRetirement}</small>
                 </div>
               </div>
               <ol className="career-route-board__stages">
@@ -100,14 +121,14 @@ export function BuildCareerPage() {
                 ))}
               </div>
             </div>
-            <div className="attribute-board" aria-label="Eight draft attributes">
-              <div className="attribute-board__rating"><strong>?</strong><span>YOUR OVR</span></div>
+            <div className="attribute-board" aria-label={content.draft.title}>
+              <div className="attribute-board__rating"><strong>?</strong><span>OVR</span></div>
               <div className="attribute-board__grid">
                 {content.draft.attributes.map((attribute, index) => (
                   <div key={attribute}><span>{String(index + 1).padStart(2, '0')}</span><strong>{attribute}</strong></div>
                 ))}
               </div>
-              <p>LOCK ONE ATTRIBUTE PER ROUND</p>
+              <p>{labels.lockAttribute}</p>
             </div>
           </div>
         </section>
@@ -136,7 +157,7 @@ export function BuildCareerPage() {
               <p className="eyebrow eyebrow--gold">{content.result.eyebrow}</p>
               <h2>{content.result.title}</h2>
               <p className="lead">{content.result.body}</p>
-              <a className="button button--primary" href="#build-player">Build another story</a>
+              <a className="button button--primary" href="#build-player">{labels.buildAnother}</a>
             </div>
             <article className="build-career-result-card" aria-label={content.result.cardLabel}>
               <div className="build-career-result-card__top">
