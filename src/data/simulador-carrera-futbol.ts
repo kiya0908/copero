@@ -41,3 +41,17 @@ export const simuladorCarreraFutbolContent: Record<Locale, SimuladorCarreraFutbo
   'pt-br': ptBr,
   ko,
 }
+
+export const SIMULATOR_SECTION_LIMITS: Record<Locale, number> = {
+  es: 5,
+  en: 5,
+  'zh-cn': 5,
+  de: 6,
+  it: 6,
+  'pt-br': 6,
+  ko: 8,
+}
+
+export function simulatorSections(locale: Locale) {
+  return simuladorCarreraFutbolContent[locale].sections.slice(0, SIMULATOR_SECTION_LIMITS[locale])
+}
