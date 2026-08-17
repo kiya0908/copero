@@ -36,11 +36,7 @@ for (const locale of OTHER_LOCALES) {
 for (const file of ROUTE_FILES) {
   const source = join(DIST, DEFAULT_LOCALE, file)
   const html = rewriteSpanishRouteLinks(await readFile(source, 'utf8'))
-
-  // Keep the legacy /es static artifact safe even though Cloudflare redirects it.
   await writeFile(source, html)
-
-  // The default Spanish locale is served directly from the site root.
   await writeFile(join(DIST, file), html)
 }
 
