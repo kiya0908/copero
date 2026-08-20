@@ -682,7 +682,7 @@ function advanceAfterDecision(state: GameState): GameState {
 
   next = ensureObjective(next)
 
-  const period = next.seasons.length === 0 ? 1 : MODE_CONFIG[next.mode].periodLengthSeasons
+  const period = MODE_CONFIG[next.mode].periodLengthSeasons
   let lastSeason = null as ReturnType<typeof simulateOneSeason>['season'] | null
 
   for (let i = 0; i < period; i += 1) {

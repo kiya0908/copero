@@ -5,7 +5,7 @@ import { flagUrl } from '../../data/flags'
 import { initializeDraft } from '../../engine/draft'
 import { confirmIdentity } from '../../engine/game'
 import { createInitialState, loadLatestState, saveState } from '../../engine/state'
-import type { DraftMode, Position, PreferredFoot } from '../../engine/types'
+import type { DraftMode, GameMode, Position, PreferredFoot } from '../../engine/types'
 import { localizePath, useI18n } from '../../i18n/config'
 import { countryDisplayName } from '../../i18n/game'
 import { trackGameEvent } from '../../lib/analytics'
@@ -20,8 +20,10 @@ const POSITIONS = Object.keys(POSITION_LABELS) as Position[]
 
 export function HomepageCareerStarter({
   entry = 'homepage',
+  gameMode = 'long',
 }: {
-  entry?: 'homepage' | 'build_career_page' | 'simulador_carrera_futbol'
+  entry?: 'homepage' | 'build_career_page' | 'simulador_carrera_futbol' | 'full_career_page' | 'quick_career_page'
+  gameMode?: GameMode
 } = {}) {
   const { locale, t } = useI18n()
   const navigate = useNavigate()
@@ -56,7 +58,7 @@ export function HomepageCareerStarter({
     event.preventDefault()
     if (!nationalityFifa) return
 
-    trackGameEvent('game_started', { draft_mode: draftMode, entry })
+    trackGameEvent('game_started', { draft_mode: draftMode, game_mode: gameMode, entry })
     trackGameEvent('identity_completed', {
       position,
       nationality: nationalityFifa,
@@ -65,7 +67,7 @@ export function HomepageCareerStarter({
       entry,
     })
 
-    const created = confirmIdentity(createInitialState('long', draftMode), {
+    const created = confirmIdentity(createInitialState(gameMode, draftMode), {
       lastName,
       preferredNumber,
       preferredFoot,

@@ -62,7 +62,7 @@ export default function App() {
       <IntroPhase
         draftMode={state.draftMode}
         onDraftModeChange={(draftMode: DraftMode) =>
-          update((s) => ({ ...s, draftMode, draft: createDraftState(draftMode), mode: 'long' }))
+          update((s) => ({ ...s, draftMode, draft: createDraftState(draftMode) }))
         }
         onStart={() => {
           trackGameEvent('game_started', { draft_mode: state.draftMode })
@@ -157,7 +157,7 @@ export default function App() {
             position: state.player?.position,
           })
           clearState(state.seed)
-          setState(createInitialState('long', state.draftMode))
+          setState(createInitialState(state.mode, state.draftMode))
         }}
       />
     )

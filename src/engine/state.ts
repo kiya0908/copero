@@ -66,7 +66,6 @@ export function startIdentity(state: GameState): GameState {
   return {
     ...state,
     phase: 'identity',
-    mode: 'long',
     draft: createDraftState(state.draftMode),
   }
 }
@@ -136,7 +135,7 @@ export function loadState(seed: string): GameState | null {
     return {
       ...base,
       ...parsed,
-      mode: 'long',
+      mode: parsed.mode ?? 'long',
       draftMode,
       draft: parsed.draft ?? fallbackDraft,
       traits: parsed.traits ?? [],

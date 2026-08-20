@@ -10,6 +10,8 @@ const ROUTE_FILES = [
   'index.html',
   'game.html',
   'simulador-carrera-futbol.html',
+  'carrera-completa.html',
+  'carrera-rapida.html',
   'about.html',
   'contact.html',
   'privacy.html',

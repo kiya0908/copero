@@ -10,6 +10,7 @@ const STATIC_SEO_SCRIPTS = [
   'scripts/prerender.mjs',
   'scripts/patch-build-career-locales.mjs',
   'scripts/prerender-simulador-carrera-futbol.mjs',
+  'scripts/prerender-career-modes.mjs',
   'scripts/patch-contact-prerender.mjs',
   'scripts/patch-language-availability.mjs',
   'scripts/promote-default-locale.mjs',

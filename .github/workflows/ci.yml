@@ -29,6 +29,8 @@ jobs:
         run: node scripts/validate-i18n.mjs
       - name: Validate simulator content
         run: npm run validate:simulator-content
+      - name: Validate career mode content
+        run: npm run validate:career-mode-content
       - name: Smoke test complete game flow
         run: npm run smoke:flow
       - name: Build and prerender

@@ -90,7 +90,8 @@ const checks = [
   ['route tracker is mounted', router.includes('<AnalyticsRouteTracker />')],
   ['Spanish root routes use the default locale layout', router.includes('<DefaultLocaleLayout />')],
   ['legacy /es routes redirect to root paths', router.includes('path="/es/*"') && router.includes('<DefaultLocaleRedirect />')],
-  ['homepage starter creates shared game state', homepageStarter.includes("confirmIdentity(createInitialState('long', draftMode)")],
+  ['homepage starter creates shared game state with explicit pacing', homepageStarter.includes('confirmIdentity(createInitialState(gameMode, draftMode)')],
+  ['career pacing is included in start analytics', homepageStarter.includes('game_mode: gameMode')],
   ['homepage starter initializes the draft before navigation', homepageStarter.includes('const readyForDraft = initializeDraft(created)')],
   ['homepage starter saves initialized draft state', homepageStarter.includes('saveState(readyForDraft)')],
   ['homepage starter derives locale-aware game route', homepageStarter.includes("const gamePath = localizePath('/game', locale)")],
@@ -109,6 +110,7 @@ const checks = [
       viteConfig.includes("apply: 'build'") &&
       viteConfig.includes('async closeBundle()') &&
       viteConfig.includes("'scripts/prerender.mjs'") &&
+      viteConfig.includes("'scripts/prerender-career-modes.mjs'") &&
       viteConfig.includes("'scripts/patch-contact-prerender.mjs'") &&
       viteConfig.includes("'scripts/promote-default-locale.mjs'"),
   ],

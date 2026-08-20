@@ -7,11 +7,14 @@ import { GamePage } from '../pages/GamePage'
 import { InfoPage, type InfoPageKind } from '../pages/InfoPage'
 import { BuildCareerPage } from '../pages/BuildCareerPage'
 import { SimuladorCarreraFutbolPage } from '../pages/SimuladorCarreraFutbolPage'
+import { CareerModePage } from '../pages/CareerModePage'
 import { DEFAULT_LOCALE, I18nProvider, isSupportedLocale } from '../i18n/config'
 
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms'] as const satisfies readonly InfoPageKind[]
 const BUILD_CAREER_PATH = 'copero-build-your-own-football-career'
 const SIMULATOR_PATH = 'simulador-carrera-futbol'
+const FULL_CAREER_PATH = 'carrera-completa'
+const QUICK_CAREER_PATH = 'carrera-rapida'
 
 function seoPageFromPath(pathname: string): SeoPage {
   const segments = pathname.split('/').filter(Boolean)
@@ -20,6 +23,8 @@ function seoPageFromPath(pathname: string): SeoPage {
   if (segment === 'game') return 'game'
   if (segment === BUILD_CAREER_PATH) return 'buildCareer'
   if (segment === SIMULATOR_PATH) return 'simuladorCarreraFutbol'
+  if (segment === FULL_CAREER_PATH) return 'fullCareer'
+  if (segment === QUICK_CAREER_PATH) return 'quickCareer'
   if (INFO_PAGES.includes(segment as InfoPageKind)) return segment as InfoPageKind
   return 'home'
 }
@@ -66,6 +71,8 @@ export function AppRouter() {
           <Route path="game" element={<GamePage />} />
           <Route path={BUILD_CAREER_PATH} element={<BuildCareerPage />} />
           <Route path={SIMULATOR_PATH} element={<SimuladorCarreraFutbolPage />} />
+          <Route path={FULL_CAREER_PATH} element={<CareerModePage mode="full" />} />
+          <Route path={QUICK_CAREER_PATH} element={<CareerModePage mode="quick" />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />
@@ -76,6 +83,8 @@ export function AppRouter() {
           <Route path="game" element={<GamePage />} />
           <Route path={BUILD_CAREER_PATH} element={<BuildCareerPage />} />
           <Route path={SIMULATOR_PATH} element={<SimuladorCarreraFutbolPage />} />
+          <Route path={FULL_CAREER_PATH} element={<CareerModePage mode="full" />} />
+          <Route path={QUICK_CAREER_PATH} element={<CareerModePage mode="quick" />} />
           <Route path="about" element={<InfoPage page="about" />} />
           <Route path="contact" element={<InfoPage page="contact" />} />
           <Route path="privacy" element={<InfoPage page="privacy" />} />

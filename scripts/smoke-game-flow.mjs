@@ -12,16 +12,26 @@ const server = await createServer({
 })
 
 try {
-  const [stateModule, game, draft, origin, catalog] = await Promise.all([
+  const [stateModule, game, draft, origin, catalog, types] = await Promise.all([
     server.ssrLoadModule('/src/engine/state.ts'),
     server.ssrLoadModule('/src/engine/game.ts'),
     server.ssrLoadModule('/src/engine/draft.ts'),
     server.ssrLoadModule('/src/engine/originStart.ts'),
     server.ssrLoadModule('/src/data/catalog.ts'),
+    server.ssrLoadModule('/src/engine/types.ts'),
   ])
 
-  let state = stateModule.createInitialState('long', 'classic')
+  let state = stateModule.createInitialState('express', 'classic')
   assert(state.phase === 'intro', 'A new game must start on the intro phase.')
+
+  const expressState = stateModule.createInitialState('express', 'purist')
+  assert(expressState.mode === 'express', 'Quick career entry must create an express-mode state.')
+  assert(types.MODE_CONFIG.long.periodLengthSeasons === 1, 'Full career must advance one season per chapter.')
+  assert(types.MODE_CONFIG.express.periodLengthSeasons === 3, 'Quick career must advance three seasons per chapter.')
+  assert(types.MODE_CONFIG.long.personalEventChance > types.MODE_CONFIG.express.personalEventChance, 'Full career must keep a higher personal-event frequency than quick career.')
+  const expressIdentity = stateModule.startIdentity(expressState)
+  assert(expressIdentity.mode === 'express', 'Entering identity creation must preserve quick career mode.')
+  assert(expressIdentity.draftMode === 'purist', 'Career pacing must remain independent from draft mode.')
 
   state = game.beginCareer(state)
   assert(state.phase === 'identity', 'Starting the game must open identity creation.')
@@ -31,7 +41,7 @@ try {
   )
   assert(country, 'The catalog must contain a country with origin club options.')
 
-  let homepageState = stateModule.createInitialState('long', 'purist')
+  let homepageState = stateModule.createInitialState('express', 'purist')
   homepageState = game.confirmIdentity(homepageState, {
     lastName: 'Homepage',
     preferredNumber: 9,
@@ -42,6 +52,7 @@ try {
   })
   homepageState = draft.initializeDraft(homepageState)
   assert(homepageState.phase === 'draft', 'Homepage identity submission must bypass intro and enter the draft.')
+  assert(homepageState.mode === 'express', 'Mode landing entry must preserve express pacing through the draft.')
   assert(homepageState.draftMode === 'purist', 'Homepage entry must preserve the selected draft mode.')
   assert(homepageState.draft.currentLegendId, 'Homepage entry must initialize the first draft legend before navigation.')
   assert(homepageState.player?.preferredNumber === 9, 'Homepage identity data must reach the shared game state.')
@@ -152,6 +163,7 @@ try {
   assert(reachedSeason, 'The career flow must successfully simulate at least one season.')
   assert(finishedCareer, 'The automatic career flow must eventually reach the summary screen.')
   assert(state.seasons.length > 0, 'The completed career must contain season records.')
+  assert(state.mode === 'express', 'A complete quick-career flow must preserve express mode through retirement.')
 
   console.log(
     `Game flow smoke test passed: homepage entry + ${state.seasons.length} seasons, ${state.draft.picks.length} draft picks.`,

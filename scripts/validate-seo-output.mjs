@@ -7,6 +7,10 @@ const DIST = join(ROOT, 'dist')
 const SITE = 'https://copero.top'
 const INFO_PAGES = ['about', 'contact', 'privacy', 'terms']
 const CAREER = 'copero-build-your-own-football-career'
+const CAREER_MODES = [
+  { id: 'full', slug: 'carrera-completa' },
+  { id: 'quick', slug: 'carrera-rapida' },
+]
 const LOCALES = [
   { id: 'es', htmlLang: 'es', hrefLang: 'es', prefix: '' },
   { id: 'en', htmlLang: 'en', hrefLang: 'en', prefix: '/en' },
@@ -87,6 +91,27 @@ for (const locale of LOCALES) {
     check(`${locale.id} career hreflang ${alternate.hrefLang}`, careerHtml.includes(`hreflang="${alternate.hrefLang}" href="${alternateUrl}"`))
   }
   check(`${locale.id} career x-default`, careerHtml.includes(`hreflang="x-default" href="${SITE}/${CAREER}"`))
+
+  const modeResource = JSON.parse(await readFile(join(ROOT, 'src', 'data', 'career-modes', `${locale.id}.json`), 'utf8'))
+  for (const mode of CAREER_MODES) {
+    const content = modeResource[mode.id]
+    const html = await readFile(routeFile(locale, mode.slug), 'utf8')
+    const url = `${SITE}${locale.prefix}/${mode.slug}`
+    check(`${locale.id}/${mode.slug} lang`, html.includes(`<html lang="${locale.htmlLang}">`))
+    check(`${locale.id}/${mode.slug} title`, html.includes(`<title>${escapeHtml(content.seo.title)}</title>`))
+    check(`${locale.id}/${mode.slug} description`, html.includes(`content="${escapeHtml(content.seo.description)}"`))
+    check(`${locale.id}/${mode.slug} H1`, html.includes(`<h1>${escapeHtml(content.hero.title)}</h1>`))
+    check(`${locale.id}/${mode.slug} canonical`, html.includes(`<link rel="canonical" href="${url}"`))
+    check(`${locale.id}/${mode.slug} prerender`, html.includes('data-prerendered="page"'))
+    check(`${locale.id}/${mode.slug} indexable`, html.includes('content="index, follow"'))
+    check(`${locale.id}/${mode.slug} WebPage schema`, html.includes('"@type":"WebPage"'))
+    check(`${locale.id}/${mode.slug} WebApplication schema`, html.includes('"@type":"WebApplication"'))
+    check(`${locale.id}/${mode.slug} visual content`, html.includes('class="career-mode-figure"') && html.includes('loading="lazy"') && html.includes('<figcaption>'))
+    for (const alternate of LOCALES) {
+      check(`${locale.id}/${mode.slug} hreflang ${alternate.hrefLang}`, html.includes(`hreflang="${alternate.hrefLang}" href="${SITE}${alternate.prefix}/${mode.slug}"`))
+    }
+    check(`${locale.id}/${mode.slug} x-default`, html.includes(`hreflang="x-default" href="${SITE}/${mode.slug}"`))
+  }
 }
 
 const redirects = await readFile(join(DIST, '_redirects'), 'utf8')
@@ -94,6 +119,7 @@ const sitemap = await readFile(join(DIST, 'sitemap.xml'), 'utf8')
 const robots = await readFile(join(DIST, 'robots.txt'), 'utf8')
 check('legacy Spanish homepage redirect', redirects.includes('/es/ / 301'))
 check('legacy Spanish career redirect', redirects.includes(`/es/${CAREER} /${CAREER} 301`))
+for (const mode of CAREER_MODES) check(`legacy Spanish ${mode.slug} redirect`, redirects.includes(`/es/${mode.slug} /${mode.slug} 301`))
 check('robots sitemap declaration', robots.includes(`Sitemap: ${SITE}/sitemap.xml`))
 check('sitemap excludes game routes', !sitemap.includes('/game</loc>'))
 check('sitemap excludes legacy Spanish locale', !sitemap.includes(`<loc>${SITE}/es/`))
@@ -101,6 +127,7 @@ check('sitemap excludes legacy Spanish locale', !sitemap.includes(`<loc>${SITE}/
 for (const locale of LOCALES) {
   check(`${locale.id} sitemap home`, sitemap.includes(`<loc>${SITE}${routePath(locale, 'home')}</loc>`))
   check(`${locale.id} sitemap career`, sitemap.includes(`<loc>${SITE}${locale.prefix}/${CAREER}</loc>`))
+  for (const mode of CAREER_MODES) check(`${locale.id} sitemap ${mode.slug}`, sitemap.includes(`<loc>${SITE}${locale.prefix}/${mode.slug}</loc>`))
   for (const page of INFO_PAGES) check(`${locale.id} sitemap ${page}`, sitemap.includes(`<loc>${SITE}${routePath(locale, page)}</loc>`))
 }
 
@@ -108,5 +135,5 @@ if (failures.length) {
   console.error(`SEO output validation failed: ${failures.join(', ')}`)
   process.exitCode = 1
 } else {
-  console.log('SEO output validation passed: seven localized page sets and seven localized build-career pages are prerendered, canonicalized and listed in sitemap.xml.')
+  console.log('SEO output validation passed: seven localized page sets, build-career pages and fourteen career-mode pages are prerendered, canonicalized and listed in sitemap.xml.')
 }
